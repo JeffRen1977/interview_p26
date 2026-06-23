@@ -17,6 +17,7 @@ PICO Vision Algorithm Engineer 面试备考仓库（XR_Vision）。
 - [影像 ISP 题详解](./docs/08-影像ISP题详解.md)
 - [追踪交互题详解](./docs/09-追踪交互题详解.md)
 - [MR 感知题详解](./docs/10-MR感知题详解.md)
+- [影像方向题详解（Imaging JD）](./docs/11-影像方向题详解.md)
 
 ## 手撕代码
 
