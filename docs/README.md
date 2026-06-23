@@ -2,6 +2,8 @@
 
 面向字节跳动 PICO **Imaging Systems & Human Engineering** 团队 Vision Algorithm Engineer 岗位。
 
+> **公式显示：** GitHub 仅支持 `$...$`（行内）与 `$$...$$`（独立行）数学语法。请在 GitHub 网页端阅读；本地 Cursor/VS Code 预览可能无法渲染公式。
+
 ## 文档目录
 
 | 文档 | 内容 |
