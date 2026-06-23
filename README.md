@@ -12,6 +12,7 @@ PICO Vision Algorithm Engineer 面试备考仓库（XR_Vision）。
 - [算法数学公式](./docs/03-算法数学公式.md)
 - [手撕代码指南](./docs/04-手撕代码指南.md)
 - [系统设计题与模拟面试](./docs/05-系统设计题与模拟面试.md)
+- [CV 基础题详解](./docs/06-CV基础题详解.md)
 
 ## 手撕代码
 
