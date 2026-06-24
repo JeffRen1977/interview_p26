@@ -19,6 +19,7 @@
 | [09-追踪交互题详解.md](./09-追踪交互题详解.md) | 裸手追踪、Centaur 手柄融合、面部 blendshape、遮挡恢复 |
 | [10-MR感知题详解.md](./10-MR感知题详解.md) | See-through、NeRF/3DGS/SLAM、深度估计、语义分割 |
 | [11-影像方向题详解.md](./11-影像方向题详解.md) | 低光增强、C2D 画质、VLM 端云、透视色差模糊（Imaging JD） |
+| [12-3D人脸表情追踪详解.md](./12-3D人脸表情追踪详解.md) | 3DMM、Animoji、ARKit Blendshape、ICP、Avatar Retargeting |
 
 ## 代码练习
 
