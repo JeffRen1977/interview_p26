@@ -20,6 +20,7 @@ PICO Vision Algorithm Engineer 面试备考仓库（XR_Vision）。
 - [影像方向题详解（Imaging JD）](./docs/11-影像方向题详解.md)
 - [3D 人脸表情追踪（Animoji / Avatar）](./docs/12-3D人脸表情追踪详解.md)
 - [眼动追踪（Eye Tracking）](./docs/13-眼动追踪详解.md)
+- [Qualcomm AI Stack 面试准备](./docs/16-Qualcomm-AI-Stack面试准备.md)
 
 ## 手撕代码
 

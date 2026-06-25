@@ -21,6 +21,7 @@
 | [11-影像方向题详解.md](./11-影像方向题详解.md) | 低光增强、C2D 画质、VLM 端云、透视色差模糊（Imaging JD） |
 | [12-3D人脸表情追踪详解.md](./12-3D人脸表情追踪详解.md) | 3DMM、Animoji、ARKit Blendshape、ICP、Avatar Retargeting |
 | [13-眼动追踪详解.md](./13-眼动追踪详解.md) | 瞳孔检测、glint、gaze 估计、Foveated Rendering、IPD |
+| [16-Qualcomm-AI-Stack面试准备.md](./16-Qualcomm-AI-Stack面试准备.md) | Qualcomm AI Stack SDK Staff 岗：技能矩阵、GenAI 推理、mock Q&A |
 
 ## 代码练习
 
