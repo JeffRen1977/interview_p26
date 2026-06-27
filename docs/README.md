@@ -23,6 +23,16 @@
 | [13-眼动追踪详解.md](./13-眼动追踪详解.md) | 瞳孔检测、glint、gaze 估计、Foveated Rendering、IPD |
 | [16-Qualcomm-AI-Stack面试准备.md](./16-Qualcomm-AI-Stack面试准备.md) | Qualcomm AI Stack SDK Staff 岗：技能矩阵、GenAI 推理、mock Q&A |
 
+## NVIDIA DRIVE 面试（独立目录）
+
+| 文档 | 内容 |
+|------|------|
+| [../nvidia/README.md](../nvidia/README.md) | NVIDIA AV / DriveWorks 备考索引 |
+| [../nvidia/01-系统设计.md](../nvidia/01-系统设计.md) | Log ingestion、GPU scheduler、Sensor fusion |
+| [../nvidia/02-C++与嵌入式底层.md](../nvidia/02-C++与嵌入式底层.md) | shared_ptr、vtable、volatile、mutex/spinlock |
+| [../nvidia/03-AV领域与性能.md](../nvidia/03-AV领域与性能.md) | Hybrid A*、INT8 量化、Amdahl 定律 |
+| [../nvidia/04-行为面-One-Team.md](../nvidia/04-行为面-One-Team.md) | 技术分歧、race debug、Why DRIVE |
+
 ## 代码练习
 
 手撕参考实现见 [`../interview_handwrite/`](../interview_handwrite/)：
