@@ -22,6 +22,10 @@ PICO Vision Algorithm Engineer 面试备考仓库（XR_Vision）。
 - [眼动追踪（Eye Tracking）](./docs/13-眼动追踪详解.md)
 - [Qualcomm AI Stack 面试准备](./docs/16-Qualcomm-AI-Stack面试准备.md)
 
+## LeetCode（Python + C++）
+
+每题独立目录，双语言实现：[`leetcode/`](./leetcode/)
+
 ## NVIDIA DRIVE 面试
 
 Autonomous Vehicles / DriveWorks 岗专项：[`nvidia/`](./nvidia/)
