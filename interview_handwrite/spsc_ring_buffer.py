@@ -20,40 +20,40 @@ class SPSCRingBuffer(Generic[T]):
     def __init__(self, capacity: int):
         if capacity <= 0:
             raise ValueError("capacity must be positive")
-        self._size = capacity + 1
-        self._buf: List[Optional[T]] = [None] * self._size
-        self._head = 0
-        self._tail = 0
+        self.size = capacity + 1
+        self.buf: List[Optional[T]] = [None] * self.size
+        self.head = 0
+        self.tail = 0
 
     @property
     def capacity(self) -> int:
-        return self._size - 1
+        return self.size - 1
 
     def __len__(self) -> int:
-        if self._tail >= self._head:
-            return self._tail - self._head
-        return self._size - self._head + self._tail
+        if self.tail >= self.head:
+            return self.tail - self.head
+        return self.size - self.head + self.tail
 
     def empty(self) -> bool:
-        return self._head == self._tail
+        return self.head == self.tail
 
     def full(self) -> bool:
-        return (self._tail + 1) % self._size == self._head
+        return (self.tail + 1) % self.size == self.head
 
     def push(self, item: T) -> bool:
-        next_tail = (self._tail + 1) % self._size
-        if next_tail == self._head:
+        next_tail = (self.tail + 1) % self.size
+        if next_tail == self.head:
             return False
-        self._buf[self._tail] = item
-        self._tail = next_tail
+        self.buf[self.tail] = item
+        self.tail = next_tail
         return True
 
     def pop(self) -> Optional[T]:
-        if self._head == self._tail:
+        if self.head == self.tail:
             return None
-        item = self._buf[self._head]
-        self._buf[self._head] = None
-        self._head = (self._head + 1) % self._size
+        item = self.buf[self.head]
+        self.buf[self.head] = None
+        self.head = (self.head + 1) % self.size
         return item
 
 
