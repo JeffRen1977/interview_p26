@@ -1,60 +1,35 @@
-"""LeetCode 146 - LRU Cache. Hash map + doubly linked list."""
+"""LeetCode 146 - LRU Cache. deque + hash map (simpler; remove is O(n))."""
 
-from typing import Dict, Optional
-
-
-class _Node:
-    def __init__(self, key: int = 0, val: int = 0):
-        self.key = key
-        self.val = val
-        self.prev: Optional["_Node"] = None
-        self.next: Optional["_Node"] = None
+from collections import deque
 
 
 class LRUCache:
-    def __init__(self, capacity: int):
+    def __init__(self, capacity: int) -> None:
         self.capacity = capacity
-        self.cache: Dict[int, _Node] = {}
-        self.head = _Node()
-        self.tail = _Node()
-        self.head.next = self.tail
-        self.tail.prev = self.head
-
-    def _remove(self, node: _Node) -> None:
-        assert node.prev and node.next
-        node.prev.next = node.next
-        node.next.prev = node.prev
-
-    def _insert_front(self, node: _Node) -> None:
-        node.next = self.head.next
-        node.prev = self.head
-        assert self.head.next
-        self.head.next.prev = node
-        self.head.next = node
+        self.list = deque(maxlen=capacity)
+        self.items: dict[int, int] = {}
 
     def get(self, key: int) -> int:
-        if key not in self.cache:
+        if key not in self.items:
             return -1
-        node = self.cache[key]
-        self._remove(node)
-        self._insert_front(node)
-        return node.val
+
+        self.list.remove(key)  # O(n) worst case
+        self.list.append(key)
+
+        return self.items[key]
 
     def put(self, key: int, value: int) -> None:
-        if key in self.cache:
-            node = self.cache[key]
-            node.val = value
-            self._remove(node)
-            self._insert_front(node)
+        if key in self.items:
+            self.list.remove(key)  # O(n) worst case
+            self.list.append(key)
+            self.items[key] = value
             return
-        node = _Node(key, value)
-        self.cache[key] = node
-        self._insert_front(node)
-        if len(self.cache) > self.capacity:
-            lru = self.tail.prev
-            assert lru and lru is not self.head
-            self._remove(lru)
-            del self.cache[lru.key]
+
+        if len(self.items) == self.capacity:
+            del self.items[self.list.popleft()]
+
+        self.list.append(key)
+        self.items[key] = value
 
 
 if __name__ == "__main__":
