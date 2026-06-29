@@ -2,6 +2,8 @@
 
 每题一个目录，含 `solution.py` 与 `solution.cpp` 两种实现。
 
+**打印复习（仅 Python 核心代码，无测试）：** [`python_core_review.py`](./python_core_review.py)
+
 ## 题目索引
 
 | # | 题目 | 目录 |
