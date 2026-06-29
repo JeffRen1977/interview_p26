@@ -10,7 +10,7 @@ LeetCode Python 核心代码复习（无测试）
   5.  Search Rotated Array
   6.  Reverse Linked List
   7.  Merge Two Sorted Lists
-  8.  LRU Cache
+  8.  LRU Cache (双向链表 O(1) / deque 简版 O(n))
   9.  Number of Islands
   10. Lowest Common Ancestor
   11. Top K Frequent
@@ -18,13 +18,16 @@ LeetCode Python 核心代码复习（无测试）
   13. Longest Substring Without Repeating
   14. Permutations
   15. Binary Tree Level Order
+  16. SPSC Ring Buffer (工程题：单生产者单消费者)
 """
 
 from __future__ import annotations
 
 from collections import Counter, deque
-from typing import Dict, List, Optional
+from typing import Dict, Generic, List, Optional, TypeVar
 import heapq
+
+T = TypeVar("T")
 
 
 # =============================================================================
@@ -185,10 +188,74 @@ def merge_two_lists(
 
 
 # =============================================================================
-# 8. LRU Cache — deque + dict (remove O(n); 面试可说双向链表 O(1))
+# 8a. LRU Cache — 双向链表 + 哈希表 O(1) get/put（面试标准答案）
 # =============================================================================
 
+class Node:
+    def __init__(self, key=0, value=0):
+        self.key = key
+        self.value = value
+        self.prev = None
+        self.next = None
+
+
 class LRUCache:
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        self.cache = {}
+
+        self.head = Node()
+        self.tail = Node()
+        self.head.next = self.tail
+        self.tail.prev = self.head
+
+    def _remove(self, node):
+        node.prev.next = node.next
+        node.next.prev = node.prev
+
+    def _add_to_front(self, node):
+        node.next = self.head.next
+        node.prev = self.head
+        self.head.next.prev = node
+        self.head.next = node
+
+    def _move_to_front(self, node):
+        self._remove(node)
+        self._add_to_front(node)
+
+    def _remove_lru(self):
+        node = self.tail.prev
+        self._remove(node)
+        return node
+
+    def get(self, key):
+        if key not in self.cache:
+            return -1
+        node = self.cache[key]
+        self._move_to_front(node)
+        return node.value
+
+    def put(self, key, value):
+        if key in self.cache:
+            node = self.cache[key]
+            node.value = value
+            self._move_to_front(node)
+            return
+
+        node = Node(key, value)
+        self.cache[key] = node
+        self._add_to_front(node)
+
+        if len(self.cache) > self.capacity:
+            lru = self._remove_lru()
+            del self.cache[lru.key]
+
+
+# =============================================================================
+# 8b. LRU Cache — deque + dict 简版（好写；list.remove 最坏 O(n)）
+# =============================================================================
+
+class LRUCacheDeque:
     def __init__(self, capacity: int) -> None:
         self.capacity = capacity
         self.list = deque(maxlen=capacity)
@@ -373,3 +440,48 @@ def level_order(root: Optional[TreeNode]) -> List[List[int]]:
                 q.append(node.right)
         result.append(level)
     return result
+
+
+# =============================================================================
+# 16. SPSC Ring Buffer — 单生产者单消费者，无锁 O(1) push/pop
+# =============================================================================
+
+class SPSCRingBuffer(Generic[T]):
+    def __init__(self, capacity: int):
+        if capacity <= 0:
+            raise ValueError("capacity must be positive")
+        self.size = capacity + 1
+        self.buf: List[Optional[T]] = [None] * self.size
+        self.head = 0
+        self.tail = 0
+
+    @property
+    def capacity(self) -> int:
+        return self.size - 1
+
+    def __len__(self) -> int:
+        if self.tail >= self.head:
+            return self.tail - self.head
+        return self.size - self.head + self.tail
+
+    def empty(self) -> bool:
+        return self.head == self.tail
+
+    def full(self) -> bool:
+        return (self.tail + 1) % self.size == self.head
+
+    def push(self, item: T) -> bool:
+        next_tail = (self.tail + 1) % self.size
+        if next_tail == self.head:
+            return False
+        self.buf[self.tail] = item
+        self.tail = next_tail
+        return True
+
+    def pop(self) -> Optional[T]:
+        if self.head == self.tail:
+            return None
+        item = self.buf[self.head]
+        self.buf[self.head] = None
+        self.head = (self.head + 1) % self.size
+        return item
