@@ -22,6 +22,7 @@
 | [12-3D人脸表情追踪详解.md](./12-3D人脸表情追踪详解.md) | 3DMM、Animoji、ARKit Blendshape、ICP、Avatar Retargeting |
 | [13-眼动追踪详解.md](./13-眼动追踪详解.md) | 瞳孔检测、glint、gaze 估计、Foveated Rendering、IPD |
 | [16-Qualcomm-AI-Stack面试准备.md](./16-Qualcomm-AI-Stack面试准备.md) | Qualcomm AI Stack SDK Staff 岗：技能矩阵、GenAI 推理、mock Q&A |
+| [17-AWS-EC2-Nitro-系统设计.md](./17-AWS-EC2-Nitro-系统设计.md) | AWS EC2 Nitro MLS：调度器、GPU 自愈、分布式训练、Host Agent |
 
 ## NVIDIA DRIVE 面试（独立目录）
 

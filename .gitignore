@@ -7,3 +7,4 @@ __pycache__/
 .venv/
 venv/
 leetcode/build/
+interview_handwrite/cpp/build/

@@ -25,6 +25,16 @@
 
 **LeetCode 分题 Python/C++：** 见 [`../leetcode/`](../leetcode/)（每题 `solution.py` + `solution.cpp`）。
 
+**工程 DS C++ 版：** 见 [`cpp/`](./cpp/)（与下方 Python 文件一一对应，适合白板面试）。
+
+| Python | C++ |
+|--------|-----|
+| `bounded_blocking_queue.py` | `cpp/bounded_blocking_queue.cpp` |
+| `spsc_ring_buffer.py` | `cpp/spsc_ring_buffer.cpp` |
+| `thread_safe_ring_buffer.py` | `cpp/thread_safe_ring_buffer.cpp` |
+| `lru_cache_ds.py` | `cpp/lru_cache_ds.cpp` |
+| `object_pool.py` | `cpp/object_pool.cpp` |
+
 ## 运行
 
 ```bash
@@ -35,6 +45,18 @@ python3 bilinear_interp.py
 python3 tensor_ops.py
 python3 engineering_ds.py          # 全部工程 DS 测试
 python3 bounded_blocking_queue.py    # 单题
+```
+
+### C++ 工程 DS
+
+```bash
+cd interview_handwrite/cpp
+cmake -S . -B build
+cmake --build build
+ctest --test-dir build --output-on-failure
+
+# 或一次跑完全部
+cmake --build build --target engineering_ds
 ```
 
 ## 面试口述要点
