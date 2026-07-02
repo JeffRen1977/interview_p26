@@ -24,6 +24,13 @@
 | [16-Qualcomm-AI-Stack面试准备.md](./16-Qualcomm-AI-Stack面试准备.md) | Qualcomm AI Stack SDK Staff 岗：技能矩阵、GenAI 推理、mock Q&A |
 | [17-AWS-EC2-Nitro-系统设计.md](./17-AWS-EC2-Nitro-系统设计.md) | AWS EC2 Nitro MLS：调度器、GPU 自愈、分布式训练、Host Agent |
 
+## Amazon C++ 面试（独立目录）
+
+| 文档 | 内容 |
+|------|------|
+| [../amazon_cpp/README.md](../amazon_cpp/README.md) | 18 Part 索引、示例代码、准备优先级 |
+| [../amazon_cpp/docs/](../amazon_cpp/docs/) | 对象模型、STL、并发、Linux、FAQ 详解 |
+
 ## NVIDIA DRIVE 面试（独立目录）
 
 | 文档 | 内容 |

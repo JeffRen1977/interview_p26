@@ -8,3 +8,4 @@ __pycache__/
 venv/
 leetcode/build/
 interview_handwrite/cpp/build/
+amazon_cpp/build/
