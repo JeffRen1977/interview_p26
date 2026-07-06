@@ -1,5 +1,7 @@
 // SPSC ring buffer — single producer, single consumer.
 //
+// Deep dive: docs/24-无锁SPSC队列与Cacheline对齐.md
+//
 // Whiteboard talking points:
 // - Reserve one empty slot so full/empty are distinguishable.
 // - Producer only updates tail_; consumer only updates head_.
@@ -9,7 +11,9 @@
 #include <atomic>
 #include <cassert>
 #include <chrono>
+#include <cstddef>
 #include <iostream>
+#include <new>
 #include <optional>
 #include <stdexcept>
 #include <thread>
@@ -70,11 +74,14 @@ class SPSCRingBuffer {
     }
 
  private:
+    static constexpr size_t kCacheLine =
+        std::hardware_destructive_interference_size;
+
     size_t slots_;
     size_t size_;
     std::vector<T> buffer_;
-    std::atomic<size_t> head_{0};
-    std::atomic<size_t> tail_{0};
+    alignas(kCacheLine) std::atomic<size_t> head_{0};
+    alignas(kCacheLine) std::atomic<size_t> tail_{0};
 };
 
 bool test_spsc_ring_buffer() {

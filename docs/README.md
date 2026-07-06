@@ -29,6 +29,7 @@
 | [21-Trainium-用户态数据面驱动架构.md](./21-Trainium-用户态数据面驱动架构.md) | 用户态驱动标准答案：SQ/CQ、doorbell、DMA、polling、Nitro 优化 |
 | [22-LLM训练计算通信重叠与MFU优化.md](./22-LLM训练计算通信重叠与MFU优化.md) | MFU、双队列双缓冲、chunking、EFA/SRD、硬件 fence 流水线 |
 | [23-Neuron编译运行时与数据面Lua.md](./23-Neuron编译运行时与数据面Lua.md) | PyTorch→XLA→NEFF、算子融合、Lua C API、GC/FFI 避坑 |
+| [24-无锁SPSC队列与Cacheline对齐.md](./24-无锁SPSC队列与Cacheline对齐.md) | SPSC、Acquire-Release、False Sharing、生产级白板实现 |
 
 ## Amazon C++ 面试（独立目录）
 

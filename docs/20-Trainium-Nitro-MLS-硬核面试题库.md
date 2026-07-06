@@ -57,6 +57,8 @@ void put(T item) {
 
 ## A2. 实现 SPSC 无锁 Ring Buffer（数据面核心）
 
+> **深度拆解（SPSC + Memory Model + Cacheline）：** [24-无锁SPSC队列与Cacheline对齐.md](./24-无锁SPSC队列与Cacheline对齐.md)
+
 **考什么：** 是否真懂 lock-free、memory order、Nitro/Trainium mailbox 思维。
 
 **30 秒版：**
