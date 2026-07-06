@@ -30,6 +30,7 @@
 | [22-LLM训练计算通信重叠与MFU优化.md](./22-LLM训练计算通信重叠与MFU优化.md) | MFU、双队列双缓冲、chunking、EFA/SRD、硬件 fence 流水线 |
 | [23-Neuron编译运行时与数据面Lua.md](./23-Neuron编译运行时与数据面Lua.md) | PyTorch→XLA→NEFF、算子融合、Lua C API、GC/FFI 避坑 |
 | [24-无锁SPSC队列与Cacheline对齐.md](./24-无锁SPSC队列与Cacheline对齐.md) | SPSC、Acquire-Release、False Sharing、生产级白板实现 |
+| [25-无锁MPMC队列与CAS.md](./25-无锁MPMC队列与CAS.md) | MPMC 序列号队列、CAS、描述符零拷贝、指数退避 |
 
 ## Amazon C++ 面试（独立目录）
 

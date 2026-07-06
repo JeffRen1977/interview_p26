@@ -31,6 +31,7 @@
 |--------|-----|
 | `bounded_blocking_queue.py` | `cpp/bounded_blocking_queue.cpp` |
 | `spsc_ring_buffer.py` | `cpp/spsc_ring_buffer.cpp` |
+| — | `cpp/mpmc_ring_buffer.cpp` |
 | `thread_safe_ring_buffer.py` | `cpp/thread_safe_ring_buffer.cpp` |
 | `lru_cache_ds.py` | `cpp/lru_cache_ds.cpp` |
 | `object_pool.py` | `cpp/object_pool.cpp` |

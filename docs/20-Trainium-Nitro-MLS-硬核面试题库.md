@@ -571,6 +571,8 @@ Step pipeline:
 
 ## G3. 设计 MPMC 高吞吐 Ring Buffer
 
+> **完整标准答案（Sequence + CAS + 描述符 + 退避）：** [25-无锁MPMC队列与CAS.md](./25-无锁MPMC队列与CAS.md)
+
 ### 需求
 - 多生产者（数据采集线程）多消费者（DMA 提交线程）
 - 百万级 ops/s，低延迟

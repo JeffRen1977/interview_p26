@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(ENGINEERING_DS
     bounded_blocking_queue
     spsc_ring_buffer
+    mpmc_ring_buffer
     thread_safe_ring_buffer
     lru_cache_ds
     object_pool

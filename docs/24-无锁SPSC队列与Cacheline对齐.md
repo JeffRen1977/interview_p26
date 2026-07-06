@@ -360,6 +360,7 @@ Fix: alignas(64) 或 hardware_destructive_interference_size
 | 主题 | 路径 |
 |------|------|
 | 可运行 SPSC | [spsc_ring_buffer.cpp](../interview_handwrite/cpp/spsc_ring_buffer.cpp) |
+| MPMC lock-free | [25-无锁MPMC队列与CAS.md](./25-无锁MPMC队列与CAS.md) · [mpmc_ring_buffer.cpp](../interview_handwrite/cpp/mpmc_ring_buffer.cpp) |
 | MPMC mutex 版对比 | [thread_safe_ring_buffer.cpp](../interview_handwrite/cpp/thread_safe_ring_buffer.cpp) |
 | 并发 memory model | [amazon_cpp/docs/06](../amazon_cpp/docs/06-并发与内存模型.md) |
 | SQ/CQ 驱动 | [21](./21-Trainium-用户态数据面驱动架构.md) |
