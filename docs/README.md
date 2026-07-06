@@ -25,6 +25,8 @@
 | [17-AWS-EC2-Nitro-系统设计.md](./17-AWS-EC2-Nitro-系统设计.md) | AWS EC2 Nitro MLS：调度器、GPU 自愈、分布式训练、Host Agent |
 | [18-具身智能大模型进展与面试准备.md](./18-具身智能大模型进展与面试准备.md) | VLA 架构、国际/国内模型图谱、benchmark、面试答题 |
 | [19-AWS-Nitro-MLS-面试知识点详解.md](./19-AWS-Nitro-MLS-面试知识点详解.md) | Nitro MLS 全考点展开：C++/Linux/EFA/分布式训练/LP/ML 编译器 |
+| [20-Trainium-Nitro-MLS-硬核面试题库.md](./20-Trainium-Nitro-MLS-硬核面试题库.md) | Trainium×Nitro 逐题准备：并发/DMA/驱动/网络/编译器/Lua/系统设计 |
+| [21-Trainium-用户态数据面驱动架构.md](./21-Trainium-用户态数据面驱动架构.md) | 用户态驱动标准答案：SQ/CQ、doorbell、DMA、polling、Nitro 优化 |
 
 ## Amazon C++ 面试（独立目录）
 
