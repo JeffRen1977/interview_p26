@@ -532,6 +532,8 @@ luaL_dofile(L, "policy.lua");
 
 ## G2. 设计多芯片参数同步（LLM 训练 Overlap）
 
+> **完整标准答案（MFU、双缓冲、Chunking、EFA/SRD、Hardware Fence）：** [22-LLM训练计算通信重叠与MFU优化.md](./22-LLM训练计算通信重叠与MFU优化.md)
+
 ### 架构
 
 ```

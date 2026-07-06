@@ -27,6 +27,7 @@
 | [19-AWS-Nitro-MLS-面试知识点详解.md](./19-AWS-Nitro-MLS-面试知识点详解.md) | Nitro MLS 全考点展开：C++/Linux/EFA/分布式训练/LP/ML 编译器 |
 | [20-Trainium-Nitro-MLS-硬核面试题库.md](./20-Trainium-Nitro-MLS-硬核面试题库.md) | Trainium×Nitro 逐题准备：并发/DMA/驱动/网络/编译器/Lua/系统设计 |
 | [21-Trainium-用户态数据面驱动架构.md](./21-Trainium-用户态数据面驱动架构.md) | 用户态驱动标准答案：SQ/CQ、doorbell、DMA、polling、Nitro 优化 |
+| [22-LLM训练计算通信重叠与MFU优化.md](./22-LLM训练计算通信重叠与MFU优化.md) | MFU、双队列双缓冲、chunking、EFA/SRD、硬件 fence 流水线 |
 
 ## Amazon C++ 面试（独立目录）
 

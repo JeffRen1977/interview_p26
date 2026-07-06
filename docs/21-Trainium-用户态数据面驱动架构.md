@@ -308,6 +308,8 @@ sequenceDiagram
 
 ### 6.3 计算与通信重叠（Overlap）
 
+> **集群级完整题解（MFU、双队列、Chunking、EFA/SRD）：** [22-LLM训练计算通信重叠与MFU优化.md](./22-LLM训练计算通信重叠与MFU优化.md)
+
 **内幕：** 大模型训练中，层 N 在 Trainium 上计算时，层 N+1 权重应已在 SQ 中异步提交。
 
 ```
