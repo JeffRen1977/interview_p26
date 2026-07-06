@@ -406,6 +406,8 @@ Performance
 
 ## F1. PyTorch 计算图如何到 Trainium？
 
+> **完整编译运行时题解：** [23-Neuron编译运行时与数据面Lua.md](./23-Neuron编译运行时与数据面Lua.md)
+
 ```
 PyTorch Model (Python)
     ↓ torch.jit / torch.compile / export
@@ -445,6 +447,8 @@ Neuron Runtime 执行
 ---
 
 ## F4. 为什么数据面用 Lua？（JD 特别提到）
+
+> **完整标准答案（PyTorch→NEFF、Lua C API、GC/FFI）：** [23-Neuron编译运行时与数据面Lua.md](./23-Neuron编译运行时与数据面Lua.md)
 
 **30 秒版：**
 > Lua 轻量、可嵌入 C/C++、LuaJIT 极快。适合**策略/路由/配置**等需要灵活又频繁执行的逻辑，不用每次改 C++ 重编译。
