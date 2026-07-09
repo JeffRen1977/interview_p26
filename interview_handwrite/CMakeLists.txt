@@ -12,7 +12,11 @@ set(ENGINEERING_DS
     object_pool
 )
 
-foreach(name IN LISTS ENGINEERING_DS)
+set(ML_HANDWRITE
+    kv_cache
+)
+
+foreach(name IN LISTS ENGINEERING_DS ML_HANDWRITE)
     add_executable(${name} ${name}.cpp)
     target_compile_options(${name} PRIVATE -Wall -Wextra -Wpedantic)
     add_test(NAME ${name} COMMAND ${name})

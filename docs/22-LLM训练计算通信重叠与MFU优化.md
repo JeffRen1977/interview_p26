@@ -3,7 +3,7 @@
 > **面试场景：** 「设计多芯片协同的参数同步机制，让计算与通信重叠，最大化 MFU。」  
 > **岗位：** AWS Nitro MLS / Trainium 大规模训练基础设施。  
 > **核心指标：** **MFU（Model FLOPs Utilization）** — 实际有效算力 / 理论峰值算力。  
-> **关联：** [21-用户态数据面驱动](./21-Trainium-用户态数据面驱动架构.md) | [17-系统设计 Q3](./17-AWS-EC2-Nitro-系统设计.md) | [20-题库 G2](./20-Trainium-Nitro-MLS-硬核面试题库.md)
+> **关联：** [21-用户态数据面驱动](./21-Trainium-用户态数据面驱动架构.md) | [17-系统设计 Q3](./17-AWS-EC2-Nitro-系统设计.md) | [20-题库 G2](./20-Trainium-Nitro-MLS-硬核面试题库.md) | Microsoft Principal 并行策略见 [26](./26-Microsoft-Principal-ML-Systems面试准备.md)
 
 ---
 

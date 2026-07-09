@@ -3,7 +3,7 @@
 > **岗位画像：** 定制芯片（Trainium）× 云端大模型基础设施 × Nitro 网络/虚拟化卸载。  
 > **目标：** 构建能与 NVIDIA DGX 竞争的 AI 超级计算机。  
 > **面试风格：** 少刷 DP，多考 **系统级 C++、HW/SW 协同、集群通信、底层系统设计**。  
-> **配套：** [19-知识点详解](./19-AWS-Nitro-MLS-面试知识点详解.md) | [17-系统设计](./17-AWS-EC2-Nitro-系统设计.md) | [amazon_cpp](../amazon_cpp/) | [interview_handwrite/cpp](../interview_handwrite/cpp/)
+> **配套：** [19-知识点详解](./19-AWS-Nitro-MLS-面试知识点详解.md) | [17-系统设计](./17-AWS-EC2-Nitro-系统设计.md) | [amazon_cpp](../amazon_cpp/) | [interview_handwrite](../interview_handwrite/)
 
 ---
 
@@ -51,7 +51,7 @@ void put(T item) {
 - 多生产者多消费者怎么办？→ 一个 mutex 仍正确；极高吞吐用 MPMC ring buffer（见 H3）
 - 如何优雅 shutdown？→ `done` flag + `notify_all`
 
-**代码：** [bounded_blocking_queue.cpp](../interview_handwrite/cpp/bounded_blocking_queue.cpp)
+**代码：** [bounded_blocking_queue.cpp](../interview_handwrite/bounded_blocking_queue.cpp)
 
 ---
 
@@ -88,7 +88,7 @@ bool push(const T& v) {
 - 什么是 ABA？→ 指针值相同但内容已变；用 tagged pointer / epoch
 - Nitro 场景？→ Host↔Card 命令队列、DMA descriptor ring
 
-**代码：** [spsc_ring_buffer.cpp](../interview_handwrite/cpp/spsc_ring_buffer.cpp)
+**代码：** [spsc_ring_buffer.cpp](../interview_handwrite/spsc_ring_buffer.cpp)
 
 ---
 
@@ -142,7 +142,7 @@ list: MRU (front) ... LRU (back)
 
 **Follow-up：** 线程安全版？→ 粗粒度 mutex 包一层；或分片锁。
 
-**代码：** [lru_cache_ds.cpp](../interview_handwrite/cpp/lru_cache_ds.cpp) | [leetcode/lru_cache](../leetcode/lru_cache/)
+**代码：** [lru_cache_ds.cpp](../interview_handwrite/lru_cache_ds.cpp) | [leetcode/lru_cache](../leetcode/lru_cache/)
 
 ---
 
@@ -596,8 +596,8 @@ Step pipeline:
 **面试策略：** 先写 **mutex 版** 证明正确，再讲如何升级 lock-free。
 
 **代码入口：**
-- Mutex 版：[thread_safe_ring_buffer.cpp](../interview_handwrite/cpp/thread_safe_ring_buffer.cpp)
-- SPSC 版：[spsc_ring_buffer.cpp](../interview_handwrite/cpp/spsc_ring_buffer.cpp)
+- Mutex 版：[thread_safe_ring_buffer.cpp](../interview_handwrite/thread_safe_ring_buffer.cpp)
+- SPSC 版：[spsc_ring_buffer.cpp](../interview_handwrite/spsc_ring_buffer.cpp)
 
 ---
 
@@ -656,6 +656,6 @@ Step pipeline:
 | 知识点展开 | [19-AWS-Nitro-MLS-面试知识点详解.md](./19-AWS-Nitro-MLS-面试知识点详解.md) |
 | 系统设计 | [17-AWS-EC2-Nitro-系统设计.md](./17-AWS-EC2-Nitro-系统设计.md) |
 | C++ 全套 | [amazon_cpp/README.md](../amazon_cpp/README.md) |
-| 手撕代码 | [interview_handwrite/cpp/](../interview_handwrite/cpp/) |
+| 手撕代码 | [interview_handwrite/](../interview_handwrite/) |
 | Neuron 官方 | [awsdocs-neuron.readthedocs.io](https://awsdocs-neuron.readthedocs.io/) |
 | NVIDIA NCCL | [github.com/NVIDIA/nccl](https://github.com/NVIDIA/nccl) |

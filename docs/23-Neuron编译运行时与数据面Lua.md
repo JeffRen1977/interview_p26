@@ -407,7 +407,7 @@ ffi.cdef[[
 | # | 主题 | 文档 |
 |---|------|------|
 | 1 | 用户态驱动 SQ/CQ/DMA | [21](./21-Trainium-用户态数据面驱动架构.md) |
-| 2 | 无锁并发 / cache line | [amazon_cpp](../amazon_cpp/) · [interview_handwrite/cpp](../interview_handwrite/cpp/) |
+| 2 | 无锁并发 / cache line | [amazon_cpp](../amazon_cpp/) · [interview_handwrite](../interview_handwrite/) |
 | 3 | MFU / overlap / EFA/SRD | [22](./22-LLM训练计算通信重叠与MFU优化.md) |
 | 4 | 编译运行时 + Lua | **本文** |
 

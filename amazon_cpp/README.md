@@ -39,7 +39,7 @@ ctest --test-dir build --output-on-failure
 | [examples/09_stl_internals.cpp](./examples/09_stl_internals.cpp) | vector 扩容、unordered_map |
 | [examples/10_concurrency_atomic.cpp](./examples/10_concurrency_atomic.cpp) | mutex、CV、atomic、false sharing |
 
-**系统设计手撕（C++ 实现）：** 见 [`../interview_handwrite/cpp/`](../interview_handwrite/cpp/)
+**系统设计手撕（C++ 实现）：** 见 [`../interview_handwrite/`](../interview_handwrite/)
 
 ## 准备优先级（Senior/Staff）
 

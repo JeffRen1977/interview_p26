@@ -16,6 +16,7 @@
 | `nms.py` | IoU、NMS、按类 NMS、Soft-NMS |
 | `bilinear_interp.py` | 单点双线性采样、图像 resize、grid_sample |
 | `tensor_ops.py` | ReLU/Softmax/BN、池化、Linear、im2col 卷积、Attention |
+| `kv_cache.py` | 大模型 Decode 阶段 KV Cache（Prefill + 自回归 Decode） |
 | `bounded_blocking_queue.py` | 线程安全有界阻塞队列 |
 | `spsc_ring_buffer.py` | 单生产者单消费者 Ring Buffer |
 | `thread_safe_ring_buffer.py` | 线程安全 Ring Buffer |
@@ -25,16 +26,17 @@
 
 **LeetCode 分题 Python/C++：** 见 [`../leetcode/`](../leetcode/)（每题 `solution.py` + `solution.cpp`）。
 
-**工程 DS C++ 版：** 见 [`cpp/`](./cpp/)（与下方 Python 文件一一对应，适合白板面试）。
+**工程 DS / KV Cache C++ 版：** 与下方 Python 文件同目录，一一对应，适合白板面试。
 
 | Python | C++ |
 |--------|-----|
-| `bounded_blocking_queue.py` | `cpp/bounded_blocking_queue.cpp` |
-| `spsc_ring_buffer.py` | `cpp/spsc_ring_buffer.cpp` |
-| — | `cpp/mpmc_ring_buffer.cpp` |
-| `thread_safe_ring_buffer.py` | `cpp/thread_safe_ring_buffer.cpp` |
-| `lru_cache_ds.py` | `cpp/lru_cache_ds.cpp` |
-| `object_pool.py` | `cpp/object_pool.cpp` |
+| `bounded_blocking_queue.py` | `bounded_blocking_queue.cpp` |
+| `spsc_ring_buffer.py` | `spsc_ring_buffer.cpp` |
+| — | `mpmc_ring_buffer.cpp` |
+| `thread_safe_ring_buffer.py` | `thread_safe_ring_buffer.cpp` |
+| `lru_cache_ds.py` | `lru_cache_ds.cpp` |
+| `object_pool.py` | `object_pool.cpp` |
+| `kv_cache.py` | `kv_cache.cpp` |
 
 ## 运行
 
@@ -44,6 +46,7 @@ python3 conv2d.py
 python3 nms.py
 python3 bilinear_interp.py
 python3 tensor_ops.py
+python3 kv_cache.py                # KV Cache Prefill + Decode 演示
 python3 engineering_ds.py          # 全部工程 DS 测试
 python3 bounded_blocking_queue.py    # 单题
 ```
@@ -51,13 +54,17 @@ python3 bounded_blocking_queue.py    # 单题
 ### C++ 工程 DS
 
 ```bash
-cd interview_handwrite/cpp
+cd interview_handwrite
 cmake -S . -B build
 cmake --build build
 ctest --test-dir build --output-on-failure
 
-# 或一次跑完全部
+# 或一次跑完全部工程 DS
 cmake --build build --target engineering_ds
+
+# KV Cache 单独运行
+cmake --build build --target kv_cache
+./build/kv_cache
 ```
 
 ## 面试口述要点
@@ -67,3 +74,4 @@ cmake --build build --target engineering_ds
 3. **双线性插值**：写出 4 邻域权重；说清 center-aligned vs corner-aligned。
 4. **Tensor**：Softmax 减最大值防溢出；im2col 把卷积变矩阵乘。
 5. **工程 DS**：队列用 `while` 防虚假唤醒；SPSC 只一个线程写 tail；LRU = 哈希表 + 双向链表。
+6. **KV Cache**：先讲 O(N^2) 重复计算问题；Prefill 建缓存、Decode 只算 1 Token；主动提 `torch.cat` vs PagedAttention、Prefill Compute-bound vs Decode Memory-bound。

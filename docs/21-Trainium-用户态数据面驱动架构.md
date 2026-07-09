@@ -3,7 +3,7 @@
 > **面试场景：** 「设计一个高性能用户态设备驱动，让 Trainium ASIC 与 Host 之间高效传输 Tensor 数据。」  
 > **岗位：** AWS Nitro MLS / Trainium 底层数据面。  
 > **风格：** 系统编程语言拆解 — 数据结构、控制流、HW/SW 交互、Nitro 级优化。  
-> **关联：** [20-硬核面试题库](./20-Trainium-Nitro-MLS-硬核面试题库.md) G1 | [17-系统设计 Q4](./17-AWS-EC2-Nitro-系统设计.md) | [interview_handwrite/cpp/spsc_ring_buffer.cpp](../interview_handwrite/cpp/spsc_ring_buffer.cpp)
+> **关联：** [20-硬核面试题库](./20-Trainium-Nitro-MLS-硬核面试题库.md) G1 | [17-系统设计 Q4](./17-AWS-EC2-Nitro-系统设计.md) | [interview_handwrite/spsc_ring_buffer.cpp](../interview_handwrite/spsc_ring_buffer.cpp)
 
 ---
 
@@ -138,7 +138,7 @@ struct TrainiumQueuePair {
 | SPSC 语义 | 单生产者（本线程）单消费者（DMA 引擎） |
 | `capacity` 用 N+1 slot | 环形缓冲区区分满/空 |
 
-**代码参考：** [spsc_ring_buffer.cpp](../interview_handwrite/cpp/spsc_ring_buffer.cpp)
+**代码参考：** [spsc_ring_buffer.cpp](../interview_handwrite/spsc_ring_buffer.cpp)
 
 ---
 
@@ -364,7 +364,7 @@ sequenceDiagram
 
 ### Q3: 多线程怎么扩展？
 
-> **每线程一个 Queue Pair**（本设计），避免 MPMC 锁。全局资源用 per-core pool。若必须 MPMC，见 [thread_safe_ring_buffer.cpp](../interview_handwrite/cpp/thread_safe_ring_buffer.cpp) 或 Disruptor sequence。
+> **每线程一个 Queue Pair**（本设计），避免 MPMC 锁。全局资源用 per-core pool。若必须 MPMC，见 [thread_safe_ring_buffer.cpp](../interview_handwrite/thread_safe_ring_buffer.cpp) 或 Disruptor sequence。
 
 ### Q4: ARM (Graviton) 上有什么不同？
 
@@ -398,7 +398,7 @@ sequenceDiagram
 
 | 主题 | 路径 |
 |------|------|
-| SPSC Ring Buffer 手撕 | [interview_handwrite/cpp/spsc_ring_buffer.cpp](../interview_handwrite/cpp/spsc_ring_buffer.cpp) |
+| SPSC Ring Buffer 手撕 | [interview_handwrite/spsc_ring_buffer.cpp](../interview_handwrite/spsc_ring_buffer.cpp) |
 | False Sharing | [amazon_cpp/examples/10_concurrency_atomic.cpp](../amazon_cpp/examples/10_concurrency_atomic.cpp) |
 | 用户态驱动系统设计 | [20-题库 G1](./20-Trainium-Nitro-MLS-硬核面试题库.md) |
 | Host Agent 控制面 | [17-系统设计 Q4](./17-AWS-EC2-Nitro-系统设计.md) |

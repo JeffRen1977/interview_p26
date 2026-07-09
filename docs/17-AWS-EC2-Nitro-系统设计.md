@@ -683,6 +683,6 @@ flowchart TB
 
 | 材料 | 关联 |
 |------|------|
-| [interview_handwrite/cpp/](../interview_handwrite/cpp/) | SPSC ring buffer ↔ Host↔Nitro mailbox |
+| [interview_handwrite/](../interview_handwrite/) | SPSC ring buffer ↔ Host↔Nitro mailbox |
 | [nvidia/01-系统设计.md](../nvidia/01-系统设计.md) | GPU scheduler 思路可对比 Q1 |
 | [04-手撕代码指南.md](./04-手撕代码指南.md) | 并发 DS 支撑 Q4 通信层 |

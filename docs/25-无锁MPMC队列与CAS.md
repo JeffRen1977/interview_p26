@@ -2,7 +2,7 @@
 
 > **场景：** 多 Data Loader 向驱动提交 Tensor 描述符；多 DMA 通道并发消费 — **MPMC**（Multi-Producer Multi-Consumer）。  
 > **与 SPSC 关系：** SPSC 是 per-thread QP 的最优解；MPMC 用于必须多对多共享一条队列时。  
-> **手撕代码：** [interview_handwrite/cpp/mpmc_ring_buffer.cpp](../interview_handwrite/cpp/mpmc_ring_buffer.cpp)  
+> **手撕代码：** [interview_handwrite/mpmc_ring_buffer.cpp](../interview_handwrite/mpmc_ring_buffer.cpp)  
 > **关联：** [24-SPSC](./24-无锁SPSC队列与Cacheline对齐.md) | [21-用户态驱动](./21-Trainium-用户态数据面驱动架构.md) | [20-题库 G3](./20-Trainium-Nitro-MLS-硬核面试题库.md)
 
 ---
@@ -19,7 +19,7 @@
 |------|------|------|
 | 每核独立 QP、Host↔单 DMA 通道 | **SPSC** ([24](./24-无锁SPSC队列与Cacheline对齐.md)) | 无 CAS、最低延迟 |
 | 多 Loader 共享一条提交队列 | **MPMC**（本文） | 必须多写者竞争 |
-| 正确性优先、吞吐要求一般 | **Mutex ring** ([thread_safe_ring_buffer.cpp](../interview_handwrite/cpp/thread_safe_ring_buffer.cpp)) | 简单可证明 |
+| 正确性优先、吞吐要求一般 | **Mutex ring** ([thread_safe_ring_buffer.cpp](../interview_handwrite/thread_safe_ring_buffer.cpp)) | 简单可证明 |
 | 万卡数据面最优实践 | **拆成 N 条 SPSC** | 能拆就不上 MPMC |
 
 **面试金句：** 先问能否 per-core SPSC；不能才上 MPMC sequence queue。
@@ -344,9 +344,9 @@ Dequeue: 等 seq==pos+1 → CAS dequeue_pos → 读 data → seq=pos+capacity (r
 
 | 主题 | 路径 |
 |------|------|
-| MPMC 实现 | [mpmc_ring_buffer.cpp](../interview_handwrite/cpp/mpmc_ring_buffer.cpp) |
+| MPMC 实现 | [mpmc_ring_buffer.cpp](../interview_handwrite/mpmc_ring_buffer.cpp) |
 | SPSC 对照 | [24](./24-无锁SPSC队列与Cacheline对齐.md) |
-| Mutex MPMC | [thread_safe_ring_buffer.cpp](../interview_handwrite/cpp/thread_safe_ring_buffer.cpp) |
+| Mutex MPMC | [thread_safe_ring_buffer.cpp](../interview_handwrite/thread_safe_ring_buffer.cpp) |
 | SQ 驱动 | [21](./21-Trainium-用户态数据面驱动架构.md) |
 
 **参考算法：** Dmitry Vyukov bounded MPMC queue（sequence lock-free ring）。

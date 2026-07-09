@@ -58,11 +58,11 @@ epoll_ctl(epfd, EPOLL_CTL_ADD, listen_fd, &ev);
 
 | 设计题 | 路径 | 核心考点 |
 |--------|------|----------|
-| **Blocking Queue** | [`interview_handwrite/cpp/bounded_blocking_queue.cpp`](../interview_handwrite/cpp/bounded_blocking_queue.cpp) | mutex + 2×CV |
-| **SPSC Ring Buffer** | [`interview_handwrite/cpp/spsc_ring_buffer.cpp`](../interview_handwrite/cpp/spsc_ring_buffer.cpp) | atomic acquire/release |
-| **MPMC Ring Buffer** | [`interview_handwrite/cpp/thread_safe_ring_buffer.cpp`](../interview_handwrite/cpp/thread_safe_ring_buffer.cpp) | mutex |
-| **LRU Cache** | [`interview_handwrite/cpp/lru_cache_ds.cpp`](../interview_handwrite/cpp/lru_cache_ds.cpp) | list + unordered_map |
-| **Object Pool** | [`interview_handwrite/cpp/object_pool.cpp`](../interview_handwrite/cpp/object_pool.cpp) | placement new / 复用 |
+| **Blocking Queue** | [`interview_handwrite/bounded_blocking_queue.cpp`](../interview_handwrite/bounded_blocking_queue.cpp) | mutex + 2×CV |
+| **SPSC Ring Buffer** | [`interview_handwrite/spsc_ring_buffer.cpp`](../interview_handwrite/spsc_ring_buffer.cpp) | atomic acquire/release |
+| **MPMC Ring Buffer** | [`interview_handwrite/thread_safe_ring_buffer.cpp`](../interview_handwrite/thread_safe_ring_buffer.cpp) | mutex |
+| **LRU Cache** | [`interview_handwrite/lru_cache_ds.cpp`](../interview_handwrite/lru_cache_ds.cpp) | list + unordered_map |
+| **Object Pool** | [`interview_handwrite/object_pool.cpp`](../interview_handwrite/object_pool.cpp) | placement new / 复用 |
 | **Thread Pool** | 见下方模式 | queue + worker threads |
 
 ### Thread Pool 骨架（常考）

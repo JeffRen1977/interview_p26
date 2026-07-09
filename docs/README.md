@@ -31,6 +31,7 @@
 | [23-Neuron编译运行时与数据面Lua.md](./23-Neuron编译运行时与数据面Lua.md) | PyTorch→XLA→NEFF、算子融合、Lua C API、GC/FFI 避坑 |
 | [24-无锁SPSC队列与Cacheline对齐.md](./24-无锁SPSC队列与Cacheline对齐.md) | SPSC、Acquire-Release、False Sharing、生产级白板实现 |
 | [25-无锁MPMC队列与CAS.md](./25-无锁MPMC队列与CAS.md) | MPMC 序列号队列、CAS、描述符零拷贝、指数退避 |
+| [26-Microsoft-Principal-ML-Systems面试准备.md](./26-Microsoft-Principal-ML-Systems面试准备.md) | Principal 级：分布式并行、推理优化、系统设计、STAR 领导力 |
 
 ## Amazon C++ 面试（独立目录）
 

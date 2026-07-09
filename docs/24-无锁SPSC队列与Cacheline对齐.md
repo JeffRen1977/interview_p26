@@ -2,7 +2,7 @@
 
 > **定位：** 数据面（Dataplane）无锁并发的**三件套** — SPSC 拓扑 + Acquire-Release + Cacheline 对齐。  
 > **岗位：** AWS Nitro MLS / Trainium 用户态驱动、SQ/CQ、Host↔DMA 任务队列。  
-> **手撕代码：** [interview_handwrite/cpp/spsc_ring_buffer.cpp](../interview_handwrite/cpp/spsc_ring_buffer.cpp)  
+> **手撕代码：** [interview_handwrite/spsc_ring_buffer.cpp](../interview_handwrite/spsc_ring_buffer.cpp)  
 > **关联：** [21-用户态驱动](./21-Trainium-用户态数据面驱动架构.md) | [amazon_cpp/06-并发](../amazon_cpp/docs/06-并发与内存模型.md)
 
 ---
@@ -282,7 +282,7 @@ class SPSCRingBuffer {
 };
 ```
 
-**与仓库现有代码：** [spsc_ring_buffer.cpp](../interview_handwrite/cpp/spsc_ring_buffer.cpp) 逻辑正确；面试加分可主动提出 **head/tail 应 alignas 隔离**。
+**与仓库现有代码：** [spsc_ring_buffer.cpp](../interview_handwrite/spsc_ring_buffer.cpp) 逻辑正确；面试加分可主动提出 **head/tail 应 alignas 隔离**。
 
 ---
 
@@ -359,9 +359,9 @@ Fix: alignas(64) 或 hardware_destructive_interference_size
 
 | 主题 | 路径 |
 |------|------|
-| 可运行 SPSC | [spsc_ring_buffer.cpp](../interview_handwrite/cpp/spsc_ring_buffer.cpp) |
-| MPMC lock-free | [25-无锁MPMC队列与CAS.md](./25-无锁MPMC队列与CAS.md) · [mpmc_ring_buffer.cpp](../interview_handwrite/cpp/mpmc_ring_buffer.cpp) |
-| MPMC mutex 版对比 | [thread_safe_ring_buffer.cpp](../interview_handwrite/cpp/thread_safe_ring_buffer.cpp) |
+| 可运行 SPSC | [spsc_ring_buffer.cpp](../interview_handwrite/spsc_ring_buffer.cpp) |
+| MPMC lock-free | [25-无锁MPMC队列与CAS.md](./25-无锁MPMC队列与CAS.md) · [mpmc_ring_buffer.cpp](../interview_handwrite/mpmc_ring_buffer.cpp) |
+| MPMC mutex 版对比 | [thread_safe_ring_buffer.cpp](../interview_handwrite/thread_safe_ring_buffer.cpp) |
 | 并发 memory model | [amazon_cpp/docs/06](../amazon_cpp/docs/06-并发与内存模型.md) |
 | SQ/CQ 驱动 | [21](./21-Trainium-用户态数据面驱动架构.md) |
 | 题库 A2 | [20-题库](./20-Trainium-Nitro-MLS-硬核面试题库.md) |

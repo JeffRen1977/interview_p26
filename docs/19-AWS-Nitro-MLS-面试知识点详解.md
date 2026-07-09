@@ -2,7 +2,7 @@
 
 > 面向 **EC2 Nitro MLS**（机器学习超算平台）Senior SDE 岗。  
 > 本文把 JD 提示中的每个考点**展开到可面试口述的深度**，并链接仓库内已有材料。  
-> **配套：** [17-系统设计](./17-AWS-EC2-Nitro-系统设计.md) | [amazon_cpp](../amazon_cpp/) | [interview_handwrite/cpp](../interview_handwrite/cpp/)
+> **配套：** [17-系统设计](./17-AWS-EC2-Nitro-系统设计.md) | [amazon_cpp](../amazon_cpp/) | [interview_handwrite](../interview_handwrite/)
 
 ---
 
@@ -98,7 +98,7 @@ mmap(..., MAP_HUGETLB | MAP_ANONYMOUS, ...);
 - 超时：`try_lock_for`
 - 缩小临界区；用无锁结构减少锁
 
-**手撕：** [interview_handwrite/cpp/bounded_blocking_queue.cpp](../interview_handwrite/cpp/bounded_blocking_queue.cpp)
+**手撕：** [interview_handwrite/bounded_blocking_queue.cpp](../interview_handwrite/bounded_blocking_queue.cpp)
 
 ### 1.2.3 Memory Barrier / Memory Order
 
@@ -121,7 +121,7 @@ assert(data == 42);  // 保证看到 data=42
 | `release` | 写端：此前不重排到此后 | producer |
 | `seq_cst` | 全局顺序（默认） | 简单正确，略慢 |
 
-**SPSC 无锁队列：** [interview_handwrite/cpp/spsc_ring_buffer.cpp](../interview_handwrite/cpp/spsc_ring_buffer.cpp)
+**SPSC 无锁队列：** [interview_handwrite/spsc_ring_buffer.cpp](../interview_handwrite/spsc_ring_buffer.cpp)
 
 ### 1.2.4 False Sharing（伪共享）
 
@@ -605,9 +605,9 @@ Python nn.Module
 
 | 题目 | 路径 |
 |------|------|
-| Bounded Blocking Queue | [interview_handwrite/cpp/bounded_blocking_queue.cpp](../interview_handwrite/cpp/bounded_blocking_queue.cpp) |
-| SPSC Ring Buffer | [interview_handwrite/cpp/spsc_ring_buffer.cpp](../interview_handwrite/cpp/spsc_ring_buffer.cpp) |
-| LRU Cache | [interview_handwrite/cpp/lru_cache_ds.cpp](../interview_handwrite/cpp/lru_cache_ds.cpp) |
+| Bounded Blocking Queue | [interview_handwrite/bounded_blocking_queue.cpp](../interview_handwrite/bounded_blocking_queue.cpp) |
+| SPSC Ring Buffer | [interview_handwrite/spsc_ring_buffer.cpp](../interview_handwrite/spsc_ring_buffer.cpp) |
+| LRU Cache | [interview_handwrite/lru_cache_ds.cpp](../interview_handwrite/lru_cache_ds.cpp) |
 | Thread Pool | 见 [amazon_cpp/docs/07](../amazon_cpp/docs/07-Linux系统与设计题.md) 骨架 |
 | shared_ptr 手写 | [nvidia/02-C++与嵌入式底层.md](../nvidia/02-C++与嵌入式底层.md) |
 
@@ -661,4 +661,4 @@ Python nn.Module
 | C++ 全栈 | [amazon_cpp/README.md](../amazon_cpp/README.md) |
 | 系统设计 | [17-AWS-EC2-Nitro-系统设计.md](./17-AWS-EC2-Nitro-系统设计.md) |
 | 具身智能（若岗位交叉） | [18-具身智能大模型进展与面试准备.md](./18-具身智能大模型进展与面试准备.md) |
-| 手撕代码 | [interview_handwrite/cpp/](../interview_handwrite/cpp/) |
+| 手撕代码 | [interview_handwrite/](../interview_handwrite/) |
