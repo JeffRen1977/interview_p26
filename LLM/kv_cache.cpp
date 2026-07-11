@@ -1,6 +1,6 @@
 // KV Cache — minimal multi-head self-attention with rolling K/V cache.
 //
-// Mirrors interview_handwrite/kv_cache.py using plain C++ (no PyTorch).
+// Mirrors LLM/kv_cache.py using plain C++ (no PyTorch).
 //
 // Whiteboard talking points:
 // - Without KV cache, each decode step recomputes K/V for all past tokens -> O(N^2).

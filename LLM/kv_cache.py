@@ -38,7 +38,7 @@ KV Cache — 大模型 Decode 阶段「空间换时间」极简手写 Demo (PyTo
 
 运行
 ----
-    cd interview_handwrite
+    cd LLM
     python3 kv_cache.py
 """
 
