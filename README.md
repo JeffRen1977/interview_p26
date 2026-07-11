@@ -36,6 +36,14 @@ Autonomous Vehicles / DriveWorks 岗专项：[`nvidia/`](./nvidia/)
 - [AV 领域与性能](./nvidia/03-AV领域与性能.md)
 - [行为面 One Team](./nvidia/04-行为面-One-Team.md)
 
+## Microsoft Principal ML Systems 面试
+
+Solstice / Frontier GPU 效率优化岗专项：[`microsoft/`](./microsoft/)
+
+- [Microsoft 索引](./microsoft/README.md)
+- [GEMM Cache / SIMD / GPU 优化](./microsoft/01-gemm-cache-simd.md)
+- [Principal 综合准备](./docs/26-Microsoft-Principal-ML-Systems面试准备.md)
+
 ## 手撕代码
 
 ```bash

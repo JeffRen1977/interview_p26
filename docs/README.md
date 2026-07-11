@@ -50,6 +50,13 @@
 | [../nvidia/03-AV领域与性能.md](../nvidia/03-AV领域与性能.md) | Hybrid A*、INT8 量化、Amdahl 定律 |
 | [../nvidia/04-行为面-One-Team.md](../nvidia/04-行为面-One-Team.md) | 技术分歧、race debug、Why DRIVE |
 
+## Microsoft Principal 面试（独立目录）
+
+| 文档 | 内容 |
+|------|------|
+| [../microsoft/README.md](../microsoft/README.md) | GEMM 手撕、Cache/SIMD/GPU 优化索引 |
+| [../microsoft/01-gemm-cache-simd.md](../microsoft/01-gemm-cache-simd.md) | 循环重排、分块、AVX-512、Tensor Core、分布式 GEMM |
+
 ## 代码练习
 
 手撕参考实现见 [`../interview_handwrite/`](../interview_handwrite/)：

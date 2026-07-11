@@ -3,7 +3,7 @@
 面向 **Microsoft Principal Software Engineer** 岗位——分布式 ML 基础设施、模型压缩与推理优化、系统架构权衡、技术领导力。
 
 > **GitHub 阅读：** 公式使用 `$...$` / `$$...$$` 格式。  
-> **关联文档：** 训练并行与 MFU → [22](./22-LLM训练计算通信重叠与MFU优化.md)；量化基础 → [07](./07-端侧部署题详解.md)；AWS 分布式训练 → [17](./17-AWS-EC2-Nitro-系统设计.md) / [19](./19-AWS-Nitro-MLS-面试知识点详解.md)。
+> **关联文档：** 训练并行与 MFU → [22](./22-LLM训练计算通信重叠与MFU优化.md)；量化基础 → [07](./07-端侧部署题详解.md)；AWS 分布式训练 → [17](./17-AWS-EC2-Nitro-系统设计.md) / [19](./19-AWS-Nitro-MLS-面试知识点详解.md)；**GEMM 手撕** → [../microsoft/01-gemm-cache-simd.md](../microsoft/01-gemm-cache-simd.md) · [../microsoft/gemm.cpp](../microsoft/gemm.cpp)。
 
 ---
 
