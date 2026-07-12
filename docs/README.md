@@ -57,6 +57,22 @@
 | [../microsoft/README.md](../microsoft/README.md) | GEMM 手撕、Cache/SIMD/GPU 优化索引 |
 | [../microsoft/01-gemm-cache-simd.md](../microsoft/01-gemm-cache-simd.md) | 循环重排、分块、AVX-512、Tensor Core、分布式 GEMM |
 
+## OpenAI 系统设计（独立目录）
+
+| 文档 | 内容 |
+|------|------|
+| [../openai/README.md](../openai/README.md) | TLM / Embedded Experiences 系统设计索引 |
+| [../openai/streaming-chatgpt-backend.md](../openai/streaming-chatgpt-backend.md) | 实时流式 ChatGPT 后端完整设计 |
+| [../openai/llm-rate-limiter.md](../openai/llm-rate-limiter.md) | 多租户 RPM+TPM 限流完整设计 |
+| [../openai/semantic-cache-rag.md](../openai/semantic-cache-rag.md) | 语义缓存 RAG 完整设计 |
+| [../openai/isolated-code-sandbox.md](../openai/isolated-code-sandbox.md) | 多租户代码沙箱完整设计 |
+| [../openai/realtime-voice-assistant.md](../openai/realtime-voice-assistant.md) | 实时语音助手完整设计 |
+| [../openai/hybrid-sensor-routing.md](../openai/hybrid-sensor-routing.md) | 10 万相机混合路由完整设计 |
+| [../openai/01-inference-api-platform.md](../openai/01-inference-api-platform.md) | 流式 ChatGPT、RPM/TPM 限流、语义缓存 RAG |
+| [../openai/02-isolated-code-sandbox.md](../openai/02-isolated-code-sandbox.md) | MicroVM 沙箱、冷启动、cgroups |
+| [../openai/03-embedded-edge-multimodal.md](../openai/03-embedded-edge-multimodal.md) | 实时语音、Barge-in、边缘相机级联 |
+| [../openai/04-tlm-interview-playbook.md](../openai/04-tlm-interview-playbook.md) | No Buzzwords、10x/100x Scaling Drill |
+
 ## 代码练习
 
 手撕参考实现见 [`../interview_handwrite/`](../interview_handwrite/)：

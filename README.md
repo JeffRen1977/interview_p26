@@ -44,6 +44,22 @@ Solstice / Frontier GPU 效率优化岗专项：[`microsoft/`](./microsoft/)
 - [GEMM Cache / SIMD / GPU 优化](./microsoft/01-gemm-cache-simd.md)
 - [Principal 综合准备](./docs/26-Microsoft-Principal-ML-Systems面试准备.md)
 
+## OpenAI 系统设计面试（TLM / Embedded Experiences）
+
+Model-Aware 系统设计专项：[`openai/`](./openai/)
+
+- [OpenAI 索引](./openai/README.md)
+- [流式 ChatGPT 后端完整设计](./openai/streaming-chatgpt-backend.md)
+- [多租户 RPM+TPM 限流完整设计](./openai/llm-rate-limiter.md)
+- [语义缓存 RAG 完整设计](./openai/semantic-cache-rag.md)
+- [多租户代码沙箱完整设计](./openai/isolated-code-sandbox.md)
+- [实时语音助手完整设计](./openai/realtime-voice-assistant.md)
+- [10 万相机混合路由完整设计](./openai/hybrid-sensor-routing.md)
+- [Inference API / 流式 / 限流 / 语义缓存 RAG](./openai/01-inference-api-platform.md)
+- [安全代码沙箱](./openai/02-isolated-code-sandbox.md)
+- [嵌入式语音 & 边缘多模态](./openai/03-embedded-edge-multimodal.md)
+- [TLM 面试通关秘籍](./openai/04-tlm-interview-playbook.md)
+
 ## 手撕代码
 
 ```bash
