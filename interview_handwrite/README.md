@@ -37,6 +37,7 @@
 | `thread_safe_ring_buffer.py` | `thread_safe_ring_buffer.cpp` |
 | `lru_cache_ds.py` | `lru_cache_ds.cpp` |
 | `object_pool.py` | `object_pool.cpp` |
+| — | `shared_ptr.cpp` |
 
 ## 运行
 

@@ -10,6 +10,7 @@ set(ENGINEERING_DS
     thread_safe_ring_buffer
     lru_cache_ds
     object_pool
+    shared_ptr
 )
 
 foreach(name IN LISTS ENGINEERING_DS)
