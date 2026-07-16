@@ -22,6 +22,7 @@
 | [12-3D人脸表情追踪详解.md](./12-3D人脸表情追踪详解.md) | 3DMM、Animoji、ARKit Blendshape、ICP、Avatar Retargeting |
 | [13-眼动追踪详解.md](./13-眼动追踪详解.md) | 瞳孔检测、glint、gaze 估计、Foveated Rendering、IPD |
 | [16-Qualcomm-AI-Stack面试准备.md](./16-Qualcomm-AI-Stack面试准备.md) | Qualcomm AI Stack SDK Staff 岗：技能矩阵、GenAI 推理、mock Q&A |
+| [27-高通端侧LLM吞吐延迟功耗面试题详解.md](./27-高通端侧LLM吞吐延迟功耗面试题详解.md) | Snapdragon/NPU 端侧 LLM：Prefill/Decode、功耗、KV/Spec/MoE、AWQ、Zero-Copy |
 | [17-AWS-EC2-Nitro-系统设计.md](./17-AWS-EC2-Nitro-系统设计.md) | AWS EC2 Nitro MLS：调度器、GPU 自愈、分布式训练、Host Agent |
 | [18-具身智能大模型进展与面试准备.md](./18-具身智能大模型进展与面试准备.md) | VLA 架构、国际/国内模型图谱、benchmark、面试答题 |
 | [19-AWS-Nitro-MLS-面试知识点详解.md](./19-AWS-Nitro-MLS-面试知识点详解.md) | Nitro MLS 全考点展开：C++/Linux/EFA/分布式训练/LP/ML 编译器 |

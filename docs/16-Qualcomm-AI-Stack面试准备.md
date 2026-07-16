@@ -3,7 +3,7 @@
 面向 **Qualcomm AI Stack SDK Software** 团队 **Staff / Sr. Staff Software Engineer** 岗位（Generative AI inference on Snapdragon）。
 
 > **GitHub 阅读：** 公式使用 `$...$` / `$$...$$` 格式。  
-> **关联文档：** 量化/部署基础见 [07-端侧部署题详解.md](./07-端侧部署题详解.md)；Transformer 基础见 [06-CV基础题详解.md](./06-CV基础题详解.md)。
+> **关联文档：** 量化/部署基础见 [07-端侧部署题详解.md](./07-端侧部署题详解.md)；Transformer 基础见 [06-CV基础题详解.md](./06-CV基础题详解.md)；**端侧吞吐/延迟/功耗硬核题库**见 [27-高通端侧LLM吞吐延迟功耗面试题详解.md](./27-高通端侧LLM吞吐延迟功耗面试题详解.md)。
 
 ---
 
