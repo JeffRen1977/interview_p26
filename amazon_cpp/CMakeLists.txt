@@ -14,6 +14,7 @@ set(EXAMPLES
     08_memory_layout
     09_stl_internals
     10_concurrency_atomic
+    11_lock_free_fixed_pool
 )
 
 foreach(name IN LISTS EXAMPLES)

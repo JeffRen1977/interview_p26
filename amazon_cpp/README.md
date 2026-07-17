@@ -16,6 +16,7 @@
 | [06-并发与内存模型.md](./docs/06-并发与内存模型.md) | 13, 14, 15 | mutex、atomic、memory_order、false sharing |
 | [07-Linux系统与设计题.md](./docs/07-Linux系统与设计题.md) | 16, 17, 18 | 进程/线程、epoll、Thread Pool 等 |
 | [08-高频问答速查.md](./docs/08-高频问答速查.md) | 全部 | 一页纸 FAQ |
+| [09-无锁固定大小内存池.md](./docs/09-无锁固定大小内存池.md) | 13, 14, 15, 17 | Datapath 对象池、ABA、Placement New、Per-Core Cache |
 
 ## 可运行示例
 
@@ -38,6 +39,7 @@ ctest --test-dir build --output-on-failure
 | [examples/08_memory_layout.cpp](./examples/08_memory_layout.cpp) | sizeof、padding、alignment |
 | [examples/09_stl_internals.cpp](./examples/09_stl_internals.cpp) | vector 扩容、unordered_map |
 | [examples/10_concurrency_atomic.cpp](./examples/10_concurrency_atomic.cpp) | mutex、CV、atomic、false sharing |
+| [examples/11_lock_free_fixed_pool.cpp](./examples/11_lock_free_fixed_pool.cpp) | 固定内存、tagged CAS、无锁对象池 |
 
 **系统设计手撕（C++ 实现）：** 见 [`../interview_handwrite/`](../interview_handwrite/)
 
@@ -50,6 +52,7 @@ ctest --test-dir build --output-on-failure
 5. 内存管理：对齐、placement new、异常安全
 6. Linux 基础：进程/线程、fd、epoll（系统岗）
 7. LeetCode Medium + 设计题：见 [`../leetcode/`](../leetcode/)
+8. Datapath 系统岗加餐：无锁内存池、ABA、Per-Core Cache、NUMA
 
 ## 18 Part 速查索引
 
