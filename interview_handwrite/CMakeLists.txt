@@ -11,6 +11,7 @@ set(ENGINEERING_DS
     lru_cache_ds
     lru_cache_raw_list
     object_pool
+    two_level_mempool
     shared_ptr
 )
 

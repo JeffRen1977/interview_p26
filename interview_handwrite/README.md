@@ -38,6 +38,7 @@
 | `lru_cache_ds.py` | `lru_cache_ds.cpp`（`std::list`） |
 | — | `lru_cache_raw_list.cpp`（手写双向链表 + 哨兵） |
 | `object_pool.py` | `object_pool.cpp` |
+| — | `two_level_mempool.cpp`（Global CAS + Local Cache） |
 | — | `shared_ptr.cpp` |
 
 ## 运行
