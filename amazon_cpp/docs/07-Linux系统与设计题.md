@@ -69,30 +69,66 @@ epoll_ctl(epfd, EPOLL_CTL_ADD, listen_fd, &ev);
 
 ```cpp
 class ThreadPool {
+    // 保存所有 worker 线程。析构时必须逐个 join，保证线程退出后
+    // ThreadPool 的成员（尤其 tasks_）才被销毁，避免 use-after-free。
     std::vector<std::thread> workers_;
+
+    // 多生产者、多消费者任务队列：
+    // - submit() 是生产者；
+    // - worker 是消费者；
+    // - std::function<void()> 用类型擦除统一保存不同类型的可调用对象。
+    // 容量有限，可以通过阻塞 submit() 形成背压，防止任务无限堆积。
     BoundedBlockingQueue<std::function<void()>> tasks_;
+
+    // 多个 worker 与析构线程并发访问停止标志，因此必须使用 atomic，
+    // 不能使用普通 bool，否则会产生 data race（未定义行为）。
     std::atomic<bool> stop_{false};
 
 public:
+    // 先构造容量为 1024 的任务队列，再创建 n 个 worker。
     explicit ThreadPool(size_t n) : tasks_(1024) {
         for (size_t i = 0; i < n; ++i) {
+            // emplace_back 直接在 vector 中构造 std::thread。
+            // lambda 捕获 this，使 worker 可以访问 stop_ 和 tasks_；
+            // 因此 ThreadPool 的生命周期必须长于所有 worker。
             workers_.emplace_back([this] {
+                // worker 循环检查停止标志。atomic 默认使用
+                // memory_order_seq_cst，能够安全地看到析构线程的写入。
                 while (!stop_) {
+                    // try_get() 是非阻塞获取：
+                    // - 取到任务：optional 有值，调用 operator() 执行任务；
+                    // - 队列为空：立即返回空 optional，然后继续循环。
+                    // 注意：这个简化版会 busy-spin，空闲时仍持续消耗 CPU。
                     if (auto task = tasks_.try_get()) (*task)();
                 }
             });
         }
     }
+
     template <typename F>
-    void submit(F&& f) { tasks_.put(std::forward<F>(f)); }
+    void submit(F&& f) {
+        // 转发左值/右值，减少不必要的可调用对象拷贝。
+        // put() 在队列已满时阻塞，从而为提交方提供背压。
+        tasks_.put(std::forward<F>(f));
+    }
+
     ~ThreadPool() {
+        // 通知所有 worker 停止。这个骨架采用“立即停止”语义：
+        // stop_ 变为 true 后，队列中尚未执行的任务可能被丢弃。
         stop_ = true;
-        for (auto& t : workers_) t.join();
+
+        // join 等待线程真正退出。若不 join，std::thread 在仍 joinable
+        // 的状态下析构会调用 std::terminate()。
+        for (auto& t : workers_) {
+            t.join();
+        }
     }
 };
 ```
 
 **口述：** 任务队列解耦提交与执行；`stop` 用 atomic；析构 join 所有线程；任务类型用 `std::function` 或类型擦除。
+
+> **生产级注意：** 这是便于白板书写的骨架，不是完整实现。`try_get()` 会导致空闲 worker 忙等；更合理的实现是让 worker 阻塞在条件变量上，并在关闭时唤醒全部线程。还要明确关闭语义（立即丢弃还是 drain 完剩余任务）、拒绝 shutdown 后的 `submit()`，并处理任务异常，防止异常逃出线程入口触发 `std::terminate()`。
 
 ### 系统设计与 C++ 结合（AWS）
 
