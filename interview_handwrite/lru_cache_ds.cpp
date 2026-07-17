@@ -1,9 +1,12 @@
-// LRU cache — doubly linked list + hash map.
+// LRU cache — std::list + unordered_map.
+//
+// For the raw-pointer / custom Node version preferred in systems interviews,
+// see lru_cache_raw_list.cpp.
 //
 // Whiteboard talking points:
-// - unordered_map gives O(1) lookup to a list node.
+// - unordered_map gives O(1) lookup to a list iterator.
 // - List order is MRU (front) -> LRU (back).
-// - Dummy head/tail nodes avoid null checks on insert/remove.
+// - splice() moves a node in O(1) without copying the payload.
 // - ThreadSafeLRUCache wraps the core cache with one coarse mutex.
 
 #include <cassert>

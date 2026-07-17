@@ -35,7 +35,8 @@
 | `spsc_ring_buffer.py` | `spsc_ring_buffer.cpp` |
 | — | `mpmc_ring_buffer.cpp` |
 | `thread_safe_ring_buffer.py` | `thread_safe_ring_buffer.cpp` |
-| `lru_cache_ds.py` | `lru_cache_ds.cpp` |
+| `lru_cache_ds.py` | `lru_cache_ds.cpp`（`std::list`） |
+| — | `lru_cache_raw_list.cpp`（手写双向链表 + 哨兵） |
 | `object_pool.py` | `object_pool.cpp` |
 | — | `shared_ptr.cpp` |
 

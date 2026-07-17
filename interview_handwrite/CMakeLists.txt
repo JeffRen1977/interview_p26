@@ -9,6 +9,7 @@ set(ENGINEERING_DS
     mpmc_ring_buffer
     thread_safe_ring_buffer
     lru_cache_ds
+    lru_cache_raw_list
     object_pool
     shared_ptr
 )
