@@ -15,6 +15,8 @@ set(EXAMPLES
     09_stl_internals
     10_concurrency_atomic
     11_lock_free_fixed_pool
+    12_memmove
+    13_token_bucket_rate_limiter
 )
 
 foreach(name IN LISTS EXAMPLES)

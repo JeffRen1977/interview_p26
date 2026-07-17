@@ -57,12 +57,33 @@ class FixedSizeMemoryPool {
         Node* old_head = head_.load(std::memory_order_acquire);
 
         // CAS: head = head->next  (lock-free pop)
+        //
+        // compare_exchange_weak(expected, desired, success_order, failure_order)
+        // 在这里各参数的含义是：
+        //   expected = old_head       我之前观察到的链表头
+        //   desired  = old_head->next 如果头没有变化，希望将它弹出
+        //
+        // 成功：head_ 仍等于 old_head，CAS 原子地把 head_ 改成 next，
+        //       当前线程因此独占 old_head 指向的槽位。
+        //
+        // 失败：说明另一个线程抢先修改了 head_（也可能是 weak 伪失败）。
+        //       CAS 会自动把 head_ 的最新值写回 old_head，循环下一轮
+        //       会根据新的 old_head 重新计算 old_head->next。
+        //
+        // old_head != nullptr 必须先判断，否则计算 old_head->next 会解引用空指针。
         while (old_head != nullptr &&
                !head_.compare_exchange_weak(
-                   old_head, old_head->next, std::memory_order_acq_rel,
+                   old_head, old_head->next, std::memory_order_release,
                    std::memory_order_acquire)) {
-            // On failure, old_head is updated to the latest head; retry.
+            // 循环体可以为空：CAS 失败时已经替我们刷新了 old_head。
         }
+
+        // acquire：成功取得槽位后，能看到之前 deallocate() 通过 release
+        // 发布的 next/对象生命周期操作。Pop 本身不向其他线程发布数据，
+        // 所以成功序不需要 release。
+        //
+        // 面试追问：这个白板版仍有 ABA 与 Node/T 复用同一内存的生命周期
+        // 风险；生产版本应使用 tagged {version,index} 和永久 metadata。
 
         if (old_head == nullptr) {
             return nullptr;  // pool empty → drop / backpressure in datapath
