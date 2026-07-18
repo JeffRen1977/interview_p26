@@ -170,6 +170,29 @@ Always-On DSP（VAD/Wake + Motion）→ IRQ 唤醒 → C++ Agent 调度（SPSC +
 
 ---
 
+## Q9. 边缘协同 Agent Runtime（弱网 / 断网 / 最终一致性）
+
+> **完整标准答案（QUIC+Outbox、CRDT、动态 Quorum、WAL、Graceful Degradation）：**  
+> [edge-collaborative-agent-runtime.md](./edge-collaborative-agent-runtime.md)
+
+### 9.1 与 Q8 的边界
+
+| | Q8 智能眼镜 | Q9 边缘协同 |
+|--|-------------|-------------|
+| 范围 | 单机功耗 / 端云 | 多机分区 / 一致性 |
+| 一等公民 | 不唤醒主 SOC | Outbox + 离线自治 |
+| 关键坑 | 内存墙 / TTFT | 物理执行器双脑 |
+
+### 9.2 一致性分层一句话
+
+感知与意图走 **CRDT 最终一致**；主控选举走 **Local Raft + Dynamic Quorum**；物理执行器走 **Lease**，禁止 LWW。
+
+### 9.3 Embedded Experiences 话术
+
+> 「弱网协同不是强行 Raft 全员在线。先 Outbox 扛断连，再按状态类型选 CRDT 或 Quorum；执行器用租约，重连用 Delta+QoS 防洪峰。」
+
+---
+
 ## 关联代码与文档
 
 - [LLM/](../LLM/) — KV Cache、PagedAttention、FlashAttention
@@ -177,3 +200,4 @@ Always-On DSP（VAD/Wake + Motion）→ IRQ 唤醒 → C++ Agent 调度（SPSC +
 - [docs/05-系统设计题与模拟面试.md](../docs/05-系统设计题与模拟面试.md) — capture-to-display 延迟预算
 - [embedded-sensor-event-loop.md](./embedded-sensor-event-loop.md) — 多传感器 Event Loop
 - [smart-glasses-ai-runtime.md](./smart-glasses-ai-runtime.md) — 智能眼镜 Agent Runtime
+- [edge-collaborative-agent-runtime.md](./edge-collaborative-agent-runtime.md) — 边缘协同 Agent Runtime
