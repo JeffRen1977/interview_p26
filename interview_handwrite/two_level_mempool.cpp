@@ -5,8 +5,10 @@
 // Local layer avoids hitting that CAS on every packet:
 //   thread-private array; refill/drain in bulk when empty/full.
 //
-// Follow-ups: ABA on free_head; production bulk = one CAS cutting a chain
-// (DPDK); hugepage mmap for the slab; RSS so each core owns one LocalCache.
+// Follow-ups:
+// - ABA on free-list head (see allocate() comment) → tagged pointer / versioned CAS
+// - Production bulk = one CAS cutting a chain (DPDK), not a loop of singles
+// - Hugepage mmap for the slab; RSS so each core owns one LocalCache
 
 #include <array>
 #include <atomic>
@@ -53,8 +55,32 @@ class GlobalMempool {
     }
 
     // Lock-free pop (same pattern as FixedSizeMemoryPool::Allocate).
+    //
+    // Interview Q: does this CAS free-list have an ABA problem?
+    //
+    // A: Yes. CAS only checks that head_ still equals the pointer we saw (X).
+    //    It cannot tell that X was popped, mutated, and pushed back meanwhile.
+    //
+    //    Classic sequence (Treiber stack):
+    //      head: X → Y → Z
+    //      Thread A: loads head=X, reads X->next=Y, then pauses before CAS
+    //      Thread B: allocate() pops X, then pops Y; later deallocate(X)
+    //                so head is again X, but X->next may now be Z (or anything)
+    //      Thread A: CAS(head, X → Y) SUCCEEDS  (head still looks like X!)
+    //                → free list wrongly points at Y, which may be in use /
+    //                  no longer the true successor → lost nodes / corruption
+    //
+    //    Local cache reduces how often we hit this path, but does NOT remove ABA
+    //    on the global head_ when cores do burst refill/drain.
+    //
+    // Production fix — tagged / versioned head:
+    //   pack {ptr, version} into 128-bit (or pointer + ABA tag) and CAS both.
+    //   Every successful pop/push bumps version, so A→B→A no longer matches.
+    //   Alternatives: hazard pointers / epoch reclamation if nodes can be freed
+    //   to the OS (less common for a fixed slab pool).
     Block* allocate() {
         Block* old = head_.load(std::memory_order_acquire);
+        // desired = old->next: if another thread wins, old is refreshed and we retry.
         while (old != nullptr &&
                !head_.compare_exchange_weak(old, old->next,
                                             std::memory_order_acquire,
@@ -64,6 +90,8 @@ class GlobalMempool {
     }
 
     // Lock-free push (same pattern as FixedSizeMemoryPool::Deallocate).
+    // Pushing to the head is what enables the A→B→A pattern above: the same
+    // block address can reappear as head_ after other nodes were popped.
     void deallocate(Block* block) {
         if (block == nullptr) {
             return;
@@ -96,6 +124,7 @@ class GlobalMempool {
     }
 
  private:
+    // Contended CAS target — also the ABA surface (pointer identity only).
     alignas(kCacheLine) std::atomic<Block*> head_{nullptr};
 };
 
