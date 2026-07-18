@@ -141,7 +141,7 @@ Cloud: gpt-4o / 大 VLM
 ## Q7. 多传感器异步事件循环（眼镜 / 边缘 Runtime）
 
 > **完整标准答案（每源 SPSC、poll/sleep 省电、IMU↔Camera 时间对齐）：**  
-> [embedded-sensor-event-loop.md](./embedded-sensor-event-loop.md) · Demo：[sensor_event_loop.py](./sensor_event_loop.py)
+> [embedded-sensor-event-loop.md](./embedded-sensor-event-loop.md) · Demo：[sensor_event_loop.py](./sensor_event_loop.py) / [sensor_event_loop.cpp](./sensor_event_loop.cpp)
 
 异速输入（IMU 200Hz / Camera 30Hz）下，用 **Reactor + 每传感器一条 SPSC** 解耦采集与 Agent；热路径 Active Poll，空闲休眠省电；视频环只传 dma-buf 描述符。
 

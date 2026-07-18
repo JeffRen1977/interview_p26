@@ -2,7 +2,7 @@
 
 > **核心考点：** Reactor + **每传感器一条 SPSC 无锁环**；主动轮询 vs 休眠省电；零拷贝描述符；多模态时间戳对齐  
 > **场景：** 智能眼镜 / 嵌入式设备 — IMU 200Hz、Camera 30Hz、Mic/I2C 更低，要求低延迟 + 低 CPU  
-> **关联 Demo：** [sensor_event_loop.py](./sensor_event_loop.py)  
+> **关联 Demo：** [sensor_event_loop.py](./sensor_event_loop.py) · [sensor_event_loop.cpp](./sensor_event_loop.cpp)  
 > **关联手撕：** [../interview_handwrite/spsc_ring_buffer.cpp](../interview_handwrite/spsc_ring_buffer.cpp) · [../docs/24-无锁SPSC队列与Cacheline对齐.md](../docs/24-无锁SPSC队列与Cacheline对齐.md) · [realtime-voice-assistant.md](./realtime-voice-assistant.md)
 
 ---
@@ -215,6 +215,10 @@ Camera @ t=112  → 取 [109.5, 114.5] 内 IMU → 常为 1～2 个样本
 ```bash
 cd openai
 python3 sensor_event_loop.py
+
+cmake -S . -B build && cmake --build build --target sensor_event_loop
+./build/sensor_event_loop
 ```
 
 演示：多速率假传感器 → 每源 SPSC → 单线程 Loop drain → Camera 触发时对齐最近 IMU。
+C++ 版额外展示真实 `acquire`/`release` 原子语义与 `condition_variable` 休眠唤醒。
