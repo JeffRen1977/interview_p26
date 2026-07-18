@@ -108,4 +108,4 @@
 |------|------|
 | Q1–Q3 | [01-inference-api-platform.md](./01-inference-api-platform.md) |
 | Q4 | [02-isolated-code-sandbox.md](./02-isolated-code-sandbox.md) |
-| Q5–Q6 | [03-embedded-edge-multimodal.md](./03-embedded-edge-multimodal.md) |
+| Q5–Q8 | [03-embedded-edge-multimodal.md](./03-embedded-edge-multimodal.md) · [smart-glasses-ai-runtime.md](./smart-glasses-ai-runtime.md) |

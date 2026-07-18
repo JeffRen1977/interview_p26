@@ -147,9 +147,33 @@ Cloud: gpt-4o / 大 VLM
 
 ---
 
+## Q8. 智能眼镜多模态 Agent Runtime（功耗 / 内存墙 / 端云协同）
+
+> **完整标准答案（Always-On 级联唤醒、dma-buf 零拷贝、Block KV、Hybrid 路由）：**  
+> [smart-glasses-ai-runtime.md](./smart-glasses-ai-runtime.md)
+
+### 8.1 三条物理边界（开场先钉死）
+
+| 边界 | 量级 | 设计后果 |
+|------|------|----------|
+| Thermal / Power | 整机 **1.5–2.5W**；电池 **400–600mAh** | 主 SOC Deep Sleep；DSP Always-On |
+| Memory Wall | **2–4GB** 共享 LPDDR | 禁动态扩 KV；Block 预分配 |
+| Latency | Wake **&lt;100ms**；VLM TTFT **0.5–1s** | 零拷贝 + INT4/INT8 + 短 Active 窗口 |
+
+### 8.2 分层架构一句话
+
+Always-On DSP（VAD/Wake + Motion）→ IRQ 唤醒 → C++ Agent 调度（SPSC + KV）→ ExecuTorch 本地模型链 → 意图/RTT **Hybrid Router** 决定是否上云。
+
+### 8.3 Embedded Experiences 话术
+
+> 「眼镜 Runtime 的一等公民是 **不唤醒**。唤醒之后才是 dma-buf、INT4 VLM 和 Hybrid：简单意图本地闭环，复杂推理才上云，弱网强制本地。」
+
+---
+
 ## 关联代码与文档
 
 - [LLM/](../LLM/) — KV Cache、PagedAttention、FlashAttention
 - [docs/07-端侧部署题详解.md](../docs/07-端侧部署题详解.md) — INT4 量化、NPU
 - [docs/05-系统设计题与模拟面试.md](../docs/05-系统设计题与模拟面试.md) — capture-to-display 延迟预算
 - [embedded-sensor-event-loop.md](./embedded-sensor-event-loop.md) — 多传感器 Event Loop
+- [smart-glasses-ai-runtime.md](./smart-glasses-ai-runtime.md) — 智能眼镜 Agent Runtime
