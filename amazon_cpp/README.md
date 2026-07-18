@@ -19,6 +19,7 @@
 | [09-无锁固定大小内存池.md](./docs/09-无锁固定大小内存池.md) | 13, 14, 15, 17 | Datapath 对象池、ABA、Placement New、Per-Core Cache |
 | [10-memcpy与memmove.md](./docs/10-memcpy与memmove.md) | 2, 9, 15, 16 | 重叠检测、字对齐、SIMD/非临时写 |
 | [11-令牌桶限流器.md](./docs/11-令牌桶限流器.md) | 15, 16, 17 | 惰性令牌桶、double 精度、RSS/Per-Core |
+| [12-EC2-Nitro-Coding高频题.md](./docs/12-EC2-Nitro-Coding高频题.md) | 18 | 电话面 8 类高频 Coding + 仓库映射 + 通关潜规则 |
 
 ## 可运行示例
 
@@ -44,6 +45,10 @@ ctest --test-dir build --output-on-failure
 | [examples/11_lock_free_fixed_pool.cpp](./examples/11_lock_free_fixed_pool.cpp) | 固定内存、tagged CAS、无锁对象池 |
 | [examples/12_memmove.cpp](./examples/12_memmove.cpp) | memmove 重叠、8 字节对齐拷贝 |
 | [examples/13_token_bucket_rate_limiter.cpp](./examples/13_token_bucket_rate_limiter.cpp) | 惰性令牌桶、突发/精度/时钟回退 |
+| [examples/14_aligned_malloc.cpp](./examples/14_aligned_malloc.cpp) | aligned_malloc / aligned_free |
+| [examples/15_valid_ip.cpp](./examples/15_valid_ip.cpp) | IPv4/IPv6 纯指针校验 |
+| [examples/16_min_heap.cpp](./examples/16_min_heap.cpp) | 数组二叉堆 siftUp/siftDown |
+| [examples/17_bitmap.cpp](./examples/17_bitmap.cpp) | BitMap 位运算 membership |
 
 **系统设计手撕（C++ 实现）：** 见 [`../interview_handwrite/`](../interview_handwrite/)
 
@@ -57,6 +62,7 @@ ctest --test-dir build --output-on-failure
 6. Linux 基础：进程/线程、fd、epoll（系统岗）
 7. LeetCode Medium + 设计题：见 [`../leetcode/`](../leetcode/)
 8. Datapath 系统岗加餐：无锁内存池、ABA、Per-Core Cache、NUMA
+9. EC2 Nitro 电话面 Coding：见 [12-EC2-Nitro-Coding高频题.md](./docs/12-EC2-Nitro-Coding高频题.md)
 
 ## 18 Part 速查索引
 

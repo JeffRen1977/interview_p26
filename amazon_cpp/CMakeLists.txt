@@ -17,6 +17,10 @@ set(EXAMPLES
     11_lock_free_fixed_pool
     12_memmove
     13_token_bucket_rate_limiter
+    14_aligned_malloc
+    15_valid_ip
+    16_min_heap
+    17_bitmap
 )
 
 foreach(name IN LISTS EXAMPLES)
