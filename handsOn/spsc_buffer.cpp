@@ -14,6 +14,7 @@ class SPSCBuffer {
         size_t current_tail = tail.load(std::memory_order_acquire);
         if((current_tail+1)%buffer.size()== head.load(std::memory_order_acquire)) {
             return;// full.
+        }       
         buffer[(current_tail)%buffer.size()] = value;
         tail.store(current_tail + 1,std::memory_order_release);
     }
