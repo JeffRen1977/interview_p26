@@ -20,6 +20,7 @@
 | [10-memcpy与memmove.md](./docs/10-memcpy与memmove.md) | 2, 9, 15, 16 | 重叠检测、字对齐、SIMD/非临时写 |
 | [11-令牌桶限流器.md](./docs/11-令牌桶限流器.md) | 15, 16, 17 | 惰性令牌桶、double 精度、RSS/Per-Core |
 | [12-EC2-Nitro-Coding高频题.md](./docs/12-EC2-Nitro-Coding高频题.md) | 18 | 电话面 8 类高频 Coding + 仓库映射 + 通关潜规则 |
+| [13-C++系统岗Coding与设计题全景.md](./docs/13-C++系统岗Coding与设计题全景.md) | Coding+Design | **题型 checklist：** List/Tree/Bit + 内存池/无锁/并发设计 + 两周冲刺 |
 
 ## 可运行示例
 
@@ -49,6 +50,7 @@ ctest --test-dir build --output-on-failure
 | [examples/15_valid_ip.cpp](./examples/15_valid_ip.cpp) | IPv4/IPv6 纯指针校验 |
 | [examples/16_min_heap.cpp](./examples/16_min_heap.cpp) | 数组二叉堆 siftUp/siftDown |
 | [examples/17_bitmap.cpp](./examples/17_bitmap.cpp) | BitMap 位运算 membership |
+| [examples/18_event_dispatcher.cpp](./examples/18_event_dispatcher.cpp) | Pub-Sub Event Dispatcher、type_index 类型擦除 |
 
 **系统设计手撕（C++ 实现）：** 见 [`../interview_handwrite/`](../interview_handwrite/)
 
@@ -63,6 +65,7 @@ ctest --test-dir build --output-on-failure
 7. LeetCode Medium + 设计题：见 [`../leetcode/`](../leetcode/)
 8. Datapath 系统岗加餐：无锁内存池、ABA、Per-Core Cache、NUMA
 9. EC2 Nitro 电话面 Coding：见 [12-EC2-Nitro-Coding高频题.md](./docs/12-EC2-Nitro-Coding高频题.md)
+10. **系统岗题型全景 + 两周冲刺：** [13-C++系统岗Coding与设计题全景.md](./docs/13-C++系统岗Coding与设计题全景.md)
 
 ## 18 Part 速查索引
 

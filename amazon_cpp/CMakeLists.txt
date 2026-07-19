@@ -21,6 +21,7 @@ set(EXAMPLES
     15_valid_ip
     16_min_heap
     17_bitmap
+    18_event_dispatcher
 )
 
 foreach(name IN LISTS EXAMPLES)

@@ -1,5 +1,7 @@
 # 04 - OpenAI TLM 面试高分通关秘籍
 
+> **4 周日程（按日执行）：** [tlm-embedded-4week-prep-plan.md](./tlm-embedded-4week-prep-plan.md)
+
 ---
 
 ## 1. 与传统 System Design 的区别
@@ -109,3 +111,4 @@
 | Q1–Q3 | [01-inference-api-platform.md](./01-inference-api-platform.md) |
 | Q4 | [02-isolated-code-sandbox.md](./02-isolated-code-sandbox.md) |
 | Q5–Q9 | [03-embedded-edge-multimodal.md](./03-embedded-edge-multimodal.md) · [smart-glasses-ai-runtime.md](./smart-glasses-ai-runtime.md) · [edge-collaborative-agent-runtime.md](./edge-collaborative-agent-runtime.md) |
+| 4 周备战 | [tlm-embedded-4week-prep-plan.md](./tlm-embedded-4week-prep-plan.md) |
