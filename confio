@@ -1,0 +1,210 @@
+Confido 的 Job Description 中列举的这 5 个 **Example Problems**，实际上构成了 CPG（快速消费品）软件系统中最核心的 **“数据摄入 $\rightarrow$ 自动化执行 $\rightarrow$ 预测与决策”** 的完整闭环。
+
+针对 **Staff AI / ML Engineer** 的定位，面试官绝不是想听你讲高深的学术论文，而是考察你**能否把商业痛点转化为精准的 ML/系统架构，并在成本、准确率、延迟和工程复杂度之间做出优雅的 Trade-offs（权衡取烧）**。
+
+下面为你逐一深度剖析这 5 个 Example Problems 的**行业业务痛点、Staff 级架构设计方案、技术选型与高频面试追问**：
+
+---
+
+## 1. AI-powered document ingestion for invoices, deductions, and retailer reports
+
+> **（AI 驱动的发票、扣款单及零售商报表智能摄入）**
+
+### 🏢 行业业务痛点
+
+* **长尾格式极其杂乱**：CPG 品牌需要与数百个零售商（Walmart, Target, Kroger, Whole Foods 等）交易。每个零售商的扣款凭证（Deduction Scraps/Check Remittances）格式完全不同，有扫描件 PDF、Excel、图片甚至传真。
+* **数据结构复杂**：包含大量嵌套表格、手写签名、印章遮挡以及行业特有缩写（如 "Co-op Ad Fee", "Slotting Allowance"）。
+* **零容错率**：这是财务账目，金额（Deduction Amount）和扣款代码（Reason Code）差一个小数点或提取错误，就会导致后续自动申诉失败或错账。
+
+### 🧱 Staff 级系统架构设计
+
+不要试图用一个单一的大模型（LLM）解决所有问题（成本极高且易产生幻觉）。采用 **Multi-Stage Processing Pipeline（多阶段混合处理流水线）**：
+
+```
+[PDF / Image / Excel Upload] 
+         │
+         ▼
+┌─────────────────────────┐
+│ 1. Page Splitting &     │
+│    Document Layout OCR  │ ──> AWS Textract / PaddleOCR / LayoutLMv3
+└─────────────────────────┘      (提取 Text + Bounding Box 坐标)
+         │
+         ▼
+┌─────────────────────────┐
+│ 2. Router & Layout Hash │
+│    Classification       │
+└─────────────────────────┘
+         ├─── (高频/已知固定格式: 如 Walmart 模板) ──>  [微调小模型 SLM / Vision-Language Model]
+         └─── (长尾/未知杂乱格式: 复杂长文本)       ──>  [Sonnet 3.5 / GPT-4o + Pydantic Structured Output]
+                                                                  │
+                                                                  ▼
+                                                   ┌──────────────────────────────┐
+                                                   │ 3. Deterministic Validation  │
+                                                   │    (Sum/Tax/Discount Rules)  │
+                                                   └──────────────────────────────┘
+                                                                  │
+                                                     ┌────────────┴────────────┐
+                                                     ▼                         ▼
+                                             (校验通过: 自动入库)      (校验失败/低置信度: 人工审核 HITL)
+
+```
+
+### 🎯 技术选型与权衡 (Trade-offs)
+
+* **Structured Output Engine**：使用 `Instructor` 或 `Outlines` 强约束 LLM 必须按 JSON Schema 输出，杜绝 Markdown 或解析失败。
+* **硬性逻辑校验 (Deterministic Validation Gate)**：模型提取完数据后，必须由传统代码运行确定性规则：
+
+$$\text{单项扣款总和} + \text{税费} + \text{促销折扣} == \text{总扣款金额}$$
+
+
+
+若计算不齐，直接打上 Low Confidence 标签并推送到 Human-in-the-Loop (HITL) 界面，由财务人员一键校正。校正数据沉淀为负反馈数据集（Negative Feedback Loop）。
+
+### 💬 追问防坑：*“如何降低上百万页文档的处理成本（Cost Optimization）？”*
+
+> **回答**：开启双轨机制。非实时的批量对账（Overnight Batch），使用 LLM 厂商的 **Batch API**（如 OpenAI/Claude Batch，直接省 50% 成本）；同时对 PDF 进行 Layout Fingerprint 哈希，如果是重复的固定格式账单，直接命中规则缓存，避免重复调用大模型。
+
+---
+
+## 2. Agent workflows that retrieve data from legacy systems
+
+> **（跨遗留系统的 Agent 自动化数据检索与申诉工作流）**
+
+### 🏢 行业业务痛点
+
+* **数据孤岛与遗留系统（Legacy Lock-in）**：CPG 品牌的数据散落在各种地方：内部 ERP（NetSuite, SAP）、物流承运商 Portal（FedEx, UPS, C.H. Robinson 的 POD 物流凭证）、以及零售商后台（Walmart Retail Link）。
+* **申诉流程长且极其繁琐**：要对某一笔不合理的扣款发起申诉（Dispute），运营人员需要：*登录 FedEx 下载 POD 证明货物已送达 $\rightarrow$ 去 NetSuite 查 Invoice 证明没少发货 $\rightarrow$ 填写沃尔玛 Portal 的申诉表单 $\rightarrow$ 提交*。
+
+### 🧱 Staff 级系统架构设计
+
+采用 **Agentic Workflow（智能体工作流）**，结合 **Stateful Workflow Engine（持久化工作流引擎，如 Temporal）**：
+
+* **ReAct / Tool-calling Agent**：大模型充当“大脑”，定义明确的 Tools（如 `fetch_fedex_pod(tracking_id)`, `query_netsuite_invoice(invoice_id)`, `submit_walmart_dispute(data)`）。
+* **工作流状态持久化 (Temporal / LangGraph)**：网络抓取（Web Scraping）或第三方 API 极其不稳定。将 Agent 的每一步 Actions 作为事件持久化（Event Sourcing）。如果网络超时或 Worker 挂掉，引擎自动重新播放历史事件（Replay），精准恢复断点，避免重复提交申诉。
+
+### 🎯 技术选型与权衡 (Trade-offs)
+
+* **Distributed Rate Limiting（分布式限流）**：第三方 Portal (如 Walmart) 有严格的 Web 抓取或 API 限流。必须在出站网关使用 Redis + Lua 脚本实现分布式令牌桶，按租户和平台隔离（如 `ratelimit:{brand_id}:{retailer_id}`），防止账号被封。
+* **Idempotency Key（幂等性）**：每次向外部系统提交申诉，带上由 `Invoice_ID + Deduction_Code` 生成的确定性哈希。即使 Agent 重试，也不会在对方系统创建重复的申诉单。
+
+---
+
+## 3. Sales forecasting models for large CPG brands
+
+> **（大中型 CPG 品牌的销量需求预测模型）**
+
+### 🏢 行业业务痛点
+
+* **销量波动受外部事件强干扰**：快消品的销量绝不是简单的平滑曲线，它高度依赖于：**零售商促销活动 (Promotions)**、**货架摆放位置 (End-cap/Shelf space)**、**季节性 (Seasonality)**、以及**供应链断货 (Out-of-Stock)**。
+* **层级化预测要求（Hierarchical Forecasting）**：品牌既需要看 **SKU 级别**（库存补货），也需要看 **Brand / Retailer 级别**（财务预算与 Top-line 决策）。
+
+### 🧱 Staff 级系统架构设计
+
+放弃单一的传统 ARIMA 模型，采用 **Hierarchical & Covariate-Aware ML Pipeline（感知协变量的层级预测流水线）**：
+
+* **特征工程 (Feature Store)**：
+* **内生特征**：历史销量、价格变动、促销折扣率（Discount %）、广告花费（Ad Spend）。
+* **外生特征**：零售商日历（Walmart 促销周）、节假日、天气数据、宏观 CPI。
+
+
+* **模型架构**：
+* **基线与中短期预测**：使用 **LightGBM / XGBoost**（处理表格数据与强特征交叉效率极高）或 **Temporal Fusion Transformer (TFT)**（捕获长短期时间序列依赖与可解释性）。
+* **层级对齐 (Reconciliation)**：使用 **MinT (Minimum Trace)** 方法，确保 Bottom-up（SKU 级）的预测汇总后，与 Top-down（品牌级）的预测在数学逻辑上绝对相等。
+
+
+
+### 🎯 技术选型与权衡 (Trade-offs)
+
+* **冷启动问题 (Cold Start for New SKUs)**：对于新上市的 SKU（如 OLIPOP 新出的口味），缺乏历史数据。解法：基于文本描述与品类 Embedding（如用 MiniLM 计算描述相似度），寻找相似历史 SKU 的生命周期曲线进行迁移学习（Transfer Learning）。
+
+---
+
+## 4. Anomaly detection across retailer performance data
+
+> **（跨零售商履约与绩效数据的异常检测）**
+
+### 🏢 行业业务痛点
+
+* **隐性财务损失（Silent Revenue Leakage）**：零售商经常“静默扣款”或突然出现异常的退货率、未送达罚款（OTIF - On-Time In-Full Fines）。例如，Target 突然对某个仓库的所有发货扣除了 5% 的罚款，人工往往数周后才发现。
+* **高维与海量数据**：每天有成千上万条 POS（Point of Sale）交易和供应链流水，传统的硬编码阈值（如“大于 $10,000 就报警”）产生大量误报（False Positives），导致运营人员产生“警报疲劳”（Alert Fatigue）。
+
+### 🧱 Staff 级系统架构设计
+
+采用 **Multi-Tier Anomaly Detection Architecture（多层级异常检测架构）**：
+
+```
+[Retailer Daily Stream / Batch Data]
+                │
+                ▼
+┌───────────────────────────────┐
+│ Tier 1: Deterministic Rules   │ ──> (如: 出现了未知的错误代码、金额小于 0)
+└───────────────────────────────┘
+                │ (正常数据)
+                ▼
+┌───────────────────────────────┐
+│ Tier 2: Unsupervised / Statistical
+│   - Seasonal Hybrid ESD (S-H-ESD)
+│   - Isolation Forest / Autoencoder
+└───────────────────────────────┘
+                │
+                ▼
+┌───────────────────────────────┐
+│ Tier 3: LLM Contextualizing   │ ──> (将异常点转化为人类可读的分析报告)
+└───────────────────────────────┘     "发现 Target 某仓库扣款率突增 15%，疑因承运商延迟"
+
+```
+
+### 🎯 技术选型与权衡 (Trade-offs)
+
+* **统计模型与时序结合**：使用 **S-H-ESD (Seasonal Hybrid Extreme Studentized Deviate)**，先剥离周/月季节性趋势，再检测残差异常，避免把“黑五”等正常的销量暴涨误判为异常。
+* **可解释性 (Explainability)**：光报出“异常”没用，必须利用 **SHAP values** 找出导致异常的主导特征（例如：主要是由于 `Carrier_Delay_Days > 3` 导致的扣款），并由 LLM 生成一句话归因总结。
+
+---
+
+## 5. Promotion optimization models
+
+> **（零售商促销优化与 ROI 推荐系统）**
+
+### 🏢 行业业务痛点
+
+* **促销资金浪费（Trade Spend Waste）**：CPG 品牌每年将 15%-25% 的收入用于 Trade Promotions（如买一送一、End-cap 货架展示、零售商海报广告）。但行业统计显示，超过 50% 的促销是亏损的（Negative ROI）。
+* **复杂的基线销量计算（Baseline Sales Dilemma）**：要评估促销赚了多少钱，必须先知道“如果不做这个促销，原本能卖出多少（Baseline）”。而这个 Baseline 是不可观察的反事实（Counterfactual）。
+
+### 🧱 Staff 级系统架构设计
+
+构建基于 **Causal Inference（因果推断）+ Constrained Optimization（约束优化）** 的决策引擎：
+
+```
+1. 弹性建模 (Price Elasticity)      2. 反事实估计 (Causal Inference)
+   - 估算不同折扣下的需求价格弹性      - 使用 Double Machine Learning (DML) 
+                                       剥离促销与基线销量
+                     │                         │
+                     └───────────┬─────────────┘
+                                 ▼
+                     ┌───────────────────────┐
+                     │ 3. Prescriptive Engine│
+                     │    (SLSQP / OR-Tools) │
+                     └───────────────────────┘
+                                 │
+                                 ▼
+                       [推荐最优促销方案]
+            "在 Target 进行 15% 折扣 + 货架展示，
+             预计增量 ROI +24%，净利润最大化"
+
+```
+
+### 🎯 技术选型与权衡 (Trade-offs)
+
+* **因果推断 (Causal ML)**：使用 `EconML` 或 `CausalML` 库，基于 **Double Machine Learning (DML)** 排除混杂因素（Confounders，如季节性、竞争对手降价），精准评估促销带来的净增量（Lift）而非全量销量。
+* **运筹优化（Operations Research Integration）**：在给品牌推荐“最佳促销组合”时，使用 **Google OR-Tools** 或 SciPy 优化器，在预算上限（Budget Limit）**和**产能/库存约束（Inventory Constraint）下，求解最大化 ROI 的线性/非线性规划问题。
+
+---
+
+## 💡 总结：面试中表达这些问题的“Staff 级通用套路”
+
+当面试官让你聊其中任何一个 Example Problem 时，记住按照以下 **4 步黄金法则** 来输出：
+
+1. **先定位商业价值 (Business Value First)**：“这个问题最终帮 CPG 品牌省了多少钱 / 追回了多少扣款 / 提升了多少 ROI？”
+2. **拆解数据与痛点 (Data & Domain Challenges)**：“这个场景的最大挑战在于数据的长尾杂乱 / 外部噪声大 / 第三方系统不确定。”
+3. **推演混合架构 (Hybrid Architecture Strategy)**：“我不建议盲目追求单一复杂模型，我的设计是：**规则/确定性校验打底 + 传统统计/小模型降本 + 大模型/Agent 攻克长尾**。”
+4. **主动谈工程权衡 (Engineering Trade-offs)**：“我们在生产环境中需要重点考虑 Token 成本、并发限流、Saga 断点恢复以及确定性数据校验。”
