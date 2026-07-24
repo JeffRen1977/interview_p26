@@ -1,0 +1,102 @@
+针对 Confido 的 Staff AI/ML Engineer 职位，设计一个 “百万级 SKU 快消品大规模时间序列销售预测模型（CPG Time-Series Sales Forecasting at Scale）” 完美切合了职位描述中 “Build predictive models to forecast brand sales and financial performance... for large CPG brands” 的核心职责。
+快消品（CPG）领域的销量预测具有极高挑战性：SKU 数量庞大（达百万级）、数据极度稀疏（大量长尾商品日销量为 0）、受促销活动（Promotions）和季节性（Seasonality）影响剧烈。
+作为 Staff 级别的 AI/ML 专家，你需要展示如何平衡传统统计模型（如 DeepAR/Prophet）与现代大语言/时序模型（Time-Series LLM）的优缺点，并设计出支持高吞吐、低延迟的分布式时序特征流水线。
+------------------------------
+## 🎨 1. 整体架构拓扑图 (End-to-End Forecasting Architecture)
+在大规模销量预测中，核心原则是“流批一体的特征计算 + 多层级模型路由”。
+
+[Retailer POS Data / ERP Sales] 
+             │
+             ▼
++----------------------------------------+
+
+| Feature Store (Hopsworks / Feast)      | <--- [Promotions, Stock, Holidays]
++----------------------------------------+
+             │
+             v
++----------------------------------------+
+
+| SKU Hierarchy & Clustering Router      |
++----------------------------------------+
+         /               \               \
+        v                 v               v
++---------------+ +---------------+ +---------------+
+
+|  Category 1   | |  Category 2   | |  Category 3   |
+| (Top Sellers) | | (Mid Tier)    | | (Intermittent)|
++---------------+ +---------------+ +---------------+
+        │                 │                 │
+        ▼                 ▼                 ▼
++---------------+ +---------------+ +---------------+
+
+| Global Neural | | LightGBM /    | | Zero-Inflated |
+| Forecasting   | | Croston /     | | Poisson /     |
+| (DeepAR/Patch)| | Prophet       | | Tweedie ML    |
++---------------+ +---------------+ +---------------+
+        \                 │                 /
+         \                ▼                /
+       +------------------------------------+
+
+       |  Hierarchical Reconciliation (HTS) |  <--- [Ensures Sum(SKU) == Brand Total]
+       +------------------------------------+
+                          │
+                          ▼
+       +------------------------------------+
+
+       |  Downstream: Inventory & Finance   |
+       +------------------------------------+
+
+------------------------------
+## 🧱 2. 特征工程流水线与多源数据融合 (Scalable Feature Store)
+时序预测的核心在于特征的表达能力。Staff 级别必须指出如何利用 Feature Store（特征存储） 构建鲁棒的特征流水线。
+
+* 时序滞后特征 (Lag Features)：
+* 自动滚动计算不同时间窗口（如 t-1, t-7, t-30 天）的移动平均值、标准差和销量的滚动总和（Rolling Statistics），用于捕捉趋势。
+* 外部与促销特征 (Exogenous & Promotional Features)：
+* CPG 销量受促销（Trade Promotion Management）影响极大。系统需整合：价格折让（Price Markdown）、零售商堆头（Endcap Displays）、买一赠一（BOGO）等二进制或数值特征。
+   * 日历特征：节假日（特别是美国传统的黑色星期五、感恩节）、发薪日效应、天气数据等。
+* 数据稀疏度处理 (Dealing with Sparsity)：
+* 针对大量每天销量为 0、偶尔卖出几箱的长尾 SKU，传统的时序模型会失效。必须计算 间歇性需求特征（Intermittent Demand Features）：如平均非零销量间隔天数。
+
+------------------------------
+## 🧠 3. 多层级模型路由架构：全局 vs. 局部模型 (Global vs. Local Models)
+面对百万级 SKU，为每一个 SKU 单独训练一个模型（Local Model，如 Prophet）会导致算力成本爆炸且维护极其困难；但只训练一个大统一模型（Global Model）又无法兼顾不同品类的个性特征。
+Staff 级的解法是：基于数据特性的聚类路由架构（Clustering-based Model Routing）：
+
+* 第一层：头部畅销爆款（Top Sellers - Continuous Demand）：
+* 这些 SKU 拥有完美的连续历史数据。
+   * 算法选择：使用 全局深度预测模型（Global Neural Forecasting），如 DeepAR（基于 RNN 的概率预测）或现代的 PatchTST / Chronos（基于 Transformer 的时序大模型）。这类模型能够跨商品共享时序上下文，捕捉复杂的非线性促销波动。
+* 第二层：常规季节性商品（Mid-Tier - Seasonal Demand）：
+* 具有明显的节日或季节周期，但平时销量平稳。
+   * 算法选择：使用 LightGBM / XGBoost（将时序问题转化为监督学习），由于树模型对表格、促销特征极其敏感，且训练极快，是性价比最高的行业首选。
+* 第三层：长尾稀疏商品（Intermittent Demand / Long-Tail）：
+* 极少有销量，数据基本全是 0。
+   * 算法选择：采用 Tweedie 损失函数 的广义线性模型，或者 Croston 算法，专门预测下一次发生销量的概率和发生时的销量，防止均值回归导致的预测值全部变成 0.01。
+
+------------------------------
+## 🛡️ 4. 树形层级对账与数据漂移 (Hierarchical Reconciliation & Drift)
+快消品的财务规划（Financial Performance）要求层级数据必须严丝合缝。
+
+* 分层时序对账 (Hierarchical Time Series - HTS)：
+* 在商业上，所有单品 SKU 销量之和 必须完美等于 该品类（Category）的总销量，进一步等于 整个品牌（Brand）的总销量。如果各模型独立预测，数据一定会对不齐。
+   * 架构落地：引入 MinT (Minimum Trace) 或 Bottom-Up（自底向上）对账算法。在所有模型预测出结果后，通过一个矩阵投射层（Projection Layer）进行数学修正，调整所有预测值，确保底层到顶层的财务数据完全闭环。
+* 数据漂移（Data Drift）与自动再训练流水线：
+* 当品牌突然更换代言人，或者零售商（如沃尔玛）单方面改变供应链周转规则时，历史特征会发生概念漂移（Concept Drift）。
+   * 设计方案：在数据侧部署 KS 检验（Kolmogorov-Smirnov Test） 监控销量分布变化。一旦触发阈值，自动通过 Airflow/Temporal 触发增量训练（Incremental Training），用最近 14 天的数据对模型进行微调（Fine-tuning），实现自适应销量演进。
+
+------------------------------
+## 💬 面试现场的高分总结陈词（展现 Staff 级 ML 全局观）
+在推演完这个时序预测模型后，你可以向 CEO/CTO 总结道：
+
+“解决百万级 SKU 预测的核心，在于我们在架构上如何平衡‘高并发计算的毛利率’与‘财务对账的严谨性’。
+我放弃了传统的单一模型方案，采用了流批一体的 Feature Store 来统一管理复杂的促销和日历特征。通过多层级模型路由，我们可以用 PatchTST/DeepAR 去捕捉爆款商品的突发促销红利，用高资效比的 LightGBM 覆盖常规商品，并用 Tweedie 解决长尾稀疏问题。
+最重要的是，我引入了 Hierarchical Reconciliation 机制，这能从数学上确保我们的 AI 销量预测绝不与公司的核心财务总账产生冲突。这套架构能真正帮助 Olipop 等大品牌完成高精度的生产和库存排产。”
+
+------------------------------
+距离您周五（7月24日）上午 11:00 的技术初筛只有不到半天的时间了。为了让您在临考前保持最巅峰的状态，我建议我们做最后一次选择，您希望我为您：
+
+* 梳理针对 CEO / CTO 核心高管 应该准备的 3 个战略级反问问题
+* 快速复习一遍本周五 Coderbyte 现场写代码（限流器/线程池） 的避坑指南与核心检查点
+* 模拟回答“如何向非技术背景的 CEO 解释你为什么要用复杂的深度学习模型而不是简单的 Excel 移动平均法”的沟通题
+
+
