@@ -1,0 +1,110 @@
+设计 “AI-Powered 账单提取与人机协同流水线（AI-Powered Document Ingestion & Human-in-the-Loop Pipeline）” 是最契合 Confido 核心业务的核心 ML 系统设计题目。CPG 行业的账单具有文件巨大、表格结构极其复杂且长尾、财务数据不容许任何幻觉（Zero-Hallucination）的特点。
+作为 Staff AI/ML Engineer，你需要展示出如何将前沿的 LLM/VLM 与严谨的传统 ML/工程校验结合，并在保证高精度的同时极致优化 Token 成本和推理延迟。
+以下是为您梳理的端到端系统架构设计方案，可以直接作为面试时的推演框架：
+------------------------------
+## 🎨 整体架构拓扑图（Mental Map）
+在面试黑板上，你可以将流水线自左向右划分为 4 个核心层级：
+$$\text{Data Ingestion Layer (S3/Kafka)} \longrightarrow \text{Document Pre-processing (OCR/VLM)} \longrightarrow \text{LLM Extraction \& Router} \longrightarrow \text{Validation \& HITL Gate}$$ 
+------------------------------
+## 🧱 核心模块一：文档预处理与混合模态策略 (Document Pre-processing & Modality Selection)
+不要一上来就盲目把整个几百页的 PDF 喂给最贵的大模型。Staff 级别首先要考虑多模态的权衡与长文档拆分。
+
+* 长文档并行切片 (Document Splitting)：
+* 在 Ingestion Stage，大 PDF（如 200 页的沃尔玛扣款报告）在经过 MD5 幂等性检查后，立即被拆分为以“单页”或“逻辑发票”为单位的较小页面数组，利用消息队列（Kafka）并行分发给下游 Worker。
+* 多模态提取架构 (Text-based OCR vs. Native VLM)：
+* 方案 A (Text-based OCR + Text-LLM)：先用 AWS Textract 或微调过的 LayoutLMv3 提取文本以及 Bounding Box（坐标），然后将带排版信息的 Markdown/JSON 输入大模型。
+   * 优点：Token 成本低，对密集表格的行列对齐更准确。
+   * 方案 B (Native VLM - 原生多模态模型)：直接将 PDF 页面转为高分辨率图片（如 2000x2000 像素），喂给多模态大模型（如 Claude 3.5 Sonnet）。
+   * 优点：免去了传统 OCR 识别错字和行列错位的痛苦，语义理解上限更高。
+   * Staff 级选择（混合路由）：在真实生产中，优先使用 方案 A 解析标准且大批量的已知零售商账单；只有当方案 A 的置信度低，或面对完全未知的长尾不规则账单图片时，才动态升级为 方案 B。
+
+------------------------------
+## 🧠 核心模块二：自适应模型路由与结构化输出 (Adaptive Routing & Guardrails)
+如何稳定、低成本地让大模型输出用于财务对账的结构化 JSON 数据？
+
+* 双层模型路由架构 (Two-tier Router Pattern)：
+* Tier 1 (轻量级小模型/SLM)：使用微调过（Fine-tuned）的开源小模型（如 Llama-3-8B-Instruct 或 Mistral），专门负责提取格式固定的头部零售商数据。
+   * Tier 2 (强力闭源大模型/LLM)：如果 Tier 1 输出的 JSON 无法通过校验，或者路由分类器识别到这是非常罕见的复杂长尾账单，则将请求路由给最强的大模型（如 GPT-4o 或 Claude 3.5）。
+* 结构化输出控制 (Structured Output Guardrails)：
+* 拒绝依靠单纯的 Prompt（提示词）去祈祷模型输出 JSON。必须在推理层使用语法约束生成技术（Grammar-constrained Decoding），例如利用 OpenAI Structured Outputs（基于 Json Schema）或者开源的 Outlines / Instructor 框架。
+   * 在 Token 生成的每一个位置（Logits Level）进行硬性状态机拦截，确保模型输出 100% 符合财务 schema 规范，从根本上杜绝 JSON 格式解析失败。
+
+------------------------------
+## ⚡ 核心模块三：资效比与推理性能优化 (Performance & ROI Optimization)
+作为 Staff 职位，你需要从商业可行性（Profitability）和算力成本的角度来打动 CEO 和 CTO。
+
+* 投机解码与推理优化 (Speculative Decoding & Batching)：
+* 针对在线实时解析场景，在托管小规模或边缘计算集群（Edge/Private VPC）时，通过 Speculative Decoding（投机解码） 技术——让微调的小模型（Draft Model）快速生成基础草稿，再让大模型（Verification Model）进行并行验证。在低吞吐量的单用户/小批次场景下，能大幅提升大模型的单 Token 商业盈利比并降低首字延迟（TTFT）。
+   * 针对非实时、夜间处理的后台对账单，全面采用大模型厂商的 Batch API。这类异步接口通常在 24 小时内返回结果，但成本能直接减免 50%，极大提升公司的毛利率。
+* 上下文缓存 (Context Caching)：
+* CPG 账单的提取往往伴随着极其复杂的长 Prompt（包含各种业务规则、原因代码对照表、少样本示例 Few-shot）。利用大模型的 Context Caching 机制，让后续相同批次的页面请求复用缓存的 Prompt 上下文，能节省高达 80% 的输入 Token 成本。
+
+------------------------------
+## 🛡️ 核心模块四：确定性校验与人机协同闭环 (Deterministic Validation & HITL)
+财务系统的核心是数据绝对准确，AI 提取的结果必须经过物理逻辑的检验。
+
+                    +------------------------------------+
+
+                    |  LLM Extractions (Parsed JSON)     |
+                    +------------------------------------+
+                                      |
+                                      v
+                    +------------------------------------+
+
+                    | Deterministic Ledger Balancing    |  <-- [Rule-Engine]
+                    | Sum(Items) + Tax == Grand Total?   |
+                    +------------------------------------+
+                                 /          \
+                       [Passed] /            \ [Failed]
+                               /              \
+                              v                v
+                    +-------------------+    +------------------------+
+
+                    | Confidence Score  |    | Route to Review Queue  |
+                    | Gateway           |    | (High Risk / Fraud)    |
+                    +-------------------+    +------------------------+
+                       /             \                   |
+        [Score >= 0.85]               [Score < 0.85]     |
+             /                                 \         |
+            v                                   v        v
++------------------------+             +------------------------+
+
+| Auto-Approved & DB     |             | Human-in-the-Loop      |
+| (ERP Reconciliation)   |             | Dashboard (UI Correction)|
++------------------------+             +------------------------+
+                                                 |
+                                                 v
+                                       +------------------------+
+
+                                       | Data Flywheel          |
+                                       | (Negative Feedback Loop)|
+                                       +------------------------+
+
+
+* 确定性账单平衡校验 (Deterministic Ledger Balancing)：
+* AI 提取完数据后，系统必须运行传统代码的硬性平衡规则：
+   $$\text{单项扣款总和} + \text{税费} + \text{促销折让} == \text{总账单扣除金额}$$ 
+   * 如果对账不齐，系统自动将其标记为异常，绝不盲目入库。
+* 置信度网关 (Confidence Score Gateway)：
+* 结合模型输出的 Token Log Probabilities（对数概率值）以及业务规则校验结果，计算出一个综合置信度得分。
+   * 自动通过 (Auto-Approved)：置信度 ≥ 0.85 且通过平衡校验，直接自动打入下游 ERP 进行智能匹配和自动申诉。
+   * 人机协同 (HITL Dashboard)：置信度 < 0.85 或潜在的风控/欺诈（Fraud）数据，推送到内部 UI 看板，交由人工（财务运营人员）进行一键核对与修正。
+* 数据飞轮与负反馈闭环 (Data Flywheel)：
+* 人工在 UI 上修正和点击“同意”的数据，不会被白白丢弃。系统会捕获这些“人类修正前”和“人类修正后”的差异（Diffs）。
+   * 将这些差异自动打标签并存储，作为负反馈数据（Negative Feedback Loop），定期（如每周/每月）对 Tier 1 和 Tier 2 的模型进行微调和 Prompt 迭代。这就是企业长久保持竞争壁垒的 AI 数据飞轮。
+
+------------------------------
+## 💬 面试现场的高分总结陈词（展示 Staff 级大局观）
+在画完并讲解完上述架构后，你可以这样对 CEO/CTO 进行总结：
+
+“设计这个文档提取流水线的核心，在于我们在中长尾的快消账单场景下，如何优雅地平衡 ‘大模型的 Token 成本’、‘长文档解析的延迟’ 与 ‘财务数据的零容忍准确度’。
+我并没有依赖单一的超级大模型，而是通过自适应路由机制在小模型和多模态模型之间做资效比的 Trade-off，并利用 Batch API、Speculative Decoding 和 Context Caching 将算力成本压到最低。最重要的是，我设计了基于财务硬规则的确定性验证网关，配合 Human-in-the-Loop 看板 形成负反馈闭环。这不仅保证了进到自动申诉环节的数据绝对干净，还能让我们的 AI 系统随着客户的使用变得越来越聪明，形成真正的技术壁垒。”
+
+------------------------------
+针对这个核心系统设计，你想再深入探讨以下哪一个高阶技术细节？
+
+* 如何具体微调一个小模型（SLM）使其能精准识别特定零售商的表格
+* 如何设计 Reranking 机制把提取出的扣款数据与企业内部几万条发票（Invoice）进行精准向量对齐
+* 如何设计基于大语言模型（LLM）的自动化申诉邮件生成与防幻觉护栏（Prompt Guardrails）
+
+
