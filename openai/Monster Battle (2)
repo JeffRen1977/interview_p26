@@ -1,0 +1,152 @@
+Part 2: Type Advantages
+Requirements
+Enhance the combat system by giving monsters types that adjust the damage they inflict. Depending on the attacking and defending types, damage may be increased or decreased.
+
+Monster Types: Each monster now also has a type, such as Fire, Water, Grass, or Electric.
+
+Type Effectiveness:
+
+Certain type pairings cause double damage (2x).
+Certain type pairings cause half damage (0.5x).
+Any pairing not listed as special uses regular damage (1x).
+Example Type Chart:
+
+Fire -> Grass: 2x damage
+Fire -> Water: 0.5x damage
+Water -> Fire: 2x damage
+Water -> Grass: 0.5x damage
+Grass -> Water: 2x damage
+Grass -> Fire: 0.5x damage
+Electric -> Water: 2x damage
+Every remaining pairing: 1x damage
+Attack Order: Monsters continue to act by list position: the first living monster attacks the first living opposing monster.
+
+Class Updates
+from enum import Enum
+
+class MonsterType(Enum):
+    FIRE = "Fire"
+    WATER = "Water"
+    GRASS = "Grass"
+    ELECTRIC = "Electric"
+
+
+class Monster:
+    def __init__(self, name: str, health: int, attack: int, monster_type: MonsterType):
+        self.name = name
+        self.health = health
+        self.attack = attack
+        self.monster_type = monster_type
+
+    def calculate_damage(self, defender: 'Monster') -> int:
+        """Compute outgoing damage after applying type effectiveness."""
+        pass
+Example
+# Demonstrating type modifiers
+ember_lion = Monster("EmberLion", health=90, attack=18, monster_type=MonsterType.FIRE)
+river_drake = Monster("RiverDrake", health=75, attack=14, monster_type=MonsterType.WATER)
+
+# EmberLion attacks RiverDrake: 18 * 0.5 = 9 damage (Fire is weak against Water)
+# RiverDrake attacks EmberLion: 14 * 2.0 = 28 damage (Water is strong against Fire)
+EmberLion deals 9 because Fire receives the 0.5 multiplier against Water, while RiverDrake deals 28 because Water receives the 2x multiplier against Fire.
+from enum import Enum
+
+class MonsterType(Enum):
+    FIRE = "Fire"
+    WATER = "Water"
+    GRASS = "Grass"
+    ELECTRIC = "Electric"
+
+
+# Type Effectiveness Chart: (Attacker, Defender) -> Multiplier
+TYPE_CHART = {
+    # Fire interactions
+    (MonsterType.FIRE, MonsterType.GRASS): 2.0,
+    (MonsterType.FIRE, MonsterType.WATER): 0.5,
+    
+    # Water interactions
+    (MonsterType.WATER, MonsterType.FIRE): 2.0,
+    (MonsterType.WATER, MonsterType.GRASS): 0.5,
+    
+    # Grass interactions
+    (MonsterType.GRASS, MonsterType.WATER): 2.0,
+    (MonsterType.GRASS, MonsterType.FIRE): 0.5,
+    
+    # Electric interactions
+    (MonsterType.ELECTRIC, MonsterType.WATER): 2.0,
+}
+
+
+class Monster:
+    def __init__(self, name: str, health: int, attack: int, monster_type: MonsterType):
+        self.name = name
+        self.health = health
+        self.attack = attack
+        self.monster_type = monster_type
+
+    def is_alive(self) -> bool:
+        return self.health > 0
+
+    def take_damage(self, damage: int) -> None:
+        self.health -= damage
+
+    def get_type_multiplier(self, defender: 'Monster') -> float:
+        """Fetch the type multiplier against the defender."""
+        key = (self.monster_type, defender.monster_type)
+        return TYPE_CHART.get(key, 1.0)
+
+    def calculate_damage(self, defender: 'Monster') -> int:
+        """Compute outgoing damage after applying type effectiveness."""
+        multiplier = self.get_type_multiplier(defender)
+        return int(self.attack * multiplier)
+
+
+class Team:
+    def __init__(self, name: str, monsters: list[Monster]):
+        self.name = name
+        self.monsters = monsters
+
+    def get_first_alive(self) -> Monster | None:
+        for monster in self.monsters:
+            if monster.is_alive():
+                return monster
+        return None
+
+    def is_defeated(self) -> bool:
+        return self.get_first_alive() is None
+
+
+def battle(team_a: Team, team_b: Team) -> list[str]:
+    """Run combat between teams with type advantages."""
+    event_log = [f"Battle begins: {team_a.name} vs {team_b.name}"]
+    attacker_team, defender_team = team_a, team_b
+
+    while not team_a.is_defeated() and not team_b.is_defeated():
+        attacker = attacker_team.get_first_alive()
+        defender = defender_team.get_first_alive()
+
+        if not attacker or not defender:
+            break
+
+        # Calculate typed damage
+        damage = attacker.calculate_damage(defender)
+        defender.take_damage(damage)
+
+        # Build battle log
+        if defender.is_alive():
+            event_log.append(
+                f"{attacker.name} attacks {defender.name} for {damage} damage. "
+                f"{defender.name} has {defender.health} HP remaining."
+            )
+        else:
+            event_log.append(
+                f"{attacker.name} attacks {defender.name} for {damage} damage. "
+                f"{defender.name} is eliminated!"
+            )
+
+        # Alternate turns
+        attacker_team, defender_team = defender_team, attacker_team
+
+    winner = team_a if not team_a.is_defeated() else team_b
+    event_log.append(f"Battle ends: {winner.name} wins!")
+    return event_log
