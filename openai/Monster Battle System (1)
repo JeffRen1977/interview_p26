@@ -1,0 +1,169 @@
+Problem Overview
+Create and implement a turn-based combat simulator in which two monster teams battle until one side has no surviving monsters. A team owns an ordered collection of monsters, and every monster has hit points and an attack value. The teams act alternately, and the simulator must produce an event record for the entire fight.
+
+This is an Object-Oriented Design exercise.
+
+
+Part 1: Basic Battle System
+Requirements
+Build the battle system according to these rules:
+
+Monster: Every monster includes:
+
+A name used as a string identifier
+Hit points (HP), represented by a positive integer
+Attack strength, represented by a positive integer
+Team: Every team contains:
+
+Its team name
+An ordered list of monsters
+Battle Rules:
+
+Team A takes the opening turn, after which the teams alternate turns.
+During a turn, the attacking side's earliest living monster attacks the defending side's earliest living monster.
+If monster A attacks monster B, apply B.health = B.health - A.attack.
+The attacking monster takes no retaliatory damage.
+A monster is removed from combat once its health is 0 or less.
+Combat stops as soon as every monster on either team has been eliminated.
+Event Log: Return a sequence of log entries that includes:
+
+Every attack, including attacker, target, and damage amount
+Each monster defeat
+The final result, identifying the winning team
+Class Specification
+class Monster:
+    def __init__(self, name: str, health: int, attack: int):
+        """
+        Initialize a monster using its name, HP, and attack strength.
+        """
+        pass
+
+    def is_alive(self) -> bool:
+        """Return whether this monster currently has more than 0 health."""
+        pass
+
+    def take_damage(self, damage: int) -> None:
+        """Subtract the supplied damage value from this monster's health."""
+        pass
+
+
+class Team:
+    def __init__(self, name: str, monsters: list[Monster]):
+        """Initialize a named team containing the given monsters."""
+        pass
+
+    def get_first_alive(self) -> Monster | None:
+        """Find the earliest surviving monster, or return None when none survive."""
+        pass
+
+    def is_defeated(self) -> bool:
+        """Return whether no monsters on this team remain alive."""
+        pass
+
+
+def battle(team_a: Team, team_b: Team) -> list[str]:
+    """
+    Run combat between the supplied teams.
+    Return event-log strings for the actions taken during the battle.
+    """
+    pass
+Example
+# Set up Team A's monsters
+phoenix = Monster("Phoenix", health=65, attack=18)
+lynx = Monster("Lynx", health=40, attack=11)
+team_a = Team("Skyguard", [phoenix, lynx])
+
+# Set up Team B's monsters
+slime = Monster("Slime", health=25, attack=7)
+ogre = Monster("Ogre", health=36, attack=12)
+team_b = Team("Cavern", [slime, ogre])
+
+# Simulate the fight
+event_log = battle(team_a, team_b)
+
+# One valid event-log format:
+# [
+# "Battle begins: Skyguard vs Cavern",
+# "Phoenix attacks Slime for 18 damage. Slime has 7 HP remaining.",
+# "Slime attacks Phoenix for 7 damage. Phoenix has 58 HP remaining.",
+# "Phoenix attacks Slime for 18 damage. Slime is eliminated at -11 HP!",
+# "Ogre attacks Phoenix for 12 damage. Phoenix has 46 HP remaining.",
+# "Phoenix attacks Ogre for 18 damage. Ogre has 18 HP remaining.",
+# "Ogre attacks Phoenix for 12 damage. Phoenix has 34 HP remaining.",
+# "Phoenix attacks Ogre for 18 damage. Ogre is eliminated!",
+# "Battle ends: Skyguard wins!"
+# ]
+Phoenix defeats Slime after two 18-damage hits, reducing its HP from 7 to -11, then defeats Ogre with two more attacks; Skyguard therefore wins.
+
+from collections import deque
+
+class Monster:
+    def __init__(self, name: str, health: int, attack: int):
+        self.name = name
+        self.health = health
+        self.attack = attack
+
+    def is_alive(self) -> bool:
+        """Return whether this monster currently has more than 0 health."""
+        return self.health > 0
+
+    def take_damage(self, damage: int) -> None:
+        """Subtract damage from health."""
+        self.health -= damage
+
+
+class Team:
+    def __init__(self, name: str, monsters: list[Monster]):
+        self.name = name
+        self.monsters = monsters  # Keep ordered list
+
+    def get_first_alive(self) -> Monster | None:
+        """Find the earliest surviving monster in order, or None if all are defeated."""
+        for monster in self.monsters:
+            if monster.is_alive():
+                return monster
+        return None
+
+    def is_defeated(self) -> bool:
+        """Return True if no monsters on this team remain alive."""
+        return self.get_first_alive() is None
+
+
+def battle(team_a: Team, team_b: Team) -> list[str]:
+    """Simulate battle and return event log strings."""
+    event_log = [f"Battle begins: {team_a.name} vs {team_b.name}"]
+    
+    # Track current attacker and defender teams
+    attacker_team, defender_team = team_a, team_b
+
+    while not team_a.is_defeated() and not team_b.is_defeated():
+        attacker = attacker_team.get_first_alive()
+        defender = defender_team.get_first_alive()
+
+        if not attacker or not defender:
+            break
+
+        # Execute attack
+        defender.take_damage(attacker.attack)
+
+        # Log attack event
+        if defender.is_alive():
+            event_log.append(
+                f"{attacker.name} attacks {defender.name} for {attacker.attack} damage. "
+                f"{defender.name} has {defender.health} HP remaining."
+            )
+        else:
+            event_log.append(
+                f"{attacker.name} attacks {defender.name} for {attacker.attack} damage. "
+                f"{defender.name} is eliminated!"
+            )
+
+        # Swap attacker and defender for the next turn
+        attacker_team, defender_team = defender_team, attacker_team
+
+    # Declare winner
+    winner = team_a if not team_a.is_defeated() else team_b
+    event_log.append(f"Battle ends: {winner.name} wins!")
+
+    return event_log
+
