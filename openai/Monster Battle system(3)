@@ -1,0 +1,98 @@
+Part 3: Smart Targeting (Maximum Damage)
+Requirements
+Modify the system so that an attacking team does not automatically use its first survivor. Instead, on each turn it chooses the surviving monster capable of inflicting the greatest damage on the defending team's first surviving monster.
+
+Attacker Selection: For every turn:
+
+First locate the defending team's earliest living monster.
+From all living monsters on the attacking team, choose the one that would deal the highest damage to that defender.
+When multiple monsters tie for highest damage, select the earliest one in the team's list.
+Defender Selection: The target remains the defending side's first living monster, exactly as in Part 1.
+
+Type Effectiveness: Keep applying the Part 2 type chart.
+
+Example
+# Team A contains:
+# - FlameHawk (attack=16, monster_type=MonsterType.FIRE)
+# - SparkFox (attack=11, monster_type=MonsterType.ELECTRIC)
+
+# Team B's earliest surviving monster is:
+# - TideTurtle (monster_type=MonsterType.WATER)
+
+# Damage calculations:
+# - FlameHawk vs TideTurtle: 16 * 0.5 = 8 (Fire is weak against Water)
+# - SparkFox vs TideTurtle: 11 * 2.0 = 22 (Electric is strong against Water)
+
+# SparkFox is chosen to attack because 22 exceeds 8.
+
+class Team:
+    def __init__(self, name: str, monsters: list[Monster]):
+        self.name = name
+        self.monsters = monsters
+
+    def get_all_alive(self) -> list[Monster]:
+        """Return all surviving monsters on the team in original order."""
+        return [monster for monster in self.monsters if monster.is_alive()]
+
+    def get_first_alive(self) -> Monster | None:
+        """Find the earliest surviving monster, or return None if all are defeated."""
+        for monster in self.monsters:
+            if monster.is_alive():
+                return monster
+        return None
+
+    def get_best_attacker_against(self, defender: Monster) -> Monster | None:
+        """
+        Find the living monster that deals the highest damage to defender.
+        Ties are broken by preserving original team list order.
+        """
+        alive_monsters = self.get_all_alive()
+        if not alive_monsters:
+            return None
+
+        # max() selects monster with highest calculate_damage value.
+        # Python's max() is stable, returning the earliest monster in case of ties.
+        return max(alive_monsters, key=lambda attacker: attacker.calculate_damage(defender))
+
+    def is_defeated(self) -> bool:
+        return self.get_first_alive() is None
+
+
+def battle(team_a: Team, team_b: Team) -> list[str]:
+    """Run combat between teams using Smart Targeting."""
+    event_log = [f"Battle begins: {team_a.name} vs {team_b.name}"]
+    attacker_team, defender_team = team_a, team_b
+
+    while not team_a.is_defeated() and not team_b.is_defeated():
+        # 1. Target is defender's earliest living monster
+        defender = defender_team.get_first_alive()
+        if not defender:
+            break
+
+        # 2. Choose attacker that deals max damage to this defender
+        attacker = attacker_team.get_best_attacker_against(defender)
+        if not attacker:
+            break
+
+        # 3. Calculate and apply damage
+        damage = attacker.calculate_damage(defender)
+        defender.take_damage(damage)
+
+        # 4. Log the event
+        if defender.is_alive():
+            event_log.append(
+                f"{attacker.name} attacks {defender.name} for {damage} damage. "
+                f"{defender.name} has {defender.health} HP remaining."
+            )
+        else:
+            event_log.append(
+                f"{attacker.name} attacks {defender.name} for {damage} damage. "
+                f"{defender.name} is eliminated!"
+            )
+
+        # 5. Swap roles for the next turn
+        attacker_team, defender_team = defender_team, attacker_team
+
+    winner = team_a if not team_a.is_defeated() else team_b
+    event_log.append(f"Battle ends: {winner.name} wins!")
+    return event_log
