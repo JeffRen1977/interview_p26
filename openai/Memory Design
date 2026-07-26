@@ -1,0 +1,254 @@
+Memory Allocator
+
+Problem Overview
+Create a memory-allocation manager for one continuous region of memory. It should provide dynamic allocation and release operations comparable to C's malloc() and free().
+
+The allocator needs to:
+
+Start with a predetermined total memory size
+Allocate runs of contiguous memory
+Release blocks that were allocated earlier
+Account for fragmentation in the memory region
+Report errors for invalid requests and for unavailable memory
+Requirements
+Build a MemoryAllocator class exposing the interface below.
+
+Constructor
+def __init__(self, total_capacity: int)
+total_capacity: Total memory available to allocate, expressed in bytes or abstract units
+At initialization, the entire memory range is available
+Methods
+1. allocate(size: int) -> int
+Reserves one contiguous region of the requested length.
+
+Parameters:
+
+size: Amount of memory to reserve; it must be greater than zero
+Returns:
+
+The initial address (index) of the reserved region
+Behavior:
+
+Scans for the earliest free region large enough for the request, using first-fit
+Designates the selected range as allocated
+Provides the allocated range's starting address
+Errors:
+
+Throws an exception when size is zero or negative
+Throws an exception when no sufficiently large contiguous range exists
+2. free(address: int, size: int) -> None
+Releases a memory range that was allocated previously.
+
+Parameters:
+
+address: First address of the region being released
+size: Length of the region being released
+Behavior:
+
+Changes the requested range back to free memory
+Coalesces neighboring free ranges to limit fragmentation
+Errors:
+
+Throws an exception when the address falls outside the valid range
+Throws an exception when the target range was not allocated
+Throws an exception when the supplied size is invalid
+Part 1: Basic Implementation
+Implement the allocator with a linked list that records the currently free regions.
+
+Example
+# Create an allocator containing 80 memory units
+allocator = MemoryAllocator(80)
+
+# Reserve 15 units
+addr1 = allocator.allocate(15) # Returns 0
+# Memory: [Allocated(0-14)] [Free(15-79)]
+
+# Reserve 25 units
+addr2 = allocator.allocate(25) # Returns 15
+# Memory: [Allocated(0-14)] [Allocated(15-39)] [Free(40-79)]
+
+# Reserve 30 units
+addr3 = allocator.allocate(30) # Returns 40
+# Memory: [Allocated(0-14)] [Allocated(15-39)] [Allocated(40-69)] [Free(70-79)]
+
+# Release the center allocation
+allocator.free(15, 25)
+# Memory: [Allocated(0-14)] [Free(15-39)] [Allocated(40-69)] [Free(70-79)]
+
+# Reserve 18 units; first-fit selects the released range
+addr4 = allocator.allocate(18) # Returns 15
+# Memory: [Allocated(0-14)] [Allocated(15-32)] [Free(33-39)] [Allocated(40-69)] [Free(70-79)]
+
+# Release the first allocation
+allocator.free(0, 15)
+# Memory: [Free(0-14)] [Allocated(15-32)] [Free(33-39)] [Allocated(40-69)] [Free(70-79)]
+
+# Release the second allocation, joining the free ranges on both sides
+allocator.free(15, 18)
+# Memory: [Free(0-39)] [Allocated(40-69)] [Free(70-79)]
+
+
+import sys
+
+class Node:
+    __slots__ = ('start', 'size', 'prev', 'next')
+    def __init__(self, start: int, size: int):
+        self.start = start
+        self.size = size
+        self.prev = None  # type: Node | None
+        self.next = None  # type: Node | None
+
+
+class MemoryAllocator:
+    def __init__(self, total_capacity: int) -> None:
+        if total_capacity <= 0:
+            raise ValueError("Total capacity must be greater than zero.")
+            
+        self.total_capacity = total_capacity
+        # Doubly linked list of free blocks, sorted by starting address
+        self.head = Node(0, total_capacity)
+        
+        # Track currently active allocations: address -> size
+        self.allocated_blocks = {}
+
+    def allocate(self, size: int) -> int:
+        if size <= 0:
+            raise ValueError("Requested size must be positive.")
+
+        # First-fit scan: find the first free block with size >= requested size
+        curr = self.head
+        while curr:
+            if curr.size >= size:
+                # Found a free block
+                start_address = curr.start
+                
+                # Update or remove the free block node
+                if curr.size == size:
+                    # Entire block is consumed, remove 'curr' from doubly linked list
+                    if curr.prev:
+                        curr.prev.next = curr.next
+                    else:
+                        self.head = curr.next
+                        
+                    if curr.next:
+                        curr.next.prev = curr.prev
+                else:
+                    # Partial block consumed, shrink free block from the left
+                    curr.start += size
+                    curr.size -= size
+                
+                # Record allocation for validation during free()
+                self.allocated_blocks[start_address] = size
+                return start_address
+                
+            curr = curr.next
+
+        # No suitable block found
+        raise MemoryError("Out of memory: No contiguous free block of requested size available.")
+
+    def free(self, address: int, size: int) -> None:
+        if address < 0 or address >= self.total_capacity or size <= 0:
+            raise ValueError("Invalid address or size.")
+
+        # Validate that the address was previously allocated with the exact size
+        if address not in self.allocated_blocks or self.allocated_blocks[address] != size:
+            raise ValueError("Invalid free request: block was not allocated or size mismatch.")
+
+        # Remove from active allocations
+        del self.allocated_blocks[address]
+
+        # Insert back into sorted doubly linked list of free blocks
+        new_node = Node(address, size)
+
+        if not self.head:
+            self.head = new_node
+            return
+
+        # Special case: Insert before head
+        if address < self.head.start:
+            new_node.next = self.head
+            self.head.prev = new_node
+            self.head = new_node
+            self._coalesce(new_node)
+            return
+
+        # Find insertion position to keep list sorted by start address
+        curr = self.head
+        while curr.next and curr.next.start < address:
+            curr = curr.next
+
+        # Insert 'new_node' after 'curr'
+        new_node.next = curr.next
+        if curr.next:
+            curr.next.prev = new_node
+        curr.next = new_node
+        new_node.prev = curr
+
+        # Coalesce adjacent free blocks if applicable
+        self._coalesce(new_node)
+
+    def _coalesce(self, node: Node) -> None:
+        """Merge 'node' with its next and/or previous blocks if contiguous."""
+        # 1. Coalesce with right neighbor
+        if node.next and node.start + node.size == node.next.start:
+            node.size += node.next.size
+            node.next = node.next.next
+            if node.next:
+                node.next.prev = node
+
+        # 2. Coalesce with left neighbor
+        if node.prev and node.prev.start + node.prev.size == node.start:
+            node.prev.size += node.size
+            node.prev.next = node.next
+            if node.next:
+                node.next.prev = node.prev
+
+
+def solve() -> None:
+    data = sys.stdin.read().split()
+    if not data:
+        return
+    it = iter(data)
+    try:
+        total_capacity = int(next(it))
+        n_ops = int(next(it))
+    except StopIteration:
+        return
+
+    allocator = MemoryAllocator(total_capacity)
+    out_lines = []
+
+    for _ in range(n_ops):
+        try:
+            op = next(it)
+        except StopIteration:
+            break
+        if op == 'A':
+            try:
+                size = int(next(it))
+            except StopIteration:
+                break
+            try:
+                addr = allocator.allocate(size)
+                out_lines.append(str(addr))
+            except Exception:
+                out_lines.append('error')
+        elif op == 'F':
+            try:
+                address = int(next(it))
+                size = int(next(it))
+            except StopIteration:
+                break
+            try:
+                allocator.free(address, size)
+                out_lines.append('OK')
+            except Exception:
+                out_lines.append('INVALID')
+        else:
+            pass
+
+    sys.stdout.write('\n'.join(out_lines))
+
+
+if __name__ == '__main__':
+    solve()
