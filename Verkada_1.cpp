@@ -41,4 +41,48 @@ private:
    bool shutdown;
 }
 
+// this is no lock solution, only using atomic to address this problem. 
+template <typname T>
+class workers
+{
+   workers(int cap){
+      capacity = cap;
+      shutdown = false;
+      head_=0;
+      tail_=0;
+      buffer = vector<T>(capacity);   
+   }
+void push(T frame_buffer){
+    int tail = tail_.load(std::acquired_memory_relaxed);
+    int next_tail = (tail+1)%capacity;
+    if (next_tail==head_.load(std:memory_acquired);
+       return
+    buffer[tail]=frame_buffer;
+    tail_.store(next_tail,std::memory_released);
+}
+T pop(){
+    int head = head_.load(std::acquired_memory_relaxed);
+    if (head==tail_.load(std:memory_acquired);
+       return
+    T buf = buffer[head];
+    head_.store((head+1)%capacity,std::memory_released);
+    return buf
+}
+void shutdown(){
+    std::unique_lock<std::mutext> lock(mu);
+    shut_down=true;
+}
+private:
+   vector<T> buffer;
+   std::atmoic<int> head_;
+   std::atmoic<int> tail_;
+   int capapcity; 
+   bool shutdown;
+}
+
+
+
+
+
+
 
