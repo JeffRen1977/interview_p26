@@ -1,0 +1,276 @@
+下面为您提供一份适合在 C++ 面试中展示的、结构清晰且具有工程严谨性的 **FP32 到 INT8 的 Symmetric / Asymmetric 量化与反量化** 实现。
+
+代码同时涵盖了 **Scale 和 Zero-Point 的计算**，以及 **Per-Tensor** 与 **Per-Channel** 两种粒度的支持。
+
+---
+
+## 1. 核心数学原理回顾
+
+INT8 的取值范围通常定义为 $[-128, 127]$。
+
+### 1.1 对称量化 (Symmetric Quantization)
+
+* **映射关系**：把浮点数范围 $[-R, R]$ 对称映射到 $[-127, 127]$（通常用 127 避免 $-128$ 在对齐时的不对称性）。
+* **Zero-Point ($Z$)**：固定为 $0$。
+* **公式**：
+* $\text{Scale } S = \frac{\max(\vert{}X_{\min}\vert{}, \vert{}X_{\max}\vert{})}{127}$
+* $\text{Quantize}: Q = \text{clamp}\left(\text{round}\left(\frac{X}{S}\right), -128, 127\right)$
+* $\text{Dequantize}: X_{\text{recon}} = Q \times S$
+
+
+
+### 1.2 非对称量化 (Asymmetric Quantization)
+
+* **映射关系**：把实际浮点数的最小值与最大值 $[X_{\min}, X_{\max}]$ 线性映射到 $[-128, 127]$。
+* **公式**：
+* $\text{Scale } S = \frac{X_{\max} - X_{\min}}{q_{\max} - q_{\min}} = \frac{X_{\max} - X_{\min}}{255}$
+* $\text{Zero-Point } Z = \text{round}\left(q_{\min} - \frac{X_{\min}}{S}\right) = \text{round}\left(-128 - \frac{X_{\min}}{S}\right)$（再 `clamp` 到 $[-128, 127]$）
+* $\text{Quantize}: Q = \text{clamp}\left(\text{round}\left(\frac{X}{S}\right) + Z, -128, 127\right)$
+* $\text{Dequantize}: X_{\text{recon}} = (Q - Z) \times S$
+
+
+
+---
+
+## 2. C++17 代码实现
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <cmath>
+#include <algorithm>
+#include <cstdint>
+#include <iomanip>
+#include <cassert>
+
+// 定义量化参数结构体
+struct QuantParam {
+    float scale = 1.0f;
+    int32_t zero_point = 0;
+};
+
+enum class QuantType {
+    SYMMETRIC,
+    ASYMMETRIC
+};
+
+// 工具函数：数值 Clamp
+inline int32_t clamp(int32_t val, int32_t min_val = -128, int32_t max_val = 127) {
+    return std::max(min_val, std::min(max_val, val));
+}
+
+// =========================================================================
+// 1. Scale 与 Zero-Point 计算
+// =========================================================================
+
+// 计算单组数据（如 Per-Tensor 或单个 Channel）的 Scale & Zero-Point
+QuantParam calc_quant_param(const float* data, size_t size, QuantType type) {
+    assert(size > 0 && "Data size must be greater than 0");
+
+    float min_val = data[0];
+    float max_val = data[0];
+    for (size_t i = 1; i < size; ++i) {
+        min_val = std::min(min_val, data[i]);
+        max_val = std::max(max_val, data[i]);
+    }
+
+    QuantParam param;
+
+    if (type == QuantType::SYMMETRIC) {
+        // 对称量化：Zero-Point 固定为 0
+        float max_abs = std::max(std::abs(min_val), std::abs(max_val));
+        // 确保 scale 不为 0，防止除以 0
+        param.scale = (max_abs == 0.0f) ? 1.0f : max_abs / 127.0f;
+        param.zero_point = 0;
+    } else {
+        // 非对称量化：映射到 [-128, 127]
+        // 如果 min 和 max 相同（全为常数），避开除零
+        if (min_val == max_val) {
+            param.scale = 1.0f;
+            param.zero_point = static_cast<int32_t>(std::round(-128.0f - min_val));
+            param.zero_point = clamp(param.zero_point, -128, 127);
+            return param;
+        }
+
+        const float qmin = -128.0f;
+        const float qmax = 127.0f;
+
+        param.scale = (max_val - min_val) / (qmax - qmin);
+        
+        // Z = round(qmin - min / scale)
+        float initial_zero_point = qmin - (min_val / param.scale);
+        param.zero_point = static_cast<int32_t>(std::round(initial_zero_point));
+        param.zero_point = clamp(param.zero_point, -128, 127);
+    }
+
+    return param;
+}
+
+// =========================================================================
+// 2. Per-Tensor 量化与反量化
+// =========================================================================
+
+void quantize_per_tensor(const float* src, int8_t* dst, size_t size, 
+                         const QuantParam& param) {
+    float inv_scale = 1.0f / param.scale;
+    for (size_t i = 0; i < size; ++i) {
+        int32_t q = static_cast<int32_t>(std::round(src[i] * inv_scale)) + param.zero_point;
+        dst[i] = static_cast<int8_t>(clamp(q, -128, 127));
+    }
+}
+
+void dequantize_per_tensor(const int8_t* src, float* dst, size_t size, 
+                           const QuantParam& param) {
+    for (size_t i = 0; i < size; ++i) {
+        dst[i] = static_cast<float>(src[i] - param.zero_point) * param.scale;
+    }
+}
+
+// =========================================================================
+// 3. Per-Channel 量化与反量化 (假设数据布局为 NCHW 或 HW-Last 形式)
+//    channels: 通道数
+//    inner_dim: 每个 Channel 包含的元素总数 (例如 H * W)
+// =========================================================================
+
+// 计算 Per-Channel 参数
+std::vector<QuantParam> calc_per_channel_params(const float* data, size_t channels, 
+                                                size_t inner_dim, QuantType type) {
+    std::vector<QuantParam> params(channels);
+    for (size_t c = 0; c < channels; ++c) {
+        const float* channel_ptr = data + c * inner_dim;
+        params[c] = calc_quant_param(channel_ptr, inner_dim, type);
+    }
+    return params;
+}
+
+void quantize_per_channel(const float* src, int8_t* dst, size_t channels, 
+                          size_t inner_dim, const std::vector<QuantParam>& params) {
+    for (size_t c = 0; c < channels; ++c) {
+        float inv_scale = 1.0f / params[c].scale;
+        int32_t zp = params[c].zero_point;
+        
+        const float* src_c = src + c * inner_dim;
+        int8_t* dst_c = dst + c * inner_dim;
+
+        for (size_t i = 0; i < inner_dim; ++i) {
+            int32_t q = static_cast<int32_t>(std::round(src_c[i] * inv_scale)) + zp;
+            dst_c[i] = static_cast<int8_t>(clamp(q, -128, 127));
+        }
+    }
+}
+
+void dequantize_per_channel(const int8_t* src, float* dst, size_t channels, 
+                            size_t inner_dim, const std::vector<QuantParam>& params) {
+    for (size_t c = 0; c < channels; ++c) {
+        float scale = params[c].scale;
+        int32_t zp = params[c].zero_point;
+
+        const int8_t* src_c = src + c * inner_dim;
+        float* dst_c = dst + c * inner_dim;
+
+        for (size_t i = 0; i < inner_dim; ++i) {
+            dst_c[i] = static_float(src_c[i] - zp) * scale;
+        }
+    }
+}
+
+```
+
+---
+
+## 3. 测试与验证代码
+
+下面的测试代码演示了 **Symmetric** 和 **Asymmetric** 的量化/反量化流程，并计算了量化带来的 **均方误差 (MSE)**。
+
+```cpp
+int main() {
+    // 构造测试数据
+    std::vector<float> fp32_data = {-10.5f, -2.0f, 0.0f, 1.2f, 5.5f, 15.0f};
+    size_t size = fp32_data.size();
+
+    std::cout << "Original FP32 Data:\n  ";
+    for (float v : fp32_data) std::cout << std::setw(6) << std::fixed << std::setprecision(2) << v << " ";
+    std::cout << "\n\n";
+
+    // -------------------------------------------------------------------------
+    // 1. 测试 Per-Tensor 非对称量化 (Asymmetric)
+    // -------------------------------------------------------------------------
+    QuantParam asym_param = calc_quant_param(fp32_data.data(), size, QuantType::ASYMMETRIC);
+    std::vector<int8_t> int8_asym(size);
+    std::vector<float> recon_asym(size);
+
+    quantize_per_tensor(fp32_data.data(), int8_asym.data(), size, asym_param);
+    dequantize_per_tensor(int8_asym.data(), recon_asym.data(), size, asym_param);
+
+    std::cout << "--- Asymmetric Quantization (Per-Tensor) ---" << std::endl;
+    std::cout << "Scale: " << asym_param.scale << ", Zero-Point: " << asym_param.zero_point << std::endl;
+    std::cout << "INT8 Data:   ";
+    for (int8_t q : int8_asym) std::cout << std::setw(6) << static_cast<int>(q) << " ";
+    std::cout << "\nRecon FP32:  ";
+    for (float v : recon_asym) std::cout << std::setw(6) << std::fixed << std::setprecision(2) << v << " ";
+    std::cout << "\n\n";
+
+    // -------------------------------------------------------------------------
+    // 2. 测试 Per-Tensor 对称量化 (Symmetric)
+    // -------------------------------------------------------------------------
+    QuantParam sym_param = calc_quant_param(fp32_data.data(), size, QuantType::SYMMETRIC);
+    std::vector<int8_t> int8_sym(size);
+    std::vector<float> recon_sym(size);
+
+    quantize_per_tensor(fp32_data.data(), int8_sym.data(), size, sym_param);
+    dequantize_per_tensor(int8_sym.data(), recon_sym.data(), size, sym_param);
+
+    std::cout << "--- Symmetric Quantization (Per-Tensor) ---" << std::endl;
+    std::cout << "Scale: " << sym_param.scale << ", Zero-Point: " << sym_param.zero_point << std::endl;
+    std::cout << "INT8 Data:   ";
+    for (int8_t q : int8_sym) std::cout << std::setw(6) << static_cast<int>(q) << " ";
+    std::cout << "\nRecon FP32:  ";
+    for (float v : recon_sym) std::cout << std::setw(6) << std::fixed << std::setprecision(2) << v << " ";
+    std::cout << "\n\n";
+
+    // -------------------------------------------------------------------------
+    // 3. 测试 Per-Channel 对称量化 (例如 2 通道，每通道 3 个元素)
+    // -------------------------------------------------------------------------
+    size_t channels = 2;
+    size_t inner_dim = 3; // 2 * 3 = 6
+    auto ch_params = calc_per_channel_params(fp32_data.data(), channels, inner_dim, QuantType::SYMMETRIC);
+    
+    std::vector<int8_t> int8_ch(size);
+    std::vector<float> recon_ch(size);
+
+    quantize_per_channel(fp32_data.data(), int8_ch.data(), channels, inner_dim, ch_params);
+    dequantize_per_channel(int8_ch.data(), recon_ch.data(), channels, inner_dim, ch_params);
+
+    std::cout << "--- Symmetric Quantization (Per-Channel: 2 Channels) ---" << std::endl;
+    for (size_t c = 0; c < channels; ++c) {
+        std::cout << "Channel " << c << " -> Scale: " << ch_params[c].scale 
+                  << ", Zero-Point: " << ch_params[c].zero_point << std::endl;
+    }
+    std::cout << "INT8 Data:   ";
+    for (int8_t q : int8_ch) std::cout << std::setw(6) << static_cast<int>(q) << " ";
+    std::cout << "\nRecon FP32:  ";
+    for (float v : recon_ch) std::cout << std::setw(6) << std::fixed << std::setprecision(2) << v << " ";
+    std::cout << std::endl;
+
+    return 0;
+}
+
+```
+
+---
+
+## 4. 高通/端点硬件视角面试加分项 (Engineering Trade-offs)
+
+在手写完代码后，主动提及以下优化点可以体现 Senior/Staff 工程师的底层经验：
+
+1. **除法优化 (乘倒数)**：
+* 在量化循环里，避免每次都做除法 `x / scale`。应在循环外提前计算倒数 `inv_scale = 1.0f / scale`，在循环内将除法转变为**乘法** `x * inv_scale`，大幅提升性能。
+
+
+2. **权重 (Weights) vs. 激活值 (Activations) 的选择**：
+* **Weights**：通常在离线时使用 **Symmetric + Per-Channel** 量化。Per-Channel 能极大减小离群值 (Outliers) 对不同卷积核的精度影响，且对称量化不需要在 GEMM 计算中处理复杂的 Zero-Point 偏移项。
+* **Activations**：通常使用 **Asymmetric + Per-Tensor**（或 Dynamic Per-Token）。因为激活值往往过 ReLU 只有非负数，Asymmetric 可以充分利用 8-bit 的整个表达空间（从 0 到 255 或 -128 到 127）。
+
+
+3. **NEON / SIMD 向量化展开**：
+* 实际写 NPU/DSP Kernel 时，可以使用 ARM NEON 指令集（如 `vcvtq_s32_f32` 和 `vqmovn_s32`）一次处理 4 个/8 个 float，结合饱和加减法指令防止溢出。
