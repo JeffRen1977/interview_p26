@@ -1,6 +1,6 @@
 class SPSCBuffer {
     private:
-    std::atomic<size_t> head;
+    std::atomic<size_t> head;// 这里主要采用无锁的方式，我也可以用mutex，condition_variable来做。
     std::atomic<size_t> tail;
     std::vector<int> buffer;
 
