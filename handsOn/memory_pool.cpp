@@ -4,14 +4,35 @@ class MemoryPool {
             this->blockSize = blockSize;
             this->blockCount = blockCount;
             // this is the memory locations for the assigned blocks. 
-            void* raw_memory = malloc(blockSize * blockCount);
-            auto* blocks = static_cast<Block*>(raw_memory);
-            for(int i = 0;i+1<blockCount;i++)
-            {
-                blocks[i].next = &blocks[i + 1];
+           // 1. 分配原始内存
+            void* raw_memory = std::malloc(blockSize * blockCount);
+            if (!raw_memory) {
+                // 建议增加空指针检查
+                return; 
             }
-            blocks[blockCount - 1].next = nullptr;
-            freeBlockList.store(blocks[0], std::memory_order_relaxed);
+            
+            auto* ptr = static_cast<char*>(raw_memory);
+            
+            // 2. 按实际的 blockSize 逐个构建 Block 并链接成链表
+            for (size_t i = 0; i < blockCount; ++i) {
+                // 计算第 i 个 block 的起始地址
+                auto* current_block = reinterpret_cast<Block*>(ptr + i * blockSize);
+                
+                // 使用 placement new 在已分配的内存上构造 Block 对象
+                new (current_block) Block(); 
+            
+                if (i + 1 < blockCount) {
+                    // 计算下一个 block 的起始地址并链接
+                    auto* next_block = reinterpret_cast<Block*>(ptr + (i + 1) * blockSize);
+                    current_block->next = next_block;
+                } else {
+                    // 最后一个节点指向 nullptr
+                    current_block->next = nullptr; 
+                }
+            }
+            
+            // 3. 将链表头指针（第一个 block 的地址）存入 atomic 变量
+            freeBlockList.store(reinterpret_cast<Block*>(raw_memory), std::memory_order_release);
         }
 
         Block* allocate() {
