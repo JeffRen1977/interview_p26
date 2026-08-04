@@ -16,6 +16,24 @@ ListNode* reverseList(ListNode* head) {
     return prev;
 }
 
+ListNode* reversePairsList(ListNode*head)
+{
+  ListNode dummy(0);
+  ListNode dummy.next = head;
+  ListNode *pre=dummy;
+  while(pre->next&&pre->next->next){
+ {
+   ListNode *curr = pre->next;
+   ListNode *next = pre->next->next;
+   // swap. 
+   pre->next = next;
+   curr->next = next->next;
+   next->next = curr;
+
+   pre = curr;
+ }
+return dummy.next;
+
 int main() {
     ListNode* head = buildList({1, 2, 3, 4, 5});
     ListNode* rev = reverseList(head);
