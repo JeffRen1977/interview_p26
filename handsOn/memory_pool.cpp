@@ -16,7 +16,11 @@ class MemoryPool {
 
         Block* allocate() {
             Block* block = freeBlockList.load(std::memory_order_acquire);
-            while(!block && 
+            /*
+            这段代码的本意是从一个无锁单向链表（freeBlockList）的头部弹出一个可用的 Block：读取头节点：拿到当前链表头指针 block。
+            CAS 抢占：使用 compare_exchange_weak 原子的比较并交换。如果 freeBlockList == block，说明期间没有其他线程打扰，将其更新为 block->next。
+            返回节点：成功拿到节点并返回。*/
+            while(block && 
                 !freeBlockList.compare_exchange_weak(block, block->next, 
                     std::memory_order_acquire, 
                     std::memory_order_acquire))
