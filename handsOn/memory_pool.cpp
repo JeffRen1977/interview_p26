@@ -30,14 +30,25 @@ class MemoryPool {
             return block;
         }
 
-        void free(Block* block) {
-            Block* old = freeBlockList.load(std::memory_order_acquire);
-            do {
-                block->next = old;
-            } while (!freeBlockList.compare_exchange_weak(old, block,
-                                                          std::memory_order_release,
-                                                          std::memory_order_relaxed));
-        }
+       void free(Block* block) {
+          // 第一步：获取当前链表头指针
+         Block* old = freeBlockList.load(std::memory_order_acquire);
+    
+         // 第二步：循环尝试插入，直到 CAS 成功
+        do {
+        // 1. 先把待插入节点的 next 指向我们认为的当前头节点 old
+        block->next = old;
+        
+       // 2. CAS 比较并交换：
+       //    检查 freeBlockList 是否仍然等于 old：
+       //    - 如果等于 old：说明没有其他线程干扰，将 freeBlockList 更新为 block，返回 true，结束循环。
+       //    - 如果不等于 old：说明有其他线程抢先插入了新节点，CAS 返回 false。
+       //      此时 CAS 内部会自动把 old 更新为最新的 freeBlockList 头指针，进入下一次循环重试。
+       } while (!freeBlockList.compare_exchange_weak(
+                 old, block,
+                 std::memory_order_release,
+                 std::memory_order_relaxed));
+}
 
     private:
         size_t blockSize;
