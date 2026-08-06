@@ -189,3 +189,80 @@ $$\text{Total Size} = \text{Y\_Size} + \text{UV\_Size} + \text{Extra Metadata He
 
 1. **V4L2 是“皮”，KMD/CamX 是“骨”**：高通巧妙地借用了 Linux 标准的 V4L2 设备框架作为接口屏障，底层的核心则是通过 SMMU、dma-buf、CDM 硬件调度器与 ISP 子系统通信。
 2. **性能核心在于零拷贝与对齐**：V4L2 的底层性能保障完全依赖 `V4L2_MEMORY_DMABUF` 机制；而排查底层图像问题的关键，90% 都在于校验 **Stride、Scanline 以及 UBWC 内存对齐公式** 是否正确。
+
+在 Camera 系统的硬件接收端（SOC 侧），**CSIPHY** 和 **CSID** 分别处于 **OSI 模型的物理层（Physical Layer）** 与 **数据链路层（Data Link Layer）**，它们是上下游的协作关系。
+
+一句话区别：**CSIPHY 负责“把电信号变成 0 和 1”；CSID 负责“把 0 和 1 组装成有意义的图像包”。**
+
+---
+
+### 一、 核心区别对比
+
+| 维度 | CSIPHY (CSI Physical Layer) | CSID (CSI Decoder / Receiver) |
+| --- | --- | --- |
+| **层级定位** | **物理层 (PHY Layer)** | **协议/数据链路层 (Protocol / Data Link Layer)** |
+| **处理对象** | 模拟电信号（微伏级别的差分电压/相位变化） | 数字比特流（RAW Data、Header、Footer） |
+| **核心职责** | 信号解调、时钟恢复、高速串并转换（Deserialization） | 解包（Unpack）、虚拟通道路由、数据类型识别、ECC/CRC 校验 |
+| **硬件位置** | 紧挨着芯片物理 PAD（接脚）的高速模拟/混合信号电路 | SOC 内部的纯数字逻辑电路 |
+| **配置重点** | MIPI 模式（D-PHY/C-PHY）、Settle Time、Lane 数量 | Virtual Channel (VC)、Data Type (DT)、Image Format |
+
+---
+
+### 二、 工作流程与职责详解
+
+当 Sensor 将采集到的像素通过 MIPI 铜线发给高通 SOC 时，数据先经过 **CSIPHY**，再送到 **CSID**：
+
+```
+ [ Sensor 芯片 ]
+        │
+        │ (高频模拟电信号: 差分电压或相位)
+        ▼
+ [ CSIPHY 模块 ]  ──────► 1. 锁相环（PLL）锁定信号与时钟
+        │                2. 将模拟信号解调为高频串行 0101...
+        │                3. 串并转换（Deserialization），输出为并行 Byte 数据
+        │
+        │ (并行数字字节流 + Byte Clock)
+        ▼
+ [ CSID 模块 ]    ──────► 1. 识别包头 (SoF, EoF, Packet Header)
+        │                2. 检查 CRC/ECC 校验（丢弃损坏包）
+        │                3. 根据 VC (Virtual Channel) 剥离数据，识别 DT (如 RAW10/RAW12)
+        │                4. 将 Raw 数据转为宽位宽（如 64/128-bit），推给 IFE/ISP
+        ▼
+ [ IFE / ISP (Image Processing) ]
+
+```
+
+#### 1. CSIPHY：专注于“电气与信号层”
+
+CSIPHY 是离 Sensor 物理引脚最近的电路。它的主要挑战是**应对极高频率下的信号衰减和噪声**。
+
+* **物理模式兼容**：支持 **D-PHY**（按差分电压高低电平判定 0/1）或 **C-PHY**（按三线间的相位/电压差变转换判定 0/1）。
+* **Clock 恢复与 Settle Time**：Sensor 刚发送信号时存在电平过渡期的抖动（HS-Settle）。CSIPHY 驱动必须配置正确的 `settle_time` 寄存器，让 PHY 在信号稳定后才开始采样，否则会导致 **MIPI Clock 不 Lock 或帧同步丢失**。
+* **串并转换**：把吉比特每秒（Gbps）级别的单线串行数据，转成几十 MHz 频率的 8-bit 或 16-bit 并行字节（Byte）流。
+
+#### 2. CSID：专注于“协议与数据结构”
+
+CSID 拿到的已经是干净的“数字字节流”了，它不再关心电压是多少，而是**根据 MIPI CSI-2 协议标准去解析数据包**。
+
+* **包解析与对齐**：识别帧头（SoF - Start of Frame）、帧尾（EoF）、行头（SoL）和行尾（EoL）。
+* **多路复用路由（VC & DT 解析）**：
+* **VC (Virtual Channel)**：如果多个 Sensor 共享同一组 MIPI 物理 Lane，或者一个 Sensor 输出多路 Stream（如 RGB + Depth），CSID 根据 VC ID（VC0~VC3）把数据流分发给不同的 ISP 处理通道。
+* **DT (Data Type)**：识别当前包是 RAW8 (0x2A)、RAW10 (0x2B)、RAW12 (0x2C) 还是 3A Stats/Embedded Data。
+
+
+* **数据解包与对齐（Unpack）**：如 MIPI RAW10 在传输时为了省带宽，5 个字节存 4 个像素（Packing 模式）。CSID 会将其解包（Unpack）为标准 10-bit 或 16-bit 对齐的像素，方便后端的 IFE/ISP 进行矩阵计算。
+
+---
+
+### 三、 驱动 Bring-up 时的故障排查区分（AE 实战）
+
+在 Sensor 点亮调试时，区分 CSIPHY 和 CSID 能帮你快速定位硬件/软件问题：
+
+* **如果问题在 CSIPHY 层**：
+* **现象**：`CSIPHY clk non-lock`、`FIFO overflow`、全屏严重花屏或彻底拿不到任何数据。
+* **排查方向**：检查 MIPI 物理硬件走线、测量 Lane 电压、检查 Sensor MCLK/PCLK 时钟、调整驱动中的 `T_HS_SETTLE` 参数。
+
+
+* **如果问题在 CSID 层**：
+* **现象**：CSIPHY 已 Lock，但 Log 报 `CSID CRC error`、`CSID ECC error`、`UnSupported Data Type` 或 `Frame start without Frame end`。
+* **排查方向**：检查 Sensor 寄存器配置的 **Data Type / Virtual Channel** 与高通 CSID 驱动里的配置是否一致；检查 Sensor 输出的分辨率（HTS/VTS）是否与 CSID 设定的 Crop 尺寸冲突。
