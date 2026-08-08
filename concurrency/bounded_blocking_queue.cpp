@@ -1,11 +1,16 @@
-// Thread-safe bounded blocking queue (producer-consumer).
+// Problem: Thread-safe bounded blocking queue (producer-consumer)
+//
+// Scenario (camera / imaging):
+//   Sensor thread captures frames into a fixed-capacity queue; encoder /
+//   analytics threads pop. Bound the queue so RAM cannot grow without limit.
 //
 // Whiteboard talking points:
-// - One mutex protects the deque.
-// - Two condition variables: not_empty / not_full.
-// - put() blocks when full; get() blocks when empty.
-// - Always use while (not if) when waiting on a condition variable.
-// - Amortized O(1) for put/get.
+ // - One mutex protects the deque.
+ // - Two condition variables: not_empty / not_full.
+ // - put() blocks when full; get() blocks when empty.
+ // - Always wait with a predicate (while / wait lambda), never bare if.
+ // - try_* and timed wait for soft real-time paths.
+ // - Follow-up: shutdown flag to wake all waiters on teardown.
 
 #include <cassert>
 #include <chrono>
