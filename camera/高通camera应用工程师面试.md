@@ -107,9 +107,13 @@ V4L2 节点分配 Buffer 时，内存大小不仅仅是简单的 `Width × Heigh
 
 #### 通用计算公式
 
+> GitHub 公式里避免 `_`（即使写在 `\text{}` 中也可能报 `'_' allowed only in math mode`），下面用连字符命名。
+
 $$
-\text{Buffer Size} = \text{Stride (Row Pitch)} \times \text{Scanline (Aligned Height)} \times \text{Plane Count} + \text{Padding/Meta Size}
+\mathrm{BufferSize} = \mathrm{Stride} \times \mathrm{Scanline} \times \mathrm{PlaneCount} + \mathrm{PaddingOrMeta}
 $$
+
+其中 `Stride` = Row Pitch（行跨度），`Scanline` = 对齐后的高度。
 
 #### 1) Stride（跨度/行对齐）与 Scanline（列对齐）
 
@@ -118,13 +122,13 @@ $$
 - **Stride (Width Align)**：每一行像素所占用的实际字节数（包含 Padding）。
 
 $$
-\text{Stride} = \text{ALIGN}(\text{Width} \times \text{BytesPerPixel}, \text{Alignment Requirement})
+\mathrm{Stride} = \mathrm{ALIGN}(\mathrm{Width} \times \mathrm{BytesPerPixel},\ \mathrm{AlignReq})
 $$
 
 - **Scanline (Height Align)**：图像高度对齐后的行数。
 
 $$
-\text{Scanline} = \text{ALIGN}(\text{Height}, \text{Alignment Requirement})
+\mathrm{Scanline} = \mathrm{ALIGN}(\mathrm{Height},\ \mathrm{AlignReq})
 $$
 
 #### 2) 常见格式的具体计算示例
@@ -134,11 +138,11 @@ $$
 MIPI RAW10 在内存中通常每 4 个像素占用 5 个字节（Packing 模式）：
 
 $$
-\text{Stride} = \text{ALIGN}\left(\frac{\text{Width} \times 10}{8}, 64\right) = \text{ALIGN}\left(\text{Width} \times 1.25, 64\right)
+\mathrm{Stride} = \mathrm{ALIGN}\!\left(\frac{\mathrm{Width} \times 10}{8},\ 64\right) = \mathrm{ALIGN}(\mathrm{Width} \times 1.25,\ 64)
 $$
 
 $$
-\text{Total Size} = \text{Stride} \times \text{ALIGN}(\text{Height}, 32)
+\mathrm{TotalSize} = \mathrm{Stride} \times \mathrm{ALIGN}(\mathrm{Height},\ 32)
 $$
 
 **NV12（YUV 4:2:0 Semi-Planar，高通最常用的预览/视频格式）**
@@ -146,26 +150,34 @@ $$
 包含一个 Y 平面和一个交错的 UV 平面（UV 平面高度为 Y 的一半）：
 
 $$
-\text{Y\_Stride} = \text{ALIGN}(\text{Width}, 64)
+\mathrm{YStride} = \mathrm{ALIGN}(\mathrm{Width},\ 64)
 $$
 
 $$
-\text{Y\_Scanline} = \text{ALIGN}(\text{Height}, 32)
+\mathrm{YScanline} = \mathrm{ALIGN}(\mathrm{Height},\ 32)
 $$
 
 $$
-\text{Y\_Size} = \text{Y\_Stride} \times \text{Y\_Scanline}
+\mathrm{YSize} = \mathrm{YStride} \times \mathrm{YScanline}
 $$
 
 $$
-\text{UV\_Size} = \text{Y\_Stride} \times \left(\frac{\text{Y\_Scanline}}{2}\right)
+\mathrm{UVSize} = \mathrm{YStride} \times \frac{\mathrm{YScanline}}{2}
 $$
 
 $$
-\text{Total Size} = \text{Y\_Size} + \text{UV\_Size} + \text{Extra Metadata Header (UBWC/Color Space)}
+\mathrm{TotalSize} = \mathrm{YSize} + \mathrm{UVSize} + \mathrm{UBWCMetaHeader}
 $$
 
----
+等价伪代码（带下划线的命名放在代码块里，GitHub 渲染最稳）：
+
+```text
+Y_Stride   = ALIGN(Width, 64)
+Y_Scanline = ALIGN(Height, 32)
+Y_Size     = Y_Stride * Y_Scanline
+UV_Size    = Y_Stride * (Y_Scanline / 2)
+TotalSize  = Y_Size + UV_Size + ExtraMetadataHeader   # UBWC / Color Space
+```---
 
 ## 六、高通通用内存压缩技术：UBWC (Universal Bandwidth Compression)
 
@@ -304,8 +316,10 @@ Sensor 驱动的核心工作之一，就是维护一组结构化的**寄存器�
 Sensor 的输出帧率是由其内部的**虚拟像素时钟（Pixel Clock）**和**帧几何尺寸**严格决定的：
 
 $$
-\text{Frame Rate (FPS)} = \frac{\text{Pixel Clock (Hz)}}{\text{Line Length Pclk (HTS)} \times \text{Frame Length Lines (VTS)}}
+\mathrm{FPS} = \frac{\mathrm{PixelClock}}{\mathrm{HTS} \times \mathrm{VTS}}
 $$
+
+其中 `PixelClock` 单位为 Hz；`HTS` = Line Length Pclk；`VTS` = Frame Length Lines。
 
 - **HTS (Horizontal Total Size / Line Length)**：每一行所包含的有效像素 + 灭隐区（H-Blank）的总 clock 数。
 - **VTS (Vertical Total Size / Frame Length)**：每一帧所包含的有效行数 + 灭隐区（V-Blank）的总行数。
@@ -321,8 +335,10 @@ $$
 - **寄存器单位**：Sensor 的曝光时间通常**以「行（Lines）」为单位**，而不是直接写微秒（µs）。
 
 $$
-\text{Exposure Time (seconds)} = \text{Coarse Integration Time (Lines)} \times \frac{\text{Line Length Pclk}}{\text{Pixel Clock}}
+\mathrm{ExposureTime} = \mathrm{CoarseIntegrationLines} \times \frac{\mathrm{HTS}}{\mathrm{PixelClock}}
 $$
+
+单位：`ExposureTime` 为秒；`CoarseIntegrationLines` 为曝光行数。
 
 - **VTS 限制**：**曝光行数不能超过当前模式的 VTS（Frame Length）**。如果 AE 算出的曝光行数大于当前 VTS，驱动必须**同步将 VTS 拉长**，否则曝光将无法生效或导致图像错帧。
 
