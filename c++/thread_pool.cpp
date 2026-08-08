@@ -32,6 +32,9 @@ private:
 };
 
 inline ThreadPool::ThreadPool(size_t threads) : stop(false) {
+    if (threads == 0) {
+        threads = 1;  // hardware_concurrency() may return 0
+    }
     for (size_t i = 0; i < threads; ++i) {
         workers.emplace_back([this] {
             while (true) {

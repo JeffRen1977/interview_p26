@@ -13,3 +13,4 @@ amazon_cpp/build/
 microsoft/build/
 openai/build/
 concurrency/build/
+company/*/build/

@@ -116,8 +116,12 @@ class SharedPtr {
     // 放弃当前资源，可选接管新裸指针（语义同 std::shared_ptr::reset）
     void reset(T* ptr = nullptr) {
         release();
-        m_ptr = ptr;
-        m_ref_count = ptr ? new uint32_t(1) : nullptr;
+        m_ptr = nullptr;
+        m_ref_count = nullptr;
+        if (ptr) {
+            m_ptr = ptr;
+            m_ref_count = new uint32_t(1);
+        }
     }
 };
 
