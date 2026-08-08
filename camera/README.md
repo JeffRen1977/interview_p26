@@ -4,7 +4,8 @@ Top-level entry for camera / imaging interview practice.
 
 | Path | Focus |
 |------|--------|
-| [高通camera应用工程师面试.md](./高通camera应用工程师面试.md) | Qualcomm camera app eng：V4L2 / CSIPHY / CSID / Sensor |
+| [camera_driver.md](./camera_driver.md) | Qualcomm V4L2 / DMA zero-copy / Stride·Scanline / UBWC |
+| [sensor.md](./sensor.md) | CSIPHY vs CSID、CCI、MIPI、Exposure/Gain |
 | [高通相机应用工程师.md](./高通相机应用工程师.md) | Qualcomm camera app eng notes |
 | [应用工程师.md](./应用工程师.md) | Camera application engineer notes |
 | [掉帧.md](./掉帧.md) | Frame drop analysis |
