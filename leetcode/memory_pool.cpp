@@ -7,7 +7,7 @@
  // Correctness notes:
  //   - After a successful CAS pop, do NOT store head again (that double-advances).
  //   - blockSize must be >= sizeof(Block); Block overlays the free-list next ptr.
- //   - ABA remains (see concurrency/two_level_mempool.cpp for discussion).
+ //   - ABA remains (see c++/two_level_mempool.cpp for discussion).
 
 #include <atomic>
 #include <cassert>

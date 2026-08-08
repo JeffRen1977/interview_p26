@@ -7,10 +7,12 @@ Top-level entry for C++ interview practice in this repo.
 | [shared_ptr.cpp](./shared_ptr.cpp) | Hand-written SharedPtr + tests |
 | [thread_pool.cpp](./thread_pool.cpp) | Thread pool + futures |
 | [fixed_block_pool_thread_safe.cpp](./fixed_block_pool_thread_safe.cpp) | Fixed-size pool: lock-free CAS + TLS |
+| [object_pool.cpp](./object_pool.cpp) | Object pool + tests (`object_pool.py` mirror) |
+| [two_level_mempool.cpp](./two_level_mempool.cpp) | Global Treiber list + TLS local cache; ABA |
 | [动态内存分配.md](./动态内存分配.md) | Dynamic allocation notes |
 | [固定内存大小分配.md](./固定内存大小分配.md) | Fixed-size pool notes |
 | [线程池实现.md](./线程池实现.md) | Thread-pool design notes |
-| [../concurrency/](../concurrency/) | Queues, rings, frame drop, mempool |
+| [../concurrency/](../concurrency/) | Queues, rings, frame drop, fan-out |
 | [../company/amazon/](../company/amazon/) | Amazon C++ deep dive + examples |
 | [../interview_handwrite/](../interview_handwrite/) | Vision / engineering handwrites |
 | [../leetcode/](../leetcode/) | Algorithm + DS sketches |

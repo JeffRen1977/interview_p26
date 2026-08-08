@@ -1,6 +1,6 @@
 // SPSC ring buffer — 单生产者、单消费者无锁环形队列。
 //
-// Deep dive: docs/24-无锁SPSC队列与Cacheline对齐.md
+// Deep dive: XR/24-无锁SPSC队列与Cacheline对齐.md
 //
 // Whiteboard talking points:
 // - 预留一个永不存放有效元素的空槽，用同一对 head/tail 区分：

@@ -7,13 +7,10 @@ set(EXAMPLES
     bounded_blocking_queue
     thread_safe_queue
     thread_safe_ring_buffer
-    spsc_buffer
     spsc_ring_buffer
     producer_consumer_frame_dropping
     video_ring_buffer
     local_sd_card_writer
-    object_pool
-    two_level_mempool
 )
 
 foreach(name IN LISTS EXAMPLES)

@@ -1,6 +1,6 @@
 // Lock-free MPMC ring buffer — per-slot sequence + CAS（Dmitry Vyukov 经典算法）。
 //
-// Deep dive: docs/25-无锁MPMC队列与CAS.md
+// Deep dive: XR/25-无锁MPMC队列与CAS.md
 //
 // Whiteboard talking points:
 // - 容量必须是 2 的幂：用 pos & mask 代替 pos % capacity（省除法指令）。
