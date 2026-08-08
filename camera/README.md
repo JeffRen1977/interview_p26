@@ -6,8 +6,8 @@ Top-level entry for camera / imaging interview practice.
 |------|--------|
 | [camera_driver.md](./camera_driver.md) | Qualcomm V4L2 / DMA zero-copy / Stride·Scanline / UBWC |
 | [sensor.md](./sensor.md) | CSIPHY vs CSID、CCI、MIPI、Exposure/Gain |
-| [高通相机应用工程师.md](./高通相机应用工程师.md) | Qualcomm camera app eng notes |
-| [应用工程师.md](./应用工程师.md) | Camera application engineer notes |
+| [android_framework.md](./android_framework.md) | Android / Qualcomm camera app eng notes |
+| [application_engineer_requirement.md](./application_engineer_requirement.md) | Camera application engineer requirements |
 | [掉帧.md](./掉帧.md) | Frame drop analysis |
 | [../XR/08-影像ISP题详解.md](../XR/08-影像ISP题详解.md) | ISP pipeline、计算摄影、AI-ISP |
 | [../concurrency/](../concurrency/) | Frame queue、latest-frame drop、pre-event ring、SD fan-out |
