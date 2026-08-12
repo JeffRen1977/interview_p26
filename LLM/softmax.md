@@ -8,11 +8,17 @@
 
 ### 数值稳定性原理
 
-直接计算 $e^{x_i}$ 时，如果 $x_i$ 较大（如 $x_i = 100$），$e^{100}$ 会直接引发**上溢（Overflow / `inf`）**；如果分子分母同时除以 $e^{x_{\max}}$，数学公式可以等价转换为：
+直接计算 $\exp(\mathrm{xi})$ 时，如果 $\mathrm{xi}$ 较大（如 $\mathrm{xi} = 100$），$\exp(100)$ 会直接引发**上溢（Overflow / `inf`）**；如果分子分母同时减去最大值 $\mathrm{xmax}$，公式等价为：
 
-$$\text{Softmax}(x_i) = \frac{e^{x_i - x_{\max}}}{\sum_{j} e^{x_j - x_{\max}}}$$
+$$
+\mathrm{Softmax}(\mathrm{xi}) = \frac{\exp(\mathrm{xi}-\mathrm{xmax})}{\sum \exp(\mathrm{xj}-\mathrm{xmax})}
+$$
 
-这样可以确保所有指数指数幂的最大值为 $e^0 = 1$，彻底避免上溢问题。
+```text
+Softmax(xi) = exp(xi - xmax) / sum_j exp(xj - xmax)
+```
+
+（分母对所有下标 `j` 求和。）这样指数幂最大为 $\exp(0)=1$，避免上溢。
 
 ### C++ 代码实现 (支持 2D Batch 处理)
 
@@ -63,11 +69,15 @@ void softmax(const float* src, float* dst, int rows, int cols) {
 
 GELU 被广泛用于 BERT、GPT 等 Transformer 模型中。标准定义为：
 
-$$\text{GELU}(x) = x \cdot \Phi(x) = x \cdot \frac{1}{2}\left[1 + \text{erf}\left(\frac{x}{\sqrt{2}}\right)\right]$$
+$$
+\text{GELU}(x) = x \cdot \Phi(x) = x \cdot \frac{1}{2}\left[1 + \text{erf}\left(\frac{x}{\sqrt{2}}\right)\right]
+$$
 
 在 PyTorch 等框架中，常用高精度的**快速 Tanh 近似公式**（运算速度更快）：
 
-$$\text{GELU}(x) \approx 0.5 \cdot x \cdot \left(1 + \tanh\left(\sqrt{\frac{2}{\pi}} \left(x + 0.044715 \cdot x^3\right)\right)\right)$$
+$$
+\text{GELU}(x) \approx 0.5 \cdot x \cdot \left(1 + \tanh\left(\sqrt{\frac{2}{\pi}} \left(x + 0.044715 \cdot x^3\right)\right)\right)
+$$
 
 ### C++ 代码实现
 
@@ -104,13 +114,24 @@ void gelu_fast_tanh(const float* src, float* dst, size_t size) {
 
 ### 旋转原理
 
-RoPE 通过把 2D 向量视角下的特征对 $(x_{2i}, x_{2i+1})$ 在复平面内旋转角度 $m\theta_i$，从而将**绝对位置 $m$** 隐式编码为**相对位置**。
+RoPE 通过把 2D 向量视角下的特征对 $(\mathrm{xEven}, \mathrm{xOdd})$（即通道 `2i` 与 `2i+1`）在复平面内旋转角度 $m\cdot\theta$，从而将**绝对位置 $m$** 隐式编码为**相对位置**。
 
 二维旋转公式矩阵形式：
 
-$$\begin{pmatrix} x'_{2i} \\ x'_{2i+1} \end{pmatrix} = \begin{pmatrix} \cos(m\theta_i) & -\sin(m\theta_i) \\ \sin(m\theta_i) & \cos(m\theta_i) \end{pmatrix} \begin{pmatrix} x_{2i} \\ x_{2i+1} \end{pmatrix}$$
+$$
+\begin{pmatrix} \mathrm{xPrimeEven} \\ \mathrm{xPrimeOdd} \end{pmatrix}
+=
+\begin{pmatrix} \cos(m\theta) & -\sin(m\theta) \\ \sin(m\theta) & \cos(m\theta) \end{pmatrix}
+\begin{pmatrix} \mathrm{xEven} \\ \mathrm{xOdd} \end{pmatrix}
+$$
 
-其中频率公式为 $\theta_i = 10000^{-2i/d}$（$d$ 为 `head_dim`，即隐藏层通道数）。
+```text
+[x'_even]   [ cos(mθ)  -sin(mθ) ] [xEven]
+[x'_odd ] = [ sin(mθ)   cos(mθ) ] [xOdd ]
+θ = 10000^(-2i/d)   # d = head_dim
+```
+
+其中频率 $\theta = 10000^{-2i/d}$（$d$ 为 `head_dim`）。
 
 ### C++ 代码实现 (支持 In-place 旋转)
 

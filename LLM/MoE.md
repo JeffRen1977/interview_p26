@@ -87,9 +87,11 @@
 对于传入的 Token 特征向量 $x$，Router 需要计算该 Token 应该被分发给哪个（些）专家，以及对应的权重概率。
 
 * **数学公式**：
-给定 Router 的权重矩阵 $W_{gate}$：
+给定 Router 的权重矩阵 $\mathrm{Wgate}$：
 
-$$H(x) = \text{Softmax}\left(x \cdot W_{gate}\right)$$
+$$
+H(x) = \text{Softmax}\left(x \cdot \mathrm{Wgate}\right)
+$$
 
 
 
@@ -98,19 +100,28 @@ $$H(x) = \text{Softmax}\left(x \cdot W_{gate}\right)$$
 如果总共有 $N$ 个专家（如 $N = 8$），为了保持极高的计算速度（稀疏激活），模型**不会让所有专家都参与计算**，而是只挑选得分最高的前 $k$ 个专家（通常 $k = 2$，即 **Top-2 Routing**）。
 
 * **筛选并归一化权重**：
-假设选出了前 2 个最高评分的专家 $E_1$ 和 $E_3$，评分分别为 $s_1$ 和 $s_3$，重新归一化得到最终概率权重：
+假设选出了前 2 个最高评分的专家 $\mathrm{E1}$ 和 $\mathrm{E3}$，评分分别为 $\mathrm{s1}$ 和 $\mathrm{s3}$，重新归一化得到最终概率权重：
 
-$$p_1 = \frac{e^{s_1}}{e^{s_1} + e^{s_3}}, \quad p_2 = \frac{e^{s_3}}{e^{s_1} + e^{s_3}}$$
+$$
+\mathrm{p1} = \frac{e^{\mathrm{s1}}}{e^{\mathrm{s1}} + e^{\mathrm{s3}}}, \quad \mathrm{p2} = \frac{e^{\mathrm{s3}}}{e^{\mathrm{s1}} + e^{\mathrm{s3}}}
+$$
 
 
 
 #### 3. 专家网络计算与加权融合（Weighted Sum）
 
-每个专家 $E_i$ 本质上都是一个独立的 **SwiGLU FFN 前馈网络**。被选中的专家各自独立计算后，将结果按概率加权求和：
+每个专家 $\mathrm{Ei}$ 本质上都是一个独立的 **SwiGLU FFN 前馈网络**。被选中的专家各自独立计算后，将结果按概率加权求和：
 
 * **数学公式**：
 
-$$y_{\text{MoE}} = \sum_{i \in \text{Top-k}} p_i \cdot E_i(x)$$
+$$
+\mathrm{yMoE} = \sum \mathrm{pi}\cdot\mathrm{Ei}(x)
+\quad (i \in \mathrm{TopK})
+$$
+
+```text
+yMoE = sum_{i in TopK}  pi * Ei(x)
+```
 
 
 

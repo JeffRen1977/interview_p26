@@ -27,7 +27,7 @@ Tensor 应该在其**最后一个消费（使用）它的算子**执行完毕后
 
 ### 2. 算子内部内存复用考虑 (In-place & Intermediate)
 
-有些算子（如 ReLU、Elementwise Add）支持 In-place 操作，即输入和输出可以共享同一个内存。如果算子 $op_i$ 允许输入 $A$ 和输出 $B$ In-place，则：
+有些算子（如 ReLU、Elementwise Add）支持 In-place 操作，即输入和输出可以共享同一个内存。如果算子 $\mathrm{opi}$ 允许输入 $A$ 和输出 $B$ In-place，则：
 
 * Tensor $A$ 的 `end_time` 可以提前到 $i-1$（或在节点 $i$ 处直接将 $B$ 的地址重置为 $A$ 的地址）。
 

@@ -1,5 +1,8 @@
 # 22 - LLM 训练：计算通信重叠与 MFU 优化（系统设计标准答案）
 
+> **GitHub 公式：** 站点 KaTeX 对 `_` 不友好，本文件公式已改为无下划线命名（如 `Etoken`、`nkv`、`dhead`）；工程名带下划线的写在代码/正文中。
+
+
 > **面试场景：** 「设计多芯片协同的参数同步机制，让计算与通信重叠，最大化 MFU。」  
 > **岗位：** AWS Nitro MLS / Trainium 大规模训练基础设施。  
 > **核心指标：** **MFU（Model FLOPs Utilization）** — 实际有效算力 / 理论峰值算力。  
@@ -26,7 +29,9 @@
 
 ### 1.1 定义
 
-$$\text{MFU} = \frac{\text{实际 achieved FLOPs/s（整个 job）}}{\text{硬件理论峰值 FLOPs/s}}$$
+$$
+\text{MFU} = \frac{\text{实际 achieved FLOPs/s（整个 job）}}{\text{硬件理论峰值 FLOPs/s}}
+$$
 
 | MFU 区间 | 含义（大模型训练经验值） |
 |----------|--------------------------|
@@ -59,7 +64,9 @@ Step 时间 = T_compute + T_comm + T_idle（气泡）
 
 Transformer 反向传播按层从 $L$ 到 $1$ 推进：
 
-$$\text{Layer } L \rightarrow \text{Layer } L-1 \rightarrow \cdots \rightarrow \text{Layer } 1$$
+$$
+\text{Layer } L \rightarrow \text{Layer } L-1 \rightarrow \cdots \rightarrow \text{Layer } 1
+$$
 
 **关键性质：** Layer $i$ 的梯度一旦算完，**不必等**其他层完成，即可发起该层梯度的集合通信（Reduce-Scatter / All-Reduce，取决于并行策略）。
 
@@ -271,7 +278,7 @@ Layer N backward:
 | 适合 | 层厚、计算长 | 层薄、通信相对长 |
 
 **面试表达：**
-> 当 $T_{\text{comm}} > T_{\text{compute}}$ 单层时，layer-wise overlap 不够，必须 chunk-wise micro-pipelining 把缝隙填满。
+> 当 $\mathrm{Tcomm} > \mathrm{Tcompute}$ 单层时，layer-wise overlap 不够，必须 chunk-wise micro-pipelining 把缝隙填满。
 
 ### 5.2 EFA 与 SRD：跨节点旁路
 

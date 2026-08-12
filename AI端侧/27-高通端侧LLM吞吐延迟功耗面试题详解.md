@@ -1,5 +1,8 @@
 # 27 - 高通端侧 LLM 吞吐 / 延迟 / 功耗面试题详解
 
+> **GitHub 公式：** 站点 KaTeX 对 `_` 不友好，本文件公式已改为无下划线命名（如 `Etoken`、`nkv`、`dhead`）；工程名带下划线的写在代码/正文中。
+
+
 面向 **Snapdragon / Hexagon NPU / Mobile** 端侧大模型推理岗位（Staff / Sr. Staff）。  
 配套：[16-Qualcomm-AI-Stack面试准备.md](./16-Qualcomm-AI-Stack面试准备.md)（SDK / 图编译 / Runtime 栈）· [07-端侧部署题详解.md](./07-端侧部署题详解.md)（通用量化基础）。
 
@@ -89,13 +92,13 @@ $$
 ### 公式（数量级直觉）
 
 $$
-E_{\text{token}} \approx E_{\text{DRAM}}\cdot(\text{weights} + \text{KV}) + E_{\text{compute}}\cdot\text{FLOPs}
+\mathrm{Etoken} \approx \mathrm{EDRAM}\cdot(\text{weights} + \text{KV}) + \mathrm{Ecompute}\cdot\text{FLOPs}
 $$
 
 Memory-bound 时第一项主导。把权重从 16-bit 压到 4-bit：
 
 $$
-\text{DRAM bytes} \downarrow 75\% \;\Rightarrow\; E_{\text{DRAM}} \downarrow \sim 75\%\ \text{（理想情况）}
+\text{DRAM bytes} \downarrow 75\% \;\Rightarrow\; \mathrm{EDRAM} \downarrow \sim 75\%\ \text{（理想情况）}
 $$
 
 ### 低功耗方案栈（由易到难）
@@ -130,24 +133,24 @@ $$
 每层每 batch 的 KV 字节数：
 
 $$
-\text{KV}_{\text{layer}} = 2 \times B \times S \times n_{\text{kv}} \times d_{\text{head}} \times b
+\mathrm{KVlayer} = 2 \times B \times S \times \mathrm{nkv} \times \mathrm{dhead} \times b
 $$
 
 全模型：
 
 $$
-\text{KV}_{\text{total}} = L \times \text{KV}_{\text{layer}}
+\mathrm{KVtotal} = L \times \mathrm{KVlayer}
 $$
 
-| 类型 | $n_{\text{kv}}$ | 相对 MHA 的 KV 体积 |
+| 类型 | $\mathrm{nkv}$ | 相对 MHA 的 KV 体积 |
 |------|-----------------|---------------------|
-| **MHA** | $= n_q$ | $1\times$ |
-| **GQA** | $= n_q / g$（$g$ 为组大小） | $1/g$ |
-| **MQA** | $= 1$ | $1/n_q$ |
+| **MHA** | $= \mathrm{nq}$ | $1\times$ |
+| **GQA** | $= \mathrm{nq} / g$（$g$ 为组大小） | $1/g$ |
+| **MQA** | $= 1$ | $1/\mathrm{nq}$ |
 
 #### Llama 3 70B 估算（口述数字）
 
-典型配置量级：$L=80$，$n_q=64$，$n_{\text{kv}}=8$（8:1 GQA），$d_{\text{head}}=128$，FP16 则 $b=2$。
+典型配置量级：$L=80$，$\mathrm{nq}=64$，$\mathrm{nkv}=8$（8:1 GQA），$\mathrm{dhead}=128$，FP16 则 $b=2$。
 
 $$
 \text{KV} \approx 80 \times 2 \times B \times S \times 8 \times 128 \times 2 = 655360 \cdot B \cdot S\ \text{bytes}
@@ -219,10 +222,10 @@ $$
 一个常用近似：
 
 $$
-\text{Speedup} \approx \frac{1+\alpha+\alpha^2+\cdots+\alpha^{K}}{c_{\text{draft}}\cdot K + c_{\text{verify}}}
+\text{Speedup} \approx \frac{1+\alpha+\alpha^2+\cdots+\alpha^{K}}{\mathrm{cdraft}\cdot K + \mathrm{cverify}}
 $$
 
-其中 $c_{\text{draft}}$ 是草稿一步相对目标模型一步的代价比，$c_{\text{verify}}$ 是一次并行验证代价（常 ≈ 1 次大模型 forward）。
+其中 $\mathrm{cdraft}$ 是草稿一步相对目标模型一步的代价比，$\mathrm{cverify}$ 是一次并行验证代价（常 ≈ 1 次大模型 forward）。
 
 更直观：
 
@@ -243,7 +246,7 @@ $$
 
 ---
 
-### Q7. [端侧特化] 骁龙上如何权衡草稿模型大小 $t_{\text{draft}}$ 与接受率 $\alpha$？
+### Q7. [端侧特化] 骁龙上如何权衡草稿模型大小 $\mathrm{tdraft}$ 与接受率 $\alpha$？
 
 #### 痛点
 
@@ -251,8 +254,8 @@ $$
 
 #### 权衡曲线（口述）
 
-- 草稿太小（如 10–50M）：$t_{\text{draft}}$ 极低，但 $\alpha$ 低 → 总接受短，白跑验证。  
-- 草稿太大（接近目标模型）：$\alpha$ 高，但 $K\cdot t_{\text{draft}}$ 本身已 memory-bound，净加速 → 0。  
+- 草稿太小（如 10–50M）：$\mathrm{tdraft}$ 极低，但 $\alpha$ 低 → 总接受短，白跑验证。  
+- 草稿太大（接近目标模型）：$\alpha$ 高，但 $K\cdot \mathrm{tdraft}$ 本身已 memory-bound，净加速 → 0。  
 - **甜点区：** 通常目标模型的 **5%–15% 参数量**，或同族蒸馏小模型；$\alpha$ 目标约 **0.6–0.8**（视任务）。
 
 #### 骁龙落地建议
@@ -264,7 +267,7 @@ $$
 | $K$ | 端侧常 4–8；过大验证变重且拒绝浪费 |
 | 退出 | 连续拒绝则降 $K$ 或暂时关闭 spec |
 
-**口述金句：** 端侧优化的是 $\alpha / t_{\text{draft}}$ 比值，不是单独追高 $\alpha$。
+**口述金句：** 端侧优化的是 $\alpha / \mathrm{tdraft}$ 比值，不是单独追高 $\alpha$。
 
 ---
 
@@ -392,10 +395,10 @@ LLM 同理，最值得融合的包括：
 
 #### 经典三维分块
 
-选择块大小 $T_m,T_n,T_k$ 使：
+选择块大小 $\mathrm{Tm},\mathrm{Tn},\mathrm{Tk}$ 使：
 
 $$
-\text{size}(A_{\text{tile}})+\text{size}(B_{\text{tile}})+\text{size}(C_{\text{tile}}) \le \text{SRAM capacity}
+\text{size}(\mathrm{Atile})+\text{size}(\mathrm{Btile})+\text{size}(\mathrm{Ctile}) \le \text{SRAM capacity}
 $$
 
 | 层级 | 典型驻留 |
@@ -405,7 +408,7 @@ $$
 | 外（DRAM） | 整矩阵；按 $K$ 向外积方向流式灌入 |
 
 **防止 thrashing：**  
-1) 先定 SRAM budget；2) 按 bandwidth-arithmetic 平衡选 $T_k$；3) 双缓冲下一 tile 的 DMA；4) 量化后 tile 字节数变小 → 可加大 $T_m/T_n$ 提高复用。
+1) 先定 SRAM budget；2) 按 bandwidth-arithmetic 平衡选 $\mathrm{Tk}$；3) 双缓冲下一 tile 的 DMA；4) 量化后 tile 字节数变小 → 可加大 $\mathrm{Tm}/\mathrm{Tn}$ 提高复用。
 
 ---
 
@@ -414,11 +417,11 @@ $$
 ### Q14. [高频] 均匀量化：Scale $S$、Zero-point $Z$；对称 vs 非对称
 
 $$
-x_{\text{int}} = \mathrm{clamp}\Big(\mathrm{round}\big(\frac{x}{S}\big)+Z,\ q_{\min}, q_{\max}\Big)
+\mathrm{xint} = \mathrm{clamp}\Big(\mathrm{round}\big(\frac{x}{S}\big)+Z,\ \mathrm{qmin}, \mathrm{qmax}\Big)
 $$
 
 $$
-\hat{x} = S\cdot(x_{\text{int}}-Z)
+\hat{x} = S\cdot(\mathrm{xint}-Z)
 $$
 
 | | **对称** | **非对称** |
@@ -573,16 +576,16 @@ Set input (DMA-BUF) → Execute → Get output
 ### KV 公式（默写）
 
 $$
-\text{KV} = 2 \cdot L \cdot B \cdot S \cdot n_{\text{kv}} \cdot d_{\text{head}} \cdot b
+\text{KV} = 2 \cdot L \cdot B \cdot S \cdot \mathrm{nkv} \cdot \mathrm{dhead} \cdot b
 $$
 
 ### Spec 加速直觉
 
 $$
-\text{Speedup} \sim \frac{\mathbb{E}[\text{接受 token 数}]}{K\cdot t_{\text{draft}} + t_{\text{verify}}}
+\text{Speedup} \sim \frac{\mathbb{E}[\text{接受 token 数}]}{K\cdot \mathrm{tdraft} + \mathrm{tverify}}
 $$
 
-端侧追 $\alpha / t_{\text{draft}}$，服务端大 batch 收益衰减。
+端侧追 $\alpha / \mathrm{tdraft}$，服务端大 batch 收益衰减。
 
 ### 量化一句话
 

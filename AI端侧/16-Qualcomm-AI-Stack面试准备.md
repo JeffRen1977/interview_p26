@@ -1,8 +1,13 @@
 # 16 - Qualcomm AI Stack SDK 面试准备
 
+> **GitHub 公式：** 站点 KaTeX 对 `_` 不友好，本文件公式已改为无下划线命名（如 `Etoken`、`nkv`、`dhead`）；工程名带下划线的写在代码/正文中。
+
+
 面向 **Qualcomm AI Stack SDK Software** 团队 **Staff / Sr. Staff Software Engineer** 岗位（Generative AI inference on Snapdragon）。
 
-> **GitHub 阅读：** 公式使用 `$...$` / `$$...$$` 格式。  
+> **GitHub 阅读：** 公式使用 `$...$` / `$$
+...
+$$` 格式。  
 > **关联文档：** 量化/部署基础见 [07-端侧部署题详解.md](./07-端侧部署题详解.md)；Transformer 基础见 [06-CV基础题详解.md](./06-CV基础题详解.md)；**端侧吞吐/延迟/功耗硬核题库**见 [27-高通端侧LLM吞吐延迟功耗面试题详解.md](./27-高通端侧LLM吞吐延迟功耗面试题详解.md)。
 
 ---
@@ -309,10 +314,10 @@ Graph Optimization Pipeline (典型顺序):
 #### Q13：写出 scaled dot-product attention 并解释复杂度。
 
 $$
-\mathrm{Attention}(Q,K,V) = \mathrm{softmax}\left(\frac{QK^T}{\sqrt{d_k}}\right) V
+\mathrm{Attention}(Q,K,V) = \mathrm{softmax}\left(\frac{QK^T}{\sqrt{\mathrm{dk}}}\right) V
 $$
 
-- $Q,K,V$ shape：$(\text{heads}, \text{seq}, d_k)$  
+- $Q,K,V$ shape：$(\text{heads}, \text{seq}, \mathrm{dk})$  
 - 朴素实现：$O(n^2 \cdot d)$ 时间，$O(n^2)$ 存 attention matrix  
 - **FlashAttention：** IO-aware，减少 HBM 读写，不改变数学结果  
 
@@ -339,13 +344,13 @@ Decode 时避免每步重算历史 token 的 K/V，缓存每层 attention 的 ke
 单层单 batch cache 示意：
 
 $$
-\text{shape} \approx (\text{num\_kv\_heads},\; \text{seq\_len},\; \text{head\_dim})
+\text{shape} \approx (\text{num-kv-heads},\; \text{seq-len},\; \text{head-dim})
 $$
 
 总内存（层数 $L$，batch $B$，每 KV bytes $b$）：
 
 $$
-\text{KV memory} \approx 2 \times L \times B \times \text{seq\_len} \times \text{kv\_heads} \times \text{head\_dim} \times b
+\text{KV memory} \approx 2 \times L \times B \times \text{seq-len} \times \text{kv-heads} \times \text{head-dim} \times b
 $$
 
 **8GB 手机跑 7B 模型：** KV cache 往往是长上下文的主要矛盾。

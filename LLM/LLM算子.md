@@ -74,7 +74,7 @@
 
 ### 1. 输入层（Input Phase）
 
-* **Token Embeddings**：将输入的词 ID 转换为高维连续向量（如 $d_{model} = 4096$ 或 $8190$）。
+* **Token Embeddings**：将输入的词 ID 转换为高维连续向量（如 $\mathrm{dmodel} = 4096$ 或 $8190$）。
 
 ### 2. 核心 Block 层（堆叠 32 ~ 80 层不等）
 
@@ -98,17 +98,17 @@
 
 1. **RMSNorm**：再次对特征做归一化。
 2. **SwiGLU 升维与激活**：
-* 输入分成两路，分别经过 $W_{gate}$ 和 $W_{up}$ 投影升维（通常升维到约 $8/3 \times d_{model}$）。
+* 输入分成两路，分别经过 $\mathrm{Wgate}$ 和 $\mathrm{Wup}$ 投影升维（通常升维到约 $8/3 \times \mathrm{dmodel}$）。
 * 一路经过 **SiLU (Swish)** 激活函数后，与另一路按元素相乘（$\odot$）。
 
 
-3. **Down 降维投影**：通过 $W_{down}$ 将维度降回 $d_{model}$。
+3. **Down 降维投影**：通过 $\mathrm{Wdown}$ 将维度降回 $\mathrm{dmodel}$。
 4. **残差相加**：将 FFN 的输出加回输入 $x$ 上：$x = x + \text{FFN}(RMSNorm(x))$。
 
 ### 3. 输出与采样层（Output & Sampling Phase）
 
 1. **Final RMSNorm**：在所有 Block 执行完毕后，做最后一次特征归一化。
-2. **LM Head**：通过一个线性层，将 $d_{model}$ 维度的特征映射到词表大小（Vocabulary Size，如 32,000 或 151,646），得到每个词的 raw score（Logits）。
+2. **LM Head**：通过一个线性层，将 $\mathrm{dmodel}$ 维度的特征映射到词表大小（Vocabulary Size，如 32,000 或 151,646），得到每个词的 raw score（Logits）。
 3. **采样算子（Sampling Operators）**：
 * **Temperature Scaling**：除以温度系数调节概率平滑度。
 * **Top-k / Top-p (Nucleus) 过滤**：截断低概率词。

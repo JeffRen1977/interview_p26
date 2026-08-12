@@ -21,7 +21,9 @@
 在 LLM 输出阶段，模型会给词表里的每一个词计算出一个预测概率（假设按概率从大到小排序）：
 
 
-$$\text{词表: } [\text{词}_1(40\%), \text{词}_2(25\%), \text{词}_3(15\%), \text{词}_4(10\%), \text{词}_5(5\%), \dots]$$
+$$
+\text{vocab probs: } [w1(40\%),\; w2(25\%),\; w3(15\%),\; w4(10\%),\; w5(5\%),\; \dots]
+$$
 
 #### 1. Top-k 采样：看“名次”
 
@@ -29,7 +31,9 @@ $$\text{词表: } [\text{词}_1(40\%), \text{词}_2(25\%), \text{词}_3(15\%), \
 * **数学公式**：
 给定固定整数 $k$，保留集合 $V^{(k)} = \{\text{Top } k \text{ highest probability tokens}\}$，其余 Token 的 Logit 设为 $-\infty$：
 
-$$z_i' = \begin{cases} z_i, & \text{if } z_i \in V^{(k)} \\ -\infty, & \text{otherwise} \end{cases}$$
+$$
+\mathrm{zi}' = \begin{cases} \mathrm{zi}, & \text{if } \mathrm{zi} \in V^{(k)} \\ -\infty, & \text{otherwise} \end{cases}
+$$
 
 
 * **举例**（假设设 $k = 3$）：
@@ -41,9 +45,16 @@ $$z_i' = \begin{cases} z_i, & \text{if } z_i \in V^{(k)} \\ -\infty, & \text{oth
 
 * **原理**：**看累积概率**。将所有词按概率从高到低排列，将它们的概率**依次累加**，一旦累加值达到了设定的阈值 $p$（例如 $p = 0.9$ 或 $90\%$），就停止收集，只在这些词里重新归一化并抽样。
 * **数学公式**：
-按概率 $p_{(i)}$ 降序排列，找到满足累积概率要求的最小集合 Cutoff $K$：
+按概率 $\mathrm{pi}$ 降序排列，找到满足累积概率要求的最小集合 Cutoff $K$：
 
-$$\sum_{i=1}^{K} p_{(i)} \ge p$$
+$$
+\sum \mathrm{pi} \ge p
+\quad (i=1,\ldots,K;\ \text{probs sorted desc})
+$$
+
+```text
+sum_{i=1..K} p_(i) >= p   # after sorting probs descending
+```
 
 
 
