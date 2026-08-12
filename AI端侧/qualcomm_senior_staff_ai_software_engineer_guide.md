@@ -1,4 +1,6 @@
 # Qualcomm Senior Staff AI Software Engineer Interview Guide
+
+> **GitHub 公式注意：** 站点数学引擎里 `_` 极易破坏渲染。下文公式使用无下划线命名（如 `Tideal`、`HKV`）；带下划线的工程名写在 `text` 代码块里。
 ### Advanced AI Systems, Qualcomm AI Stack (QNN/AIMET), Hexagon NPU (HTP), On-Device LLM/GenAI, High-Performance C++ Coding & Numerical RCA
 
 ---
@@ -203,7 +205,7 @@ class PagedKVCacheManager {
 ---
 
 ### 2.3 题目三：VTCM / SRAM 片上内存分块矩阵乘法 (Tiled Matrix Multiplication with Scratchpad Buffer)
-* **场景：** Hexagon HTP 拥有 ~8MB 的片上紧耦合内存（VTCM）。大矩阵乘法 $C = A \times B$ 无法全量放入 SRAM，必须按 $M_{\text{tile}} \times K_{\text{tile}}$ 与 $K_{\text{tile}} \times N_{\text{tile}}$ 分块搬运至片上计算。
+* **场景：** Hexagon HTP 拥有 ~8MB 的片上紧耦合内存（VTCM）。大矩阵乘法 $C = A \times B$ 无法全量放入 SRAM，必须按 $\mathrm{Mtile} \times \mathrm{Ktile}$ 与 $\mathrm{Ktile} \times \mathrm{Ntile}$ 分块搬运至片上计算。
 
 ```cpp
 #include <algorithm>
@@ -417,14 +419,18 @@ int SampleTopKTopP(const float* logits, int vocab_size, float temperature, int t
 
 ### 5.1 CLE (Cross-Layer Equalization) 与 Bias Correction
 * **CLE 原理：** 许多卷积网络（如 MobileNetV2 / ResNet）某些通道权重极小而某些通道极大，导致 Per-Tensor 量化时小通道精度严重丢失。CLE 利用 ReLU/PReLU 的正齐次性（Positive Homogeneity $f(s \cdot x) = s \cdot f(x)$），通过权重缩放矩阵 $S$ 平衡相邻两层卷积的权重范围：
-  $$W_1' = S^{-1} W_1, \quad W_2' = W_2 S$$
+  $$
+\mathrm{W1}' = S^{-1} \mathrm{W1}, \quad \mathrm{W2}' = \mathrm{W2} S
+$$
 * **Bias Correction：** 补偿量化带来的均值漂移（Quantization Shift Error），通过分析校准集输出误差直接修正 Bias 偏置。
 
 ---
 
 ### 5.2 AdaRound (Adaptive Rounding)
 * 传统的最近舍入（Round-to-Nearest）并不是最小化任务损失的最优解。AdaRound 通过在无标注校准集上优化二值松弛目标函数，学习每一项权重的最佳向上/向下舍入方向：
-  $$\min_V \| W x - \tilde{W}(V) x \|_F^2 + \lambda f_{\text{reg}}(V)$$
+  $$
+\underset{V}{\min} \| W x - \tilde{W}(V) x \|F^2 + \lambda \mathrm{freg}(V)
+$$
 
 ---
 

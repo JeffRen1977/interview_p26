@@ -1,5 +1,7 @@
 # AI Inference Systems & Infrastructure Complete Interview Guide & Solutions
 
+
+> **GitHub 公式注意：** 站点数学引擎里 `_` 极易破坏渲染。下文公式使用无下划线命名（如 `Tideal`、`HKV`）；带下划线的工程名写在 `text` 代码块里。
 ---
 
 ## Role & Technical Scope Overview
@@ -77,7 +79,9 @@ Step 3: [ Decode 1 ] [ Decode 2 ] [ Chunk 3: 512 tokens (18ms) ]
 * **Token Budgeting**: The scheduler defines a fixed computation budget per iteration (e.g., $B = 512$ or $1024$ tokens).
 * **Chunk Slicing**: Long prompt prefills are partitioned into equal chunks of size $B$.
 * **Co-execution**: In each step, the scheduler pairs ongoing decode tokens with one chunk of prefill:
-  $$\text{Iteration Tokens} = N_{\text{decode}} + \text{Chunk}_{\text{prefill}} \le B$$
+  $$
+\text{Iteration Tokens} = \mathrm{Ndecode} + \mathrm{ChunkPrefill} \le B
+$$
 * **Benefits**:
   1. Keeps Inter-Token Latency (ITL) predictable and smooth ($< 25\text{ms}$).
   2. Converts decode GEMV into a more compute-efficient batch GEMM, increasing overall system MFU without violating latency SLOs.
@@ -189,8 +193,8 @@ In production APIs:
   * Value: Cached physical KV memory block pointers in GPU HBM.
 * **Lookup during Request Arrival**:
   * New request token stream is matched against the Radix Tree.
-  * Finds the Longest Common Prefix ($L_{\text{match}}$).
-  * **Instant Prefill Bypass**: The engine directly loads the cached KV blocks for the first $L_{\text{match}}$ tokens with **zero prefill FLOPs**, only computing prefill for the newly appended suffix.
+  * Finds the Longest Common Prefix ($\mathrm{Lmatch}$).
+  * **Instant Prefill Bypass**: The engine directly loads the cached KV blocks for the first $\mathrm{Lmatch}$ tokens with **zero prefill FLOPs**, only computing prefill for the newly appended suffix.
 * **Eviction Policy**:
   * When GPU memory is low, an **LRU (Least Recently Used)** cache eviction algorithm prunes leaf nodes in the tree, freeing their underlying physical PagedAttention blocks.
 
@@ -209,21 +213,23 @@ MLA (DeepSeek):    Compressed Latent Vector c_KV (Low-Rank) ===> Decompressed on
 ```
 
 #### 1. Mathematical Breakdown & KV Cache Memory Formulas
-Let $L$ = number of layers, $H_Q$ = number of query heads, $H_{KV}$ = number of key-value heads, $d$ = head dimension, $b$ = precision in bytes (e.g., $b=2$ for FP16, $b=1$ for FP8).
+Let $L$ = number of layers, $\mathrm{HQ}$ = number of query heads, $\mathrm{HKV}$ = number of key-value heads, $d$ = head dimension, $b$ = precision in bytes (e.g., $b=2$ for FP16, $b=1$ for FP8).
 
-$$\text{KV Cache Bytes per Token} = 2 \times L \times H_{KV} \times d \times b$$
+$$
+\text{KV Cache Bytes per Token} = 2 \times L \times \mathrm{HKV} \times d \times b
+$$
 
-| Architecture | $H_{KV}$ Heads | KV Cache Size Formula | Relative KV Footprint (vs. MHA) | Primary Model Adoption |
+| Architecture | $\mathrm{HKV}$ Heads | KV Cache Size Formula | Relative KV Footprint (vs. MHA) | Primary Model Adoption |
 | :--- | :--- | :--- | :--- | :--- |
-| **MHA (Multi-Head)** | $H_{KV} = H_Q$ (e.g., 32) | $2 \cdot L \cdot H_Q \cdot d \cdot b$ | $\mathbf{1.0\times}$ (Baseline: High memory) | GPT-3, LLaMA-1 |
-| **MQA (Multi-Query)** | $H_{KV} = 1$ | $2 \cdot L \cdot 1 \cdot d \cdot b$ | $\mathbf{1 / H_Q\times}$ ($\approx 3\%$ of MHA) | Falcon, PaLM |
-| **GQA (Grouped-Query)**| $1 < H_{KV} < H_Q$ (e.g., 8) | $2 \cdot L \cdot H_{KV} \cdot d \cdot b$ | $\mathbf{H_{KV} / H_Q\times}$ (e.g., $1/4$ or $1/8$) | LLaMA-2/3, Mistral, Gemma |
-| **MLA (Multi-Head Latent)**| Compressed Latent $d_c$ | $L \cdot (d_c + d_R) \cdot b$ | $\mathbf{\approx 1/10\times}$ of MHA | DeepSeek-V2, DeepSeek-V3 |
+| **MHA (Multi-Head)** | $\mathrm{HKV} = \mathrm{HQ}$ (e.g., 32) | $2 \cdot L \cdot \mathrm{HQ} \cdot d \cdot b$ | $\mathbf{1.0\times}$ (Baseline: High memory) | GPT-3, LLaMA-1 |
+| **MQA (Multi-Query)** | $\mathrm{HKV} = 1$ | $2 \cdot L \cdot 1 \cdot d \cdot b$ | $\mathbf{1 / \mathrm{HQ}\times}$ ($\approx 3\%$ of MHA) | Falcon, PaLM |
+| **GQA (Grouped-Query)**| $1 < \mathrm{HKV} < \mathrm{HQ}$ (e.g., 8) | $2 \cdot L \cdot \mathrm{HKV} \cdot d \cdot b$ | $\mathbf{\mathrm{HKV} / \mathrm{HQ}\times}$ (e.g., $1/4$ or $1/8$) | LLaMA-2/3, Mistral, Gemma |
+| **MLA (Multi-Head Latent)**| Compressed Latent $\mathrm{dc}$ | $L \cdot (\mathrm{dc} + \mathrm{dR}) \cdot b$ | $\mathbf{\approx 1/10\times}$ of MHA | DeepSeek-V2, DeepSeek-V3 |
 
 #### 2. DeepSeek Multi-Head Latent Attention (MLA) Deep Dive
-* Instead of storing full $K, V$ matrices ($2 \times H_Q \times d$), MLA projects $K, V$ into a low-rank compressed latent vector $c_t^{KV} \in \mathbb{R}^{d_c}$ (where $d_c \ll H_Q \cdot d$).
+* Instead of storing full $K, V$ matrices ($2 \times \mathrm{HQ} \times d$), MLA projects $K, V$ into a low-rank compressed latent vector $\mathrm{ct}^{KV} \in \mathbb{R}^{\mathrm{dc}}$ (where $\mathrm{dc} \ll \mathrm{HQ} \cdot d$).
 * **Matrix Absorption Trick during Inference**:
-  During generation, the up-projection matrix $W^{UK}$ is mathematically folded directly into the query projection ($Q \cdot W^{UK}$), allowing the attention score to be computed directly against the compressed $c_t^{KV}$ cache without ever decompressing the full Key vectors into VRAM!
+  During generation, the up-projection matrix $W^{UK}$ is mathematically folded directly into the query projection ($Q \cdot W^{UK}$), allowing the attention score to be computed directly against the compressed $\mathrm{ct}^{KV}$ cache without ever decompressing the full Key vectors into VRAM!
 
 ---
 
@@ -238,12 +244,16 @@ $$\text{KV Cache Bytes per Token} = 2 \times L \times H_{KV} \times d \times b$$
 
 #### 1. Metric Definitions
 1. **Time-to-First-Token (TTFT)**:
-   $$\text{TTFT} = T_{\text{queue}} + T_{\text{prefill}}$$
+   $$
+\text{TTFT} = \mathrm{Tqueue} + \mathrm{Tprefill}
+$$
    * Measures the duration from when the client sends a prompt until the first token appears. Dictated by **queueing delay** and **prefill GEMM execution time**.
 2. **Time-Per-Output-Token (TPOT) / Inter-Token Latency (ITL)**:
-   $$\text{TPOT} = \frac{T_{\text{total}} - \text{TTFT}}{N_{\text{output\_tokens}} - 1}$$
+   $$
+\text{TPOT} = \frac{\mathrm{Ttotal} - \text{TTFT}}{\mathrm{NoutputTokens} - 1}
+$$
    * Measures the average delta time between consecutive streaming tokens. Dictated by **decode GEMV iteration latency**.
-3. **Total Request Latency**: $T_{\text{total}} = \text{TTFT} + (N - 1) \times \text{TPOT}$.
+3. **Total Request Latency**: $\mathrm{Ttotal} = \text{TTFT} + (N - 1) \times \text{TPOT}$.
 
 #### 2. The Latency vs. Throughput Frontier
 ```
@@ -288,13 +298,15 @@ Result: Generated 5 tokens in the time of 1 Target Model decode step!
 * Speculative decoding uses this idle compute to verify multiple candidate tokens simultaneously in a **single forward GEMM pass**.
 
 #### 2. Verification Algorithm (Greedy Sampling)
-1. **Draft Generation**: A small draft model (e.g., LLaMA-3-1B) generates $K$ draft tokens ($x_1, x_2, \dots, x_K$) sequentially.
-2. **Parallel Target Evaluation**: The large target model (e.g., LLaMA-3-70B) processes all $K$ tokens in a single forward pass with a causal tree mask, producing conditional probability distributions $P(x_{i+1} \mid x_{\le i})$.
+1. **Draft Generation**: A small draft model (e.g., LLaMA-3-1B) generates $K$ draft tokens ($\mathrm{x1}, \mathrm{x2}, \dots, \mathrm{xK}$) sequentially.
+2. **Parallel Target Evaluation**: The large target model (e.g., LLaMA-3-70B) processes all $K$ tokens in a single forward pass with a causal tree mask, producing conditional probability distributions $P(\mathrm{xi1} \mid \mathrm{xI})$.
 3. **Acceptance Verification**:
    * For each token $i \in [1, K]$:
-     $$\text{Accept } x_i \iff \arg\max P_{\text{target}}(x_i \mid x_{<i}) == x_i$$
+     $$
+\text{Accept } \mathrm{xi} \iff \arg\max \mathrm{Ptarget}(\mathrm{xi} \mid \mathrm{xI}) == \mathrm{xi}
+$$
    * Stop at the first rejected token $j$.
-   * Emit accepted tokens $x_1, \dots, x_{j-1}$ plus one corrected sample token from $P_{\text{target}}(\cdot \mid x_{<j})$.
+   * Emit accepted tokens $\mathrm{x1}, \dots, x(j-1)$ plus one corrected sample token from $\mathrm{Ptarget}(\cdot \mid \mathrm{xJ})$.
 4. **Mathematical Guarantee**: Output text matches the exact mathematical probability distribution of the target model with **$2\times - 3.5\times$ speedup**.
 
 ---
@@ -324,7 +336,7 @@ A final reduction kernel merges partial Softmax accumulators.
 
 #### 2. FlashDecoding Mechanics
 1. **Split KV along Sequence Axis ($S$)**: Divides the long KV cache sequence $S$ into $C$ independent chunks (e.g., chunks of 512 tokens).
-2. **Concurrent SM Computation**: Each chunk is assigned to a different SM. Each SM computes partial attention and maintains local Softmax running stats ($m_c, l_c$).
+2. **Concurrent SM Computation**: Each chunk is assigned to a different SM. Each SM computes partial attention and maintains local Softmax running stats ($\mathrm{mc}, \mathrm{lc}$).
 3. **Reduction Pass**: A lightweight tree reduction kernel combines the $C$ partial outputs using Online Softmax equations to produce the final output token vector.
 4. **Impact**: Speeds up long-context decode attention ($S > 16\text{k}$) by up to **$8\times$**.
 
@@ -406,7 +418,9 @@ Result: Maximizes cluster-wide Radix cache hit rate!
 #### 1. Prefix-Aware Router Architecture
 * Maintains a lightweight hash map / Trie of active prefix hashes across all replica nodes.
 * **Routing Policy**:
-  $$\text{Score}(Node_i) = \alpha \cdot \text{PrefixMatchLength}(Node_i) - \beta \cdot \text{ActiveQueueDepth}(Node_i)$$
+  $$
+\text{Score}(\mathrm{Nodei}) = \alpha \cdot \text{PrefixMatchLength}(\mathrm{Nodei}) - \beta \cdot \text{ActiveQueueDepth}(\mathrm{Nodei})
+$$
 * **Trade-off Balancing**:
   * Routes queries with matching document prefixes to the replica holding the warm KV cache.
   * If the target replica's queue depth exceeds a safety threshold, spills over to the least-loaded replica to preserve TTFT SLOs.
@@ -418,6 +432,6 @@ Result: Maximizes cluster-wide Radix cache hit rate!
 * **Chunked Prefill**: Breaks long prompts into chunks ($B \le 512$) to eliminate ITL jitter for concurrent decode.
 * **Disaggregated P/D**: Separates compute-bound P-nodes from memory-bound D-nodes via RDMA KV transfer.
 * **PagedAttention**: OS virtual memory for KV cache. Fixed pages eliminate fragmentation ($<4\%$ waste).
-* **MLA Attention**: Compresses KV cache into a low-rank latent vector ($d_c$) with matrix absorption.
+* **MLA Attention**: Compresses KV cache into a low-rank latent vector ($\mathrm{dc}$) with matrix absorption.
 * **FlashDecoding**: Parallelizes decode attention across the sequence dimension ($S$) using split-KV reduction.
 * **CUDA Graphs**: Captures full Transformer graph to eliminate $\sim 2.4\text{ms}$ CPU driver launch overhead per token.

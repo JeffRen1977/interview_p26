@@ -1,5 +1,7 @@
 # Qualcomm AI Software Engineer Complete Interview Guide & Solutions
 
+
+> **GitHub 公式注意：** 站点数学引擎里 `_` 极易破坏渲染。下文公式使用无下划线命名（如 `Tideal`、`HKV`）；带下划线的工程名写在 `text` 代码块里。
 ---
 
 ## Role & Technical Scope Overview
@@ -87,7 +89,9 @@ Mobile inference is predominantly **memory-bandwidth limited** rather than compu
 1. **Linear Layer + Activation Fusion**:
    $$\text{Conv2D} + \text{BatchNorm} + \text{ReLU/SiLU/GELU} \longrightarrow \text{FusedConv2D}$$
    * *Math for Conv + BN folding*:
-     $$W_{\text{fused}} = \frac{\gamma}{\sqrt{\sigma^2 + \epsilon}} \cdot W, \quad b_{\text{fused}} = \frac{\gamma}{\sqrt{\sigma^2 + \epsilon}} \cdot (b - \mu) + \beta$$
+     $$
+\mathrm{Wfused} = \frac{\gamma}{\sqrt{\sigma^2 + \epsilon}} \cdot W, \quad \mathrm{bfused} = \frac{\gamma}{\sqrt{\sigma^2 + \epsilon}} \cdot (b - \mu) + \beta
+$$
 2. **MatMul + Bias + Add (Residual) Fusion**:
    $$\text{MatMul}(X, W) + \text{Bias} + \text{Residual} \longrightarrow \text{FusedMatMulAdd}$$
    * Avoids allocating an intermediate accumulator buffer for transformer blocks.
@@ -108,26 +112,28 @@ Mobile inference is predominantly **memory-bandwidth limited** rather than compu
 #### Solution:
 
 #### 1. Mathematical Formulation
-Uniform affine quantization maps a continuous floating-point value $x \in [\alpha, \beta]$ to an integer $q \in [q_{\min}, q_{\max}]$ (e.g., $[0, 255]$ for `uint8` or $[-128, 127]$ for `int8`):
+Uniform affine quantization maps a continuous floating-point value $x \in [\alpha, \beta]$ to an integer $q \in [\mathrm{q}, \mathrm{q}]$ (e.g., $[0, 255]$ for `uint8` or $[-128, 127]$ for `int8`):
 
-$$\text{Quantize}(x) = q = \text{clamp}\left( \left\lfloor \frac{x}{S} \right\rceil + Z, \; q_{\min}, \; q_{\max} \right)$$
+$$
+\text{Quantize}(x) = q = \text{clamp}\left( \left\lfloor \frac{x}{S} \right\rceil + Z, \; \mathrm{q}, \; \mathrm{q} \right)
+$$
 $$\text{Dequantize}(q) = \hat{x} = S \cdot (q - Z)$$
 
 Where:
-* $S$ is the **Scale Factor** (positive real number): $S = \frac{\beta - \alpha}{q_{\max} - q_{\min}}$
-* $Z$ is the **Zero Point / Offset** (integer matching the quantized data type): $Z = \text{round}\left( \frac{-\alpha}{S} \right) + q_{\min}$
+* $S$ is the **Scale Factor** (positive real number): $S = \frac{\beta - \alpha}{\mathrm{q} - \mathrm{q}}$
+* $Z$ is the **Zero Point / Offset** (integer matching the quantized data type): $Z = \text{round}\left( \frac{-\alpha}{S} \right) + \mathrm{q}$
 
 #### 2. Symmetric vs. Asymmetric Quantization
 | Property | Symmetric Quantization | Asymmetric Quantization |
 | :--- | :--- | :--- |
 | **Zero Point ($Z$)** | Constrained to **$Z = 0$** (Floating point $0.0$ maps exactly to integer $0$). | Arbitrary integer $Z \ne 0$. Floating point $0.0$ maps to non-zero integer. |
 | **Clipping Range** | Symmetric around zero: $[-\max(|\alpha|, |\beta|), +\max(|\alpha|, |\beta|)]$. | Asymmetric $[\alpha, \beta]$. |
-| **Computational Overhead** | Highly efficient: $X \cdot W = S_X S_W \sum (q_X \cdot q_W)$. No zero-point cross terms. | Slower: Requires compensating for $Z_X$ and $Z_W$: $\sum (q_X - Z_X)(q_W - Z_W)$. |
+| **Computational Overhead** | Highly efficient: $X \cdot W = \mathrm{SX} \mathrm{SW} \sum (\mathrm{qX} \cdot \mathrm{qW})$. No zero-point cross terms. | Slower: Requires compensating for $\mathrm{ZX}$ and $\mathrm{ZW}$: $\sum (\mathrm{qX} - \mathrm{ZX})(\mathrm{qW} - \mathrm{ZW})$. |
 | **Best Used For** | Weights (which are typically centered around zero) and symmetric activations (tanh). | Unbounded/unilateral activations like ReLU/GELU ($x \ge 0$). |
 
 #### 3. Granularity: Per-Tensor vs. Per-Channel vs. Per-Group
 * **Per-Tensor**: Single $S$ and $Z$ for the entire tensor. Lowest memory overhead; high risk of precision loss if channels have different dynamic ranges.
-* **Per-Channel (Per-Axis)**: Dedicated $S_c$ and $Z_c$ for each output channel of a convolution or linear weight matrix. **Standard for weights in QNN/HTP**, preventing one dominant channel from destroying the precision of smaller channels.
+* **Per-Channel (Per-Axis)**: Dedicated $\mathrm{Sc}$ and $\mathrm{Zc}$ for each output channel of a convolution or linear weight matrix. **Standard for weights in QNN/HTP**, preventing one dominant channel from destroying the precision of smaller channels.
 * **Per-Group / Block-wise (e.g., Group Size = 64/128)**: Sub-divides a channel into small blocks with individual scale factors. **Standard for 4-bit LLM weight quantization (W4A16 / W4A8)** to preserve outlier distributions.
 
 ---
@@ -163,21 +169,23 @@ Where:
 ```
 
 #### 1. Cross-Layer Equalization (CLE)
-* **Problem**: In consecutive Conv/Linear layers ($y = W_2 \cdot \text{ReLU}(W_1 \cdot x)$), certain channels in $W_1$ have very large dynamic ranges, while others are tiny. Quantizing $W_1$ per-tensor or per-channel leaves fine channels with near-zero resolution.
+* **Problem**: In consecutive Conv/Linear layers ($y = \mathrm{W2} \cdot \text{ReLU}(\mathrm{W1} \cdot x)$), certain channels in $\mathrm{W1}$ have very large dynamic ranges, while others are tiny. Quantizing $\mathrm{W1}$ per-tensor or per-channel leaves fine channels with near-zero resolution.
 * **Solution**: Exploit the positive scaling property of ReLU ($\text{ReLU}(r \cdot z) = r \cdot \text{ReLU}(z)$ for $r > 0$).
-  * Scale down the heavy channel in $W_1$ by factor $r_i$: $W_1'(i, :) = W_1(i, :) / r_i$.
-  * Scale up the corresponding input channel in $W_2$ by factor $r_i$: $W_2(:, i) = W_2(:, i) \cdot r_i$.
+  * Scale down the heavy channel in $\mathrm{W1}$ by factor $\mathrm{ri}$: $\mathrm{W1}'(i, :) = \mathrm{W1}(i, :) / \mathrm{ri}$.
+  * Scale up the corresponding input channel in $\mathrm{W2}$ by factor $\mathrm{ri}$: $\mathrm{W2}(:, i) = \mathrm{W2}(:, i) \cdot \mathrm{ri}$.
   * Mathematically exact equivalence in FP32; equalizes dynamic ranges across layers before quantizing.
 
 #### 2. Empirical Bias Correction
 * **Problem**: Quantization error is not strictly zero-mean, causing systematic drift in the expected output: $E[\hat{y}] \ne E[y]$.
 * **Solution**: Measure the mean error on a calibration dataset: $\Delta \mu = E[W x + b] - E[\hat{W} \hat{x} + b]$.
-* Adjust the layer's bias term: $b_{\text{corrected}} = b - \Delta \mu$.
+* Adjust the layer's bias term: $\mathrm{bcorrected} = b - \Delta \mu$.
 
 #### 3. AdaRound (Adaptive Rounding)
 * **Problem**: Standard rounding ($\text{round}(w/S) = \lfloor w/S + 0.5 \rfloor$) rounds to the nearest integer, which is sub-optimal for task loss.
 * **Solution**: Formulates rounding as a quadratic optimization problem minimizing layer output reconstruction error:
-  $$\min_V \| W x - \hat{W}(V) x \|_F^2 + \lambda \cdot R(V)$$
+  $$
+\underset{V}{\min} \| W x - \hat{W}(V) x \|F^2 + \lambda \cdot R(V)
+$$
   Where $V$ is a continuous parameter between 0 and 1 deciding whether to round up ($\lceil w/S \rceil$) or down ($\lfloor w/S \rfloor$). Uses a small unlabelled dataset (~100–500 batches) and completes in minutes.
 
 ---
@@ -198,9 +206,11 @@ SmoothQuant applies a per-channel scaling factor $s \in \mathbb{R}^C$ to mathema
 $$Y = X \cdot W = (X \cdot \text{diag}(s)^{-1}) \cdot (\text{diag}(s) \cdot W) = \hat{X} \cdot \hat{W}$$
 
 * Scale Factor Calculation:
-  $$s_j = \frac{\max(|X_j|)^\alpha}{\max(|W_j|)^{1 - \alpha}}$$
+  $$
+\mathrm{sj} = \frac{\max(|\mathrm{Xj}|)^\alpha}{\max(|\mathrm{Wj}|)^{1 - \alpha}}
+$$
   Where $\alpha \in [0, 1]$ is a migration strength hyperparameter (typically $\alpha = 0.5$).
-* Activations are divided by $s_j$ (suppressing outliers), and weights are multiplied by $s_j$ (absorbed into weight matrices offline). Both $\hat{X}$ and $\hat{W}$ can now be quantized with standard INT8 arithmetic on Qualcomm HTP.
+* Activations are divided by $\mathrm{sj}$ (suppressing outliers), and weights are multiplied by $\mathrm{sj}$ (absorbed into weight matrices offline). Both $\hat{X}$ and $\hat{W}$ can now be quantized with standard INT8 arithmetic on Qualcomm HTP.
 
 #### 3. AWQ (Activation-aware Weight Quantization) for 4-bit Weights
 * Protects the top 1% salient weight channels corresponding to large activation magnitudes by keeping them at higher precision or applying per-channel protection scales, enabling W4A16 / W4A8 execution with negligible perplexity degradation.
@@ -321,10 +331,12 @@ $$\text{Operational Intensity} = \frac{\text{Total Operations (FLOPs)}}{\text{To
 #### Solution:
 
 #### 1. KV Cache Growth & Memory Bottleneck
-In attention computation: $\text{Attention}(Q, K, V) = \text{Softmax}\left(\frac{Q K^T}{\sqrt{d_k}}\right) V$
+In attention computation: $\text{Attention}(Q, K, V) = \text{Softmax}\left(\frac{Q K^T}{\sqrt{\mathrm{dk}}}\right) V$
 * For each newly generated token, past key and value vectors must be preserved to compute self-attention.
 * **Memory footprint for KV Cache**:
-  $$\text{Memory}_{\text{KV}} = 2 \times B \times L \times H \times S \times D \times \text{BytesPerElement}$$
+  $$
+\mathrm{MemoryKV} = 2 \times B \times L \times H \times S \times D \times \text{BytesPerElement}
+$$
   *(Batch $B$, Layers $L$, Heads $H$, Sequence Length $S$, Head Dim $D$).*
 * For a 7B model at $S = 4096$ in FP16: $\text{Memory} \approx 2 \times 1 \times 32 \times 32 \times 4096 \times 128 \times 2\text{ bytes} \approx 2\text{ GB}$.
 
@@ -334,7 +346,7 @@ In attention computation: $\text{Attention}(Q, K, V) = \text{Softmax}\left(\frac
 2. **PagedAttention (Virtual Memory for KV Tensors)**:
    * Instead of allocating large contiguous memory blocks (causing severe memory fragmentation and OOM on mobile devices), PagedAttention allocates non-contiguous physical memory pages in fixed-size blocks (e.g., 16 tokens/block), referenced via a page lookup table.
 3. **Speculative Decoding (Draft-Target Speculation)**:
-   * A small, ultra-fast draft model (e.g., 1B parameter model running at 80 tokens/sec) speculatively drafts $K$ candidate tokens ($t_1, \dots, t_K$).
+   * A small, ultra-fast draft model (e.g., 1B parameter model running at 80 tokens/sec) speculatively drafts $K$ candidate tokens ($\mathrm{t1}, \dots, \mathrm{tK}$).
    * The large 7B target model evaluates all $K$ tokens in a **single forward pass** using parallel prefill (compute-bound GEMM).
    * Verifies candidates using acceptance sampling. Yields $2\times - 3\times$ speedup on token generation without changing output distribution.
 
@@ -465,7 +477,9 @@ Modern application developers do not write raw QNN C APIs directly; they target 
 
 1. **Step 1: Layer-by-Layer Signal-to-Quantization-Noise Ratio (SQNR) & Cosine Similarity**:
    * Use QNN / AIMET accuracy analysis tools to compare intermediate activation tensors between FP32 and INT8:
-     $$\text{SQNR (dB)} = 10 \log_{10} \left( \frac{\sum x_{\text{FP32}}^2}{\sum (x_{\text{FP32}} - \hat{x}_{\text{INT8}})^2} \right)$$
+     $$
+\text{SQNR (dB)} = 10 \mathrm{log10} \left( \frac{\sum \mathrm{xFP32}^2}{\sum (\mathrm{xFP32} - \mathrm{xhatINT8})^2} \right)
+$$
    * Identify the first layer where SQNR drops below $20\text{ dB}$ or Cosine Similarity drops below $0.98$.
 2. **Step 2: Calibration Dataset Sanity Check**:
    * Verify input preprocessing matches production (RGB vs. BGR order, mean/std normalization, dynamic range $[0, 1]$ vs. $[-1, 1]$ vs. $[0, 255]$).
@@ -505,6 +519,6 @@ Modern application developers do not write raw QNN C APIs directly; they target 
 
 ## Final Technical Review Checklist for Qualcomm AI Candidates
 * **QNN Core APIs**: `QnnContext_createFromBinary`, `QnnGraph_execute`, `QnnMem_register`.
-* **Quantization Formulas**: $S = \frac{\beta - \alpha}{q_{\max} - q_{\min}}$, $Z = \text{round}\left(\frac{-\alpha}{S}\right) + q_{\min}$, Symmetric vs Asymmetric.
+* **Quantization Formulas**: $S = \frac{\beta - \alpha}{\mathrm{q} - \mathrm{q}}$, $Z = \text{round}\left(\frac{-\alpha}{S}\right) + \mathrm{q}$, Symmetric vs Asymmetric.
 * **Hexagon Terms**: HTP, HMX (Matrix), HVX (1024-bit SIMD), VTCM (SRAM), FastRPC, DMA ping-pong.
 * **LLM Metrics**: Prefill = Compute Bound (GEMM), Decode = Memory Bandwidth Bound (GEMV), Operational Intensity = $\frac{\text{FLOPs}}{\text{Bytes}}$, KV Cache size calculation.
