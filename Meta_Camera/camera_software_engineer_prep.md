@@ -8,7 +8,7 @@ Preparing for Meta’s loop means mastering the intersection of:
 - **Hardware–software co-design** — SoC / ISP / NPU, MIPI CSI-2, V4L2 / HAL
 - **Strict edge constraints** — thermal envelopes, glass-to-glass latency, battery budgets
 
-> **Repo drills already in this workspace:** lock-free SPSC → [`XR/24`](../XR/24-无锁SPSC队列与Cacheline对齐.md) · [`concurrency/spsc_ring_buffer.py`](../concurrency/spsc_ring_buffer.py) · [`interview_handwrite/mpmc_ring_buffer.cpp`](../interview_handwrite/mpmc_ring_buffer.cpp); ISP / 3A → [`XR/08`](../XR/08-影像ISP题详解.md) · [`camera/`](../camera/); glasses thermal / zero-copy → [`company/openai/smart-glasses-ai-runtime.md`](../company/openai/smart-glasses-ai-runtime.md).
+> **Repo drills already in this workspace:** Embedded coding guide → [`coding_interview_guide.md`](./coding_interview_guide.md) · RAW10 / ROTL / aligned malloc → [`code/`](./code/); lock-free SPSC → [`XR/Pico_vision/24-无锁SPSC队列与Cacheline对齐.md`](../XR/Pico_vision/24-无锁SPSC队列与Cacheline对齐.md) · [`concurrency/spsc_ring_buffer.py`](../concurrency/spsc_ring_buffer.py) · [`interview_handwrite/mpmc_ring_buffer.cpp`](../interview_handwrite/mpmc_ring_buffer.cpp); ISP / 3A → [`XR/08`](../XR/08-影像ISP题详解.md) · [`camera/`](../camera/); glasses thermal / zero-copy → [`company/openai/smart-glasses-ai-runtime.md`](../company/openai/smart-glasses-ai-runtime.md).
 
 ---
 
@@ -25,16 +25,18 @@ Preparing for Meta’s loop means mastering the intersection of:
 
 ## 1. Coding rounds (screening + 2 onsite)
 
+**Embedded 电面节奏与四专题地图：** [`coding_interview_guide.md`](./coding_interview_guide.md)（60 min = 15–20 min STAR + 40–45 min C/C++，约 35 min 写完两题；禁止 AI）。可运行题在 [`code/`](./code/)。
+
 Meta’s coding rounds evaluate algorithmic correctness, speed, deterministic edge-case handling, and systems-level C/C++ proficiency (memory layout, pointers, bit manipulation, concurrency).
 
 ### High-yield problem categories
 
 | Category | Core focus areas | Typical Meta problems / patterns | Repo practice |
 | --- | --- | --- | --- |
-| **Pointers, buffers & memory** | Alignment, 2D strided buffers, ring buffers, zero-copy queues | Lock-free SPSC ring buffer; 2D image crop/rotate with arbitrary pitch/stride in-place | [`XR/24`](../XR/24-无锁SPSC队列与Cacheline对齐.md), [`concurrency/video_ring_buffer.cpp`](../concurrency/video_ring_buffer.cpp), [`camera/camera_driver.md`](../camera/camera_driver.md) |
+| **Pointers, buffers & memory** | Alignment, 2D strided buffers, ring buffers, zero-copy queues | Lock-free SPSC ring buffer; 2D image crop/rotate with arbitrary pitch/stride in-place; `aligned_malloc` for DMA / SIMD | [`code/aligned_malloc.md`](./code/aligned_malloc.md), [`XR/24`](../XR/24-无锁SPSC队列与Cacheline对齐.md), [`concurrency/video_ring_buffer.cpp`](../concurrency/video_ring_buffer.cpp), [`camera/camera_driver.md`](../camera/camera_driver.md) |
 | **Sliding window & streaming** | Real-time sensor sample streams, rolling metrics, timestamps | Moving average of frame rates / exposure times; longest substring with constraints; median in a rolling data stream | [`leetcode/longest_substring_without_repeating/`](../leetcode/longest_substring_without_repeating/) |
 | **Trees & graphs / topo sort** | Pipeline graph compilation, DAG node dependency execution | Build order / topological sort for ISP node execution DAG; LCA; clone graph | [`leetcode/lowest_common_ancestor/`](../leetcode/lowest_common_ancestor/), [`leetcode/number_of_islands/`](../leetcode/number_of_islands/) |
-| **Bit manipulation & SIMD logic** | Bayer demosaicing math, pixel packing/unpacking (RAW10 / RAW12) | Unpack MIPI RAW10 to 16-bit integers; fast integer square root / fixed-point; bitmasks for sensor register configs | Practice on paper: packed 5 bytes → 4 × 10-bit pixels |
+| **Bit manipulation & SIMD logic** | Bayer demosaicing math, pixel packing/unpacking (RAW10 / RAW12), circular shifts | Unpack MIPI RAW10 to 16-bit integers; `ROTL`/`ROTR` without shift UB; fast integer square root / fixed-point | [`code/mipi_raw10_unpack.md`](./code/mipi_raw10_unpack.md), [`code/bit_rotation.md`](./code/bit_rotation.md) |
 | **Concurrency & synchronization** | Thread safety, producer–consumer, reader–writer locks, condition variables | Multi-threaded frame dispatcher (1 sensor thread → N consumer workers without starving); thread-safe LRU cache for frame buffers | [`concurrency/`](../concurrency/), [`leetcode/lru_cache/`](../leetcode/lru_cache/), [`interview_handwrite/lru_cache_raw_list.cpp`](../interview_handwrite/lru_cache_raw_list.cpp) |
 
 ### Key system coding implementation patterns
@@ -75,7 +77,13 @@ Meta’s coding rounds evaluate algorithmic correctness, speed, deterministic ed
 - [ ] Thread-safe LRU of frame buffers (capacity in bytes, not just entry count)
 - [ ] 2D strided memcpy / crop / 90° rotate
 - [ ] NV12 → RGB (correct chroma siting; do not ignore stride)
-- [ ] MIPI RAW10 → `uint16_t` unpack
+- [ ] MIPI RAW10 → `uint16_t` unpack ([`code/mipi_raw10_unpack.md`](./code/mipi_raw10_unpack.md))
+- [ ] Circular shift `rotl32` / `rotr32` without `>> 32` UB ([`code/bit_rotation.md`](./code/bit_rotation.md))
+- [ ] `aligned_malloc` / `aligned_free` with hidden raw pointer ([`code/aligned_malloc.md`](./code/aligned_malloc.md))
+- [ ] Endianness detect + `bswap32` ([`code/endianness.md`](./code/endianness.md))
+- [ ] `memmove` with overlap ([`code/memmove.md`](./code/memmove.md))
+- [ ] 3×3 box / Gaussian filter with stride and replicate pad ([`code/box_filter.md`](./code/box_filter.md))
+- [ ] Histogram + CDF equalize ([`code/histogram.md`](./code/histogram.md))
 - [ ] Topological sort of an ISP node DAG (detect cycles)
 - [ ] Moving average / median of a timestamped exposure or FPS stream
 - [ ] Longest substring / sliding window under a constraint (warm-up for streaming)
