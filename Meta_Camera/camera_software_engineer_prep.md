@@ -8,6 +8,8 @@ Preparing for Meta’s loop means mastering the intersection of:
 - **Hardware–software co-design** — SoC / ISP / NPU, MIPI CSI-2, V4L2 / HAL
 - **Strict edge constraints** — thermal envelopes, glass-to-glass latency, battery budgets
 
+> **Camera 领域系统设计（E6 深度）：** [`camera_system_design/`](./camera_system_design/) — 九个场景，每篇都有 §6–§10 的 E6 层（数字预算 / 决策与否定方案 / 失效降级 / **怎么证明它是对的** / 演进与组织）。答题框架和白板速算表在该目录 README。
+
 > **缺口分析与补充出题预测：** [`additional_questions.md`](./additional_questions.md) — 本清单没覆盖但很可能被问的题（相机–IMU 时间戳对齐、IR LED 亚像素质心、流式包解析、嵌入式 C/C++ 快问快答、调试轮、V4L2 驱动栈、三个新设计场景）。
 
 > **Repo drills already in this workspace:** Embedded coding guide → [`coding_interview_guide.md`](./coding_interview_guide.md) · Camera system design → [`camera_system_design/`](./camera_system_design/) · RAW10 / ROTL / aligned malloc → [`code/`](./code/); lock-free SPSC → [`XR/Pico_vision/24-无锁SPSC队列与Cacheline对齐.md`](../XR/Pico_vision/24-无锁SPSC队列与Cacheline对齐.md) · [`concurrency/spsc_ring_buffer.py`](../concurrency/spsc_ring_buffer.py) · [`interview_handwrite/mpmc_ring_buffer.cpp`](../interview_handwrite/mpmc_ring_buffer.cpp); ISP / 3A → [`XR/08`](../XR/Pico_vision/08-影像ISP题详解.md) · [`camera/`](../camera/); glasses thermal / zero-copy → [`company/openai/smart-glasses-ai-runtime.md`](../company/openai/smart-glasses-ai-runtime.md).
