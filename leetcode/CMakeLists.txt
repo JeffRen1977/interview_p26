@@ -19,6 +19,7 @@ set(PROBLEMS
     longest_substring_without_repeating
     permutations
     binary_tree_level_order
+    minimum_window_substring
 )
 
 foreach(name IN LISTS PROBLEMS)
