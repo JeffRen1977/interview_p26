@@ -31,6 +31,8 @@ Preparing for Meta’s loop means mastering the intersection of:
 
 **Embedded 电面节奏与四专题地图：** [`coding_interview_guide.md`](./coding_interview_guide.md)（60 min = 15–20 min STAR + 40–45 min C/C++，约 35 min 写完两题；禁止 AI）。可运行题在 [`code/`](./code/)。
 
+**AI-Enabled Coding 轮（另一轮，允许并考察 AI 协同）：** [`AI_native_coding/`](./AI_native_coding/) — 60 min 单项目 3–4 个 Checkpoint 的打法（[`playbook.md`](./AI_native_coding/playbook.md)）、样题库（[`question_bank.md`](./AI_native_coding/question_bank.md)）和四个可跑练习工程（Card Game / Maze Solver / Max Unique Chars / RateLimiter）。
+
 Meta’s coding rounds evaluate algorithmic correctness, speed, deterministic edge-case handling, and systems-level C/C++ proficiency (memory layout, pointers, bit manipulation, concurrency).
 
 ### High-yield problem categories

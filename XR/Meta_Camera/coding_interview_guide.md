@@ -4,6 +4,8 @@
 
 **四专题之外的补充题与出题预测：** [`additional_questions.md`](./additional_questions.md)。
 
+**注意这是「禁止 AI」的 Embedded C/C++ 轮。** Meta 另有一轮 **AI-Enabled Coding**（60 min 单项目、3–4 个 Checkpoint、允许并考察 AI 协同），打法完全不同，见 [`AI_native_coding/playbook.md`](./AI_native_coding/playbook.md)。
+
 ---
 
 ## 时间与规则

@@ -26,6 +26,15 @@ PICO Vision Algorithm Engineer 面试备考仓库（XR_Vision）。
 
 每题独立目录，双语言实现：[`leetcode/`](./leetcode/)
 
+## Meta Camera / XR 面试
+
+Camera Software Engineer 与 AI-Enabled Coding 轮：[`XR/Meta_Camera/`](./XR/Meta_Camera/)
+
+- [备考总清单](./XR/Meta_Camera/camera_software_engineer_prep.md)
+- [Embedded C/C++ 电面指南（禁止 AI 的那一轮）](./XR/Meta_Camera/coding_interview_guide.md)
+- [Camera 系统设计九场景](./XR/Meta_Camera/camera_system_design/)
+- [**AI-Enabled Coding 轮打法 + 样题 + 可跑练习工程**](./XR/Meta_Camera/AI_native_coding/)
+
 ## NVIDIA DRIVE 面试
 
 Autonomous Vehicles / DriveWorks 岗专项：[`nvidia/`](./nvidia/)
