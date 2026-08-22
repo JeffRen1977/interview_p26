@@ -20,6 +20,7 @@ set(PROBLEMS
     permutations
     binary_tree_level_order
     minimum_window_substring
+    simplify_path
 )
 
 foreach(name IN LISTS PROBLEMS)

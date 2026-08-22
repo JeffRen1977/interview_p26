@@ -24,6 +24,7 @@
 | 14 | Permutations | [permutations](./permutations/) |
 | 15 | Binary Tree Level Order | [binary_tree_level_order](./binary_tree_level_order/) |
 | 16 | Minimum Window Substring | [minimum_window_substring](./minimum_window_substring/) |
+| 17 | Simplify Path | [simplify_path](./simplify_path/) |
 
 ## 运行 Python
 
