@@ -84,10 +84,11 @@ LED 位置已知 → glint 是 LED 在角膜球面上的镜面反射
 
 **光轴 ≠ 视轴。** 中央凹不在眼球光轴上，偏离约 **水平 4–6°、垂直 1–3°**，因人而异（kappa / angle alpha）。
 
-所以：
+所以视轴 = 光轴 ⊕ 该用户的 kappa 角：
+
 
 $$
-\text{视轴} = \text{光轴} \oplus \kappa_{\text{user}}
+\text{visual axis} = \text{optical axis} \oplus \kappa_{\mathrm{user}}
 $$
 
 $\kappa$ 只能标定，不能推算。标定流程：
@@ -143,8 +144,11 @@ duty cycle ≈ 6–12%
 **② 扫视落点预测**
 扫视的速度曲线是高度刻板的（主序列关系：幅度与峰值速度强相关）。检测到扫视开始后的前 20–30%，就能预测落点：
 
+由早期速度反推幅度 $A$ 与落点：
+
+
 $$
-V_{\text{peak}} \approx f(A) \quad\Rightarrow\quad \text{由早期速度反推幅度 } A \text{ 与落点}
+V_{\mathrm{peak}} \approx f(A)
 $$
 
 **③ 分档 foveation 半径**
@@ -206,8 +210,9 @@ $$
 
 双眼各 1 颗 400×400 单色 @120fps：
 
+
 $$
-400 \times 400 \times 1 \times 120 = 19.2\ \mathrm{MB/s}\ \text{（每眼）}\quad\Rightarrow\quad \mathbf{38\ MB/s}
+400 \times 400 \times 1 \times 120 = 19.2\ \mathrm{MB/s}\ \text{(per eye)}\quad\Rightarrow\quad \mathbf{38\ MB/s}
 $$
 
 **可以忽略不计。** 用 ROI 读出后更小。所以：
@@ -228,12 +233,16 @@ $$
 
 Foveated rendering 在 4K/眼 的头显上典型省 **2–3× 的 GPU 像素填充**。GPU 在满负载下 2–4 W：
 
-$$
-\text{节省} \approx 2\text{–}4\ \mathrm{W} \times \left(1 - \tfrac{1}{2.5}\right) \approx \mathbf{1.2\text{–}2.4\ W}
-$$
+GPU 功耗节省：
+
 
 $$
-\text{ROI} = \frac{1200\ \mathrm{mW}}{260\ \mathrm{mW}} \approx \mathbf{5\text{–}9\times}
+\Delta P \approx 2\text{--}4\ \mathrm{W} \times \left(1 - \tfrac{1}{2.5}\right) \approx \mathbf{1.2\text{--}2.4\ W}
+$$
+
+
+$$
+\mathrm{ROI} = \frac{1200\ \mathrm{mW}}{260\ \mathrm{mW}} \approx \mathbf{5\text{--}9\times}
 $$
 
 > **这个计算是这道题的战略答案。** 它说明：
@@ -259,11 +268,14 @@ DMA + fence                 0.2 ms
 
 **扫视 500 °/s × 20 ms = 10° 的位移。** 中央凹 ±2.5°，高清区通常设 ±10–15°。
 
+所需高清区半径 ≥ 中央凹 + 注视误差 + 扫视速度 × 延迟：
+
+
 $$
-\text{所需高清区半径} \geq \text{中央凹} + \text{注视误差} + v_{\text{saccade}} \times t_{\text{latency}}
+r_{\mathrm{fovea}} \geq r_{\mathrm{c}} + e_{\mathrm{gaze}} + v_{\mathrm{saccade}} \times t_{\mathrm{latency}}
 $$
 
-代入：$2.5° + 1° + 10° = 13.5°$。
+代入：$2.5^{\circ} + 1^{\circ} + 10^{\circ} = 13.5^{\circ}$。
 
 > **这个公式是这道题的核心结论**，它把三个子系统连起来了：
 > - **降延迟 1 ms** ≈ 高清区半径少 0.5° ≈ GPU 省几个百分点
@@ -273,6 +285,7 @@ $$
 > 所以优化优先级是：**扫视预测 > 精度 > 延迟**。很多团队会本能地先去优化延迟，那是投入产出比最低的一项。
 
 ### 6.4 精度如何从像素换算到角度
+
 
 $$
 \theta_{\text{err}} \approx \frac{\Delta_{\text{px}} \times \text{px pitch}}{f_{\text{effective}}}

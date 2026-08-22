@@ -176,6 +176,7 @@ Media Controller 把 Sensor–CSID–IFE–IPE 连成 graph，usecase 切换 = �
 
 4K30 NV12 单次通过：
 
+
 $$
 3840 \times 2160 \times 1.5 \times 30 = 373\ \mathrm{MB/s}
 $$
@@ -249,8 +250,11 @@ IPE 处理                    3–5 ms
 
 AE 收敛需要几步？带阻尼的一阶环，每帧向目标走 30%（防震荡），从 4 倍误差收敛到 10% 以内约需 **9–10 帧 ≈ 300 ms**。
 
+收敛时间（$k$ 为每帧步进比例）：
+
+
 $$
-\text{收敛时间} \approx \frac{\ln(\epsilon / e_0)}{\ln(1-k)} \times \frac{1}{\text{fps}},\quad k = \text{每帧步进比例}
+T_{\mathrm{conv}} \approx \frac{\ln(\epsilon / e_0)}{\ln(1-k)} \times \frac{1}{\mathrm{fps}}
 $$
 
 **这解释了两个产品现象：**

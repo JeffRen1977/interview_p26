@@ -158,17 +158,21 @@ Zero-copy：NPU 直接 import IFE 的 RAW dma-buf（需 **cache/SMMU 属性** �
 
 一个在**全分辨率**上跑的 U-Net，第一层 32 通道，输入 12MP：
 
+
 $$
-12\times10^6 \times 32 \times 1\ \mathrm{byte（INT8）} = 384\ \mathrm{MB}
+12\times10^6 \times 32 \times 1\ \mathrm{byte\ (INT8)} = 384\ \mathrm{MB}
 $$
 
 **一层的激活值就是 384 MB。** NPU 的片上 SRAM 通常是 **2–8 MB**。这意味着每一层的中间结果都要完整写回 DDR 再读出来。
 
 DDR 流量估算（假设网络 20 层，平均通道数 32，每层写一次读一次）：
 
+
 $$
-20 \times 384\ \mathrm{MB} \times 2 = 15.4\ \mathrm{GB}\ \text{（单张照片！）}
+20 \times 384\ \mathrm{MB} \times 2 = 15.4\ \mathrm{GB}
 $$
+
+这是**单张照片**的 DDR 流量。
 
 按 1 GB/s 的可用带宽算就是 **15 秒**。**这个方案在物理上不成立**，不需要任何 benchmark 就能否定它。
 
@@ -186,12 +190,16 @@ $$
 
 ### 6.3 算力与延迟
 
+
 $$
-\text{理论延迟} = \frac{\text{模型 FLOPs}}{\text{NPU TOPS}},\qquad
-\text{实际} = \frac{\text{理论}}{\text{利用率}}
+t_{\mathrm{ideal}} = \frac{\mathrm{FLOPs}}{\mathrm{TOPS}},\qquad
+t_{\mathrm{real}} = \frac{t_{\mathrm{ideal}}}{\eta}
 $$
 
+其中 $\eta$ 是 NPU 利用率。
+
 一个 3MP 输入、20 层、平均 32 通道、3×3 卷积的网络：
+
 
 $$
 \text{FLOPs} \approx 3\times10^6 \times 20 \times 32 \times 32 \times 9 \times 2 \approx 1.1\ \mathrm{TFLOP}
@@ -199,8 +207,9 @@ $$
 
 10 TOPS 的 NPU，**理论 110 ms**。但实际利用率在这类 memory-bound 的图像网络上通常只有 **20–40%**（因为激活值进出 DDR，算力吃不满），所以：
 
+
 $$
-\text{实际} \approx 110 / 0.3 \approx \mathbf{370\ ms}
+t_{\mathrm{real}} \approx 110 / 0.3 \approx \mathbf{370\ ms}
 $$
 
 **这落在"抓拍慢路径 100–800 ms"的预算内，但没有余量。** 结论：

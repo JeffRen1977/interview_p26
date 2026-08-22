@@ -4,6 +4,8 @@ Meta 电面里 Camera **领域系统设计**看的是：端到端 Pipeline、功
 
 本目录按官方建议的 4 个核心场景 + 5 个补充场景演练。总备考清单：[`../camera_software_engineer_prep.md`](../camera_software_engineer_prep.md)。底层细节仍以仓库笔记为准，这里写的是 **面试口述架构**。
 
+> **GitHub 阅读：** 公式只用 `$...$` / `$$...$$`，数学块内不放中文、`°`、全角括号或 en-dash（`–`），否则网页端 MathJax 会渲染失败。
+
 | # | 场景 | 文件 |
 |---|------|------|
 | — | 答题框架 + E5/E6 分界 | 本页 |
@@ -140,6 +142,7 @@ Display/GPU     Encoder        NPU / SLAM
 
 ### 带宽
 
+
 $$
 \text{MB/s} = W \times H \times \text{bytes/px} \times \text{fps}
 $$
@@ -164,6 +167,7 @@ $$
 参考天花板：手机/头显 LPDDR5 实际可用 **10–25 GB/s**；眼镜级 SoC 可能只有 **3–8 GB/s**，而且相机只能拿其中一部分。
 
 ### MIPI CSI-2 链路
+
 
 $$
 \text{payload Gbps} = W \times H \times \text{bits/px} \times \text{fps} \times 10^{-9},\quad
@@ -204,19 +208,23 @@ ISP 处理（流水线穿透）        0.5–5 ms（看是否 FE-only）
 
 ### 热
 
+
 $$
 \Delta T = P \times R_{th},\qquad \tau = R_{th} \times C_{th}
 $$
 
-眼镜镜腿量级：$R_{th} \approx 15\text{–}25\ °C/W$，$\tau \approx 3\text{–}10$ 分钟。皮肤长时接触限值约 **43 °C**（塑料可略高）。25 °C 环境 → $\Delta T$ 预算 18 °C → **稳态功率上限 ≈ 0.7–1.2 W**。
+眼镜镜腿量级：$R_{th} \approx 15$–$25\ ^{\circ}\mathrm{C/W}$，$\tau \approx 3$–$10$ 分钟。皮肤长时接触限值约 **43 °C**（塑料可略高）。25 °C 环境 → $\Delta T$ 预算 18 °C → **稳态功率上限 ≈ 0.7–1.2 W**。
 
 $\tau$ 是分钟级，这就是为什么**允许短时 burst 超预算**，也是为什么滞回的最短停留时间要设成几十秒而不是几秒。
 
 ### 能量
 
+
 $$
-\text{Wh} = \frac{\text{mAh} \times V}{1000},\qquad \text{续航 h} = \frac{\text{Wh}}{\text{平均 W}}
+\mathrm{Wh} = \frac{\mathrm{mAh} \times V}{1000},\qquad t_{\mathrm{h}} = \frac{\mathrm{Wh}}{P_{\mathrm{avg}}}
 $$
+
+续航小时 = 瓦时 / 平均功率。
 
 500 mAh @ 3.7V = **1.85 Wh**。2W 连续录像 → **55 分钟**；20 mW 待机 → 92 小时。真实答案要用**混合使用模型**（每天 N 张照片 + M 分钟录像 + 全天待机）而不是单一场景。
 

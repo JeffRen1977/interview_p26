@@ -73,6 +73,7 @@
 
 相机装在头显外壳前方，眼睛在后方，两者相距 **3–8 cm**。对距离 $d$ 的物体，视角差：
 
+
 $$
 \theta \approx \arctan\frac{b}{d}
 $$
@@ -250,6 +251,7 @@ Passthrough 相机必须与显示刷新**锁相（genlock）**，否则：
 ### 6.3 深度精度需要多少
 
 立体匹配的深度误差：
+
 
 $$
 \Delta Z = \frac{Z^2}{f \cdot b} \Delta d

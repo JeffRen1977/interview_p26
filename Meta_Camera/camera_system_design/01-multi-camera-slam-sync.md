@@ -125,6 +125,7 @@ Controller tracking：头显相机看到 LED 闪烁码，LED 与控制器 IMU �
 
 带宽粗算（RAW8，640×480@90fps，4 路）：
 
+
 $$
 640 \times 480 \times 1 \times 90 \times 4 \approx 110\ \mathrm{MB/s}
 $$
@@ -185,8 +186,9 @@ Tiling：tracking 分辨率小，一般不必 stripe；passthrough 才 stripe。
 
 4 路 640×480 GS RAW8 @ 90fps：
 
+
 $$
-640 \times 480 \times 1 \times 90 = 27.6\ \mathrm{MB/s}\ \text{（每路）}\quad\Rightarrow\quad 4 \times 27.6 = 110\ \mathrm{MB/s}
+640 \times 480 \times 1 \times 90 = 27.6\ \mathrm{MB/s}\ \text{(per cam)}\quad\Rightarrow\quad 4 \times 27.6 = 110\ \mathrm{MB/s}
 $$
 
 CV 侧还要**读一遍**：总 DDR 流量 ≈ **220 MB/s**。头显 SoC 的 LPDDR5 可用带宽 10–25 GB/s，**这占不到 2%**。
