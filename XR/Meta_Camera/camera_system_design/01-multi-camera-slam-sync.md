@@ -139,7 +139,7 @@ $$
 - 连续 dma-buf 环，深度 3–4：sensor 写 n、CV 读 n-1，多一帧抗 ISR 抖动。
 - 低功耗：lane 在帧间隙进 LP 模式；不要为 tracking 开 C-PHY 全家桶除非口不够。
 
-CSIPHY vs CSID 故障切分见 [`camera/sensor.md`](../../camera/sensor.md)。
+CSIPHY vs CSID 故障切分见 [`camera/sensor.md`](../../../camera/sensor.md)。
 
 ---
 

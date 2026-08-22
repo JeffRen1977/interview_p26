@@ -56,7 +56,7 @@ IFE (Front-End)
 数据流：**Sensor → MIPI CSI-2 → Driver → HW ISP → DMA-BUF → App/AI**。  
 控制流：HAL3 Request 变成 sensor exposure + ISP IQ packet，Result 带回 timestamp / 3A 元数据。
 
-模块职责见 [`camera/3A.md`](../../camera/3A.md)、[`camera/camera_driver.md`](../../camera/camera_driver.md)、[`camera/android_framework.md`](../../camera/android_framework.md)。
+模块职责见 [`camera/3A.md`](../../../camera/3A.md)、[`camera/camera_driver.md`](../../../camera/camera_driver.md)、[`camera/android_framework.md`](../../../camera/android_framework.md)。
 
 ---
 
@@ -143,7 +143,7 @@ Media Controller 把 Sensor–CSID–IFE–IPE 连成 graph，usecase 切换 = �
 |------|------|
 | 预览延迟 | IFE 直出缩小 YUV；跳过 BPS 全尺寸；TNR 半径减小 |
 | 4K 带宽 | UBWC / AFBC 压缩 YUV；NV12 不转 RGB；encoder 直接吃 dma-buf |
-| 掉帧 | 查哪一层 DQBUF 超时：Sensor SOF、IFE、IPE、encoder、App 持锁。见 [`camera/掉帧.md`](../../camera/掉帧.md) |
+| 掉帧 | 查哪一层 DQBUF 超时：Sensor SOF、IFE、IPE、encoder、App 持锁。见 [`camera/掉帧.md`](../../../camera/掉帧.md) |
 | Stripe / tile | 全尺寸 NR 按条带过 IPE，降低 on-chip SRAM |
 | 热 | 录像 5 分钟后降 4K→1080p 或 60→30；AE 目标略降（暗一点少 gain 少噪再少 NR） |
 

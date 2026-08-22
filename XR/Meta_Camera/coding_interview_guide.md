@@ -42,7 +42,7 @@
 | 实战 | 状态 | 文件 |
 |------|------|------|
 | `aligned_malloc` / `aligned_free` | 已有 | [`code/aligned_malloc.md`](./code/aligned_malloc.md) |
-| 图像帧 buffer 的无锁 SPSC 环 | 已有 | [`concurrency/spsc_ring_buffer.cpp`](../concurrency/spsc_ring_buffer.cpp)、[`XR/Pico_vision/24-无锁SPSC队列与Cacheline对齐.md`](../XR/Pico_vision/24-无锁SPSC队列与Cacheline对齐.md) |
+| 图像帧 buffer 的无锁 SPSC 环 | 已有 | [`concurrency/spsc_ring_buffer.cpp`](../../concurrency/spsc_ring_buffer.cpp)、[`XR/Pico_vision/24-无锁SPSC队列与Cacheline对齐.md`](../Pico_vision/24-无锁SPSC队列与Cacheline对齐.md) |
 | `memcpy` / `memmove`（处理 overlap） | 已有 | [`code/memmove.md`](./code/memmove.md) |
 | **定长帧池 + 引用计数回收** | **新增** | [`code/frame_pool.md`](./code/frame_pool.md) |
 | **流式包解析 + CRC + 重同步** | **新增** | [`code/packet_parser.md`](./code/packet_parser.md) |
@@ -55,8 +55,8 @@
 
 | 实战 | 状态 | 文件 |
 |------|------|------|
-| 线程安全阻塞队列（带 timeout） | 已有 | [`concurrency/bounded_blocking_queue.cpp`](../concurrency/bounded_blocking_queue.cpp) |
-| 读写锁或限流器 | 限流器示例 | [`AI_native_coding/ratelimiter_engine/`](../AI_native_coding/ratelimiter_engine/) |
+| 线程安全阻塞队列（带 timeout） | 已有 | [`concurrency/bounded_blocking_queue.cpp`](../../concurrency/bounded_blocking_queue.cpp) |
+| 读写锁或限流器 | 限流器示例 | [`AI_native_coding/ratelimiter_engine/`](./AI_native_coding/ratelimiter_engine/) |
 | **相机–IMU 时间戳对齐 / 插值 / 时钟偏移** | **新增** | [`code/timestamp_sync.md`](./code/timestamp_sync.md) |
 | ISR / volatile / cache 一致性快问快答 | 口述 | [`additional_questions.md`](./additional_questions.md) §2 |
 

@@ -62,4 +62,4 @@ if (was_last) { fence(acquire); recycle(); }  // 只有最后一个付锁的代�
 - **真实系统里 buffer 从哪来？** Linux 上是 **dma-buf**（`ion` / `dmabuf heaps`），Android 上是 **Gralloc**。池管的是 fd + 映射，不是 `malloc` 的内存。零拷贝的本质是把同一个 dma-buf fd 传给 ISP、NPU、encoder，配合 fence 同步。
 - **cache coherency：** CPU 写完 buffer 给 DMA 读之前要 clean（flush）；DMA 写完给 CPU 读之前要 invalidate。漏一个就是「偶发花屏 / 撕裂」的经典根因。
 - **不同尺寸怎么办？** 一个池只管一种尺寸。多尺寸就开多个池（slab allocator 思路），不要退回通用堆。
-- 相关：[`c++/固定内存大小分配.md`](../../c++/固定内存大小分配.md)、[`c++/two_level_mempool.cpp`](../../c++/two_level_mempool.cpp)
+- 相关：[`c++/固定内存大小分配.md`](../../../c++/固定内存大小分配.md)、[`c++/two_level_mempool.cpp`](../../../c++/two_level_mempool.cpp)

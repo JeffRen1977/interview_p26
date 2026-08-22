@@ -21,7 +21,7 @@ Meta 电面里 Camera **领域系统设计**看的是：端到端 Pipeline、功
 
 每篇的 §1–§5 是架构主线，**§6–§10 是 E6 深度层**（数字预算 / 决策与否定方案 / 失效模式 / 验证 / 演进）。
 
-相关笔记：[`camera/sensor.md`](../../camera/sensor.md) · [`camera/3A.md`](../../camera/3A.md) · [`camera/camera_driver.md`](../../camera/camera_driver.md) · [`camera/android_framework.md`](../../camera/android_framework.md) · [`camera/掉帧.md`](../../camera/掉帧.md) · [`company/openai/smart-glasses-ai-runtime.md`](../../company/openai/smart-glasses-ai-runtime.md)
+相关笔记：[`camera/sensor.md`](../../../camera/sensor.md) · [`camera/3A.md`](../../../camera/3A.md) · [`camera/camera_driver.md`](../../../camera/camera_driver.md) · [`camera/android_framework.md`](../../../camera/android_framework.md) · [`camera/掉帧.md`](../../../camera/掉帧.md) · [`company/openai/smart-glasses-ai-runtime.md`](../../../company/openai/smart-glasses-ai-runtime.md)
 
 ---
 

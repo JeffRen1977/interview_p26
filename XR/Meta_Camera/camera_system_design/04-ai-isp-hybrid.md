@@ -4,7 +4,7 @@
 
 **核心考点：** 前/后处理分流、实时预览 HW 快路径 vs 抓拍 NPU 慢路径并发、内存与算力 QoS 隔离。
 
-传统 ISP 级序见 [`02-e2e-isp-pipeline.md`](./02-e2e-isp-pipeline.md) 与 [`camera/3A.md`](../../camera/3A.md)。
+传统 ISP 级序见 [`02-e2e-isp-pipeline.md`](./02-e2e-isp-pipeline.md) 与 [`camera/3A.md`](../../../camera/3A.md)。
 
 ---
 

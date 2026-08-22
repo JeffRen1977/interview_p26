@@ -31,7 +31,7 @@
 |----|-----------|---------------------|
 | **双线性 resize / remap** | 4 邻域加权，权重用 Q8 定点；坐标先算再 clamp | 镜头去畸变（undistort）就是一张 remap 表 + 双线性采样。追问：为什么用**反向映射**（从 dst 找 src）而不是正向——正向会留空洞 |
 | **坏点检测与修复** | 3×3 中值，或"与 8 邻域同色通道比较超阈值则替换" | BPC（Bad Pixel Correction）在 ISP 最前端。Bayer 上要**跳格取同色邻居**，不能取相邻像素 |
-| **NMS（非极大值抑制）** | 3×3 局部极大 + 阈值；框级 NMS 按分数排序 + IoU 剔除 | FAST/Harris 角点提取后必跑。仓库有 Python 版 [`interview_handwrite/nms.py`](../interview_handwrite/nms.py)，**要会 C++ 版** |
+| **NMS（非极大值抑制）** | 3×3 局部极大 + 阈值；框级 NMS 按分数排序 + IoU 剔除 | FAST/Harris 角点提取后必跑。仓库有 Python 版 [`interview_handwrite/nms.py`](../../interview_handwrite/nms.py)，**要会 C++ 版** |
 | **滑动窗口最大/最小值** | 单调双端队列，O(N) | 曝光/增益序列的包络、AE 防抖的历史窗口 |
 | **数据流中位数** | 双堆（大顶+小顶）平衡；或定长直方图（8-bit 只有 256 桶，更适合嵌入式） | 时间中值降噪、丢帧率统计的 p50 |
 | **LRU（按字节容量而非条目数）** | 哈希 + 双向链表，`evict while (bytes > cap)` | ZSL 环形缓存里按内存预算淘汰帧 |

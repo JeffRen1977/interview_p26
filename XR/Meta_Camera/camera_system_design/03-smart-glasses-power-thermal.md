@@ -4,7 +4,7 @@
 
 **核心考点：** 异构功耗分层、Zero-Copy DMA-BUF / ION、热节流时降帧 / 降分辨率且要平滑。
 
-功耗数字与级联唤醒叙事对齐 [`company/openai/smart-glasses-ai-runtime.md`](../../company/openai/smart-glasses-ai-runtime.md)。
+功耗数字与级联唤醒叙事对齐 [`company/openai/smart-glasses-ai-runtime.md`](../../../company/openai/smart-glasses-ai-runtime.md)。
 
 ---
 
@@ -129,7 +129,7 @@ Cache：DMA 写后 CPU 若要读（调试 dump），必须 invalidate；热路�
 - **Always-on 误唤醒：** 用双因子（运动+视觉）；记录隐私灯与本地日志（无图）。
 - **第一帧发黑：** Sensor 从 standby 起来 AE 未收敛 → 用 ULP 估的 lux 做 **warm start exposure**。
 - **边录边传：** Wi-Fi 上传不得阻塞 ISP 线程；独立低优先级进程，热档 T2 以上禁止后台编码第二路。
-- **掉帧：** 见 [`camera/掉帧.md`](../../camera/掉帧.md)。眼镜上优先假设 **热和 DDR**，再查 MIPI。
+- **掉帧：** 见 [`camera/掉帧.md`](../../../camera/掉帧.md)。眼镜上优先假设 **热和 DDR**，再查 MIPI。
 - **隐私：** 物理指示灯与 ISP streamon 绑定，软件关不掉（HW 或安全元件）。
 
 ---

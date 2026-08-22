@@ -12,7 +12,7 @@ Preparing for Meta’s loop means mastering the intersection of:
 
 > **缺口分析与补充出题预测：** [`additional_questions.md`](./additional_questions.md) — 本清单没覆盖但很可能被问的题（相机–IMU 时间戳对齐、IR LED 亚像素质心、流式包解析、嵌入式 C/C++ 快问快答、调试轮、V4L2 驱动栈、三个新设计场景）。
 
-> **Repo drills already in this workspace:** Embedded coding guide → [`coding_interview_guide.md`](./coding_interview_guide.md) · Camera system design → [`camera_system_design/`](./camera_system_design/) · RAW10 / ROTL / aligned malloc → [`code/`](./code/); lock-free SPSC → [`XR/Pico_vision/24-无锁SPSC队列与Cacheline对齐.md`](../XR/Pico_vision/24-无锁SPSC队列与Cacheline对齐.md) · [`concurrency/spsc_ring_buffer.py`](../concurrency/spsc_ring_buffer.py) · [`interview_handwrite/mpmc_ring_buffer.cpp`](../interview_handwrite/mpmc_ring_buffer.cpp); ISP / 3A → [`XR/08`](../XR/Pico_vision/08-影像ISP题详解.md) · [`camera/`](../camera/); glasses thermal / zero-copy → [`company/openai/smart-glasses-ai-runtime.md`](../company/openai/smart-glasses-ai-runtime.md).
+> **Repo drills already in this workspace:** Embedded coding guide → [`coding_interview_guide.md`](./coding_interview_guide.md) · Camera system design → [`camera_system_design/`](./camera_system_design/) · RAW10 / ROTL / aligned malloc → [`code/`](./code/); lock-free SPSC → [`XR/Pico_vision/24-无锁SPSC队列与Cacheline对齐.md`](../Pico_vision/24-无锁SPSC队列与Cacheline对齐.md) · [`concurrency/spsc_ring_buffer.py`](../../concurrency/spsc_ring_buffer.py) · [`interview_handwrite/mpmc_ring_buffer.cpp`](../../interview_handwrite/mpmc_ring_buffer.cpp); ISP / 3A → [`XR/08`](../Pico_vision/08-影像ISP题详解.md) · [`camera/`](../../camera/); glasses thermal / zero-copy → [`company/openai/smart-glasses-ai-runtime.md`](../../company/openai/smart-glasses-ai-runtime.md).
 
 ---
 
@@ -37,11 +37,11 @@ Meta’s coding rounds evaluate algorithmic correctness, speed, deterministic ed
 
 | Category | Core focus areas | Typical Meta problems / patterns | Repo practice |
 | --- | --- | --- | --- |
-| **Pointers, buffers & memory** | Alignment, 2D strided buffers, ring buffers, zero-copy queues | Lock-free SPSC ring buffer; 2D image crop/rotate with arbitrary pitch/stride in-place; `aligned_malloc` for DMA / SIMD | [`code/aligned_malloc.md`](./code/aligned_malloc.md), [`XR/24`](../XR/Pico_vision/24-无锁SPSC队列与Cacheline对齐.md), [`concurrency/video_ring_buffer.cpp`](../concurrency/video_ring_buffer.cpp), [`camera/camera_driver.md`](../camera/camera_driver.md) |
-| **Sliding window & streaming** | Real-time sensor sample streams, rolling metrics, timestamps | Moving average of frame rates / exposure times; longest substring with constraints; median in a rolling data stream | [`leetcode/longest_substring_without_repeating/`](../leetcode/longest_substring_without_repeating/) |
-| **Trees & graphs / topo sort** | Pipeline graph compilation, DAG node dependency execution | Build order / topological sort for ISP node execution DAG; LCA; clone graph | [`leetcode/lowest_common_ancestor/`](../leetcode/lowest_common_ancestor/), [`leetcode/number_of_islands/`](../leetcode/number_of_islands/) |
+| **Pointers, buffers & memory** | Alignment, 2D strided buffers, ring buffers, zero-copy queues | Lock-free SPSC ring buffer; 2D image crop/rotate with arbitrary pitch/stride in-place; `aligned_malloc` for DMA / SIMD | [`code/aligned_malloc.md`](./code/aligned_malloc.md), [`XR/24`](../Pico_vision/24-无锁SPSC队列与Cacheline对齐.md), [`concurrency/video_ring_buffer.cpp`](../../concurrency/video_ring_buffer.cpp), [`camera/camera_driver.md`](../../camera/camera_driver.md) |
+| **Sliding window & streaming** | Real-time sensor sample streams, rolling metrics, timestamps | Moving average of frame rates / exposure times; longest substring with constraints; median in a rolling data stream | [`leetcode/longest_substring_without_repeating/`](../../leetcode/longest_substring_without_repeating/) |
+| **Trees & graphs / topo sort** | Pipeline graph compilation, DAG node dependency execution | Build order / topological sort for ISP node execution DAG; LCA; clone graph | [`leetcode/lowest_common_ancestor/`](../../leetcode/lowest_common_ancestor/), [`leetcode/number_of_islands/`](../../leetcode/number_of_islands/) |
 | **Bit manipulation & SIMD logic** | Bayer demosaicing math, pixel packing/unpacking (RAW10 / RAW12), circular shifts | Unpack MIPI RAW10 to 16-bit integers; `ROTL`/`ROTR` without shift UB; fast integer square root / fixed-point | [`code/mipi_raw10_unpack.md`](./code/mipi_raw10_unpack.md), [`code/bit_rotation.md`](./code/bit_rotation.md) |
-| **Concurrency & synchronization** | Thread safety, producer–consumer, reader–writer locks, condition variables | Multi-threaded frame dispatcher (1 sensor thread → N consumer workers without starving); thread-safe LRU cache for frame buffers | [`concurrency/`](../concurrency/), [`leetcode/lru_cache/`](../leetcode/lru_cache/), [`interview_handwrite/lru_cache_raw_list.cpp`](../interview_handwrite/lru_cache_raw_list.cpp) |
+| **Concurrency & synchronization** | Thread safety, producer–consumer, reader–writer locks, condition variables | Multi-threaded frame dispatcher (1 sensor thread → N consumer workers without starving); thread-safe LRU cache for frame buffers | [`concurrency/`](../../concurrency/), [`leetcode/lru_cache/`](../../leetcode/lru_cache/), [`interview_handwrite/lru_cache_raw_list.cpp`](../../interview_handwrite/lru_cache_raw_list.cpp) |
 
 ### Key system coding implementation patterns
 
@@ -50,7 +50,7 @@ Meta’s coding rounds evaluate algorithmic correctness, speed, deterministic ed
 - Use `std::atomic<size_t>` with `memory_order_acquire` / `memory_order_release` semantics.
 - Pad read/write pointers with `alignas(64)` (cache-line alignment) to prevent false sharing between capture and processing threads.
 - Capture thread = producer (write + release); ISP / CV thread = consumer (acquire + read).
-- Know why SPSC is the right topology for a camera capture path, and when you would step up to MPMC ([`XR/25`](../XR/Pico_vision/25-无锁MPMC队列与CAS.md)).
+- Know why SPSC is the right topology for a camera capture path, and when you would step up to MPMC ([`XR/25`](../Pico_vision/25-无锁MPMC队列与CAS.md)).
 
 **Whiteboard checklist**
 
@@ -181,7 +181,7 @@ This is the decisive round. You will be evaluated on the modern camera stack:
 (CV / Hand Tracking / VIO)     (H.264 / HEVC / AV1)
 ```
 
-Related deep notes: [`camera/qualcomm_senior_staff_camera_domain_guide.md`](../camera/qualcomm_senior_staff_camera_domain_guide.md), [`camera/sensor.md`](../camera/sensor.md), [`camera/3A.md`](../camera/3A.md), [`XR/08-影像ISP题详解.md`](../XR/Pico_vision/08-影像ISP题详解.md).
+Related deep notes: [`camera/qualcomm_senior_staff_camera_domain_guide.md`](../../camera/qualcomm_senior_staff_camera_domain_guide.md), [`camera/sensor.md`](../../camera/sensor.md), [`camera/3A.md`](../../camera/3A.md), [`XR/08-影像ISP题详解.md`](../Pico_vision/08-影像ISP题详解.md).
 
 ### Essential architecture topics & Meta AR / wearable tradeoffs
 
@@ -219,7 +219,7 @@ Black Level Correction (BLC) → Lens Shading Correction (LSC) → Demosaicing (
 - **Thermal envelope:** strict dissipation (< 1.5–2.5 W total system power) so frames do not heat against the user’s face.
 - **Duty cycling & wake-on-motion:** power-gate sensors and processing blocks when stationary; ultra-low-power CV for wake / gesture.
 
-**Talk track:** cascade wake (IMU / ULP CV → FE-only tracking → full ISP + encode). Never leave IPE + encoder + NPU at max clocks for passthrough. Same constraint language as [`smart-glasses-ai-runtime.md`](../company/openai/smart-glasses-ai-runtime.md).
+**Talk track:** cascade wake (IMU / ULP CV → FE-only tracking → full ISP + encode). Never leave IPE + encoder + NPU at max clocks for passthrough. Same constraint language as [`smart-glasses-ai-runtime.md`](../../company/openai/smart-glasses-ai-runtime.md).
 
 #### 4. Sensor calibration & characterization
 
@@ -269,7 +269,7 @@ Structure every response with **STAR** (Situation, Task, Action, Result). Prefer
 | 4 | Cross-functional alignment | HW / FW / algo / product — who owned what |
 | 5 | (Optional) Mentorship or raising the engineering bar | Test harness, IQ lab, bring-up playbook |
 
-Related: [`behavior/`](../behavior/).
+Related: [`behavior/`](../../behavior/).
 
 ---
 
