@@ -90,6 +90,35 @@
 
 ---
 
+## 样题 5：TTL KV Index — 带过期淘汰的内存 KV + Tag 查询引擎
+
+轻量级内存数据库 / 缓存索引：进程内 Key-Value，每条记录可带 TTL 和一组 tag，再按 tag 做 AND/OR 过滤。
+
+**工程结构**
+
+- `FakeClock`：可注入时钟（测试把起点钉在 t=1000）
+- `Store`：`set` / `get` / `delete` / `exists` / `size`
+- `query` / `query_fast`：按 tag 过滤 live keys
+
+**Phase 1（Bug Fix）**
+两处 TTL 契约违反：① `set` 把 duration 当成绝对时间戳写入 `expires_at`；② `get` 完全不看过期，过期 key 照样返回 value。定位并修复，让断言测试通过。
+
+**Phase 2（Tag Query）**
+实现扫描版 `query(tags, match="all"|"any")`：AND / OR、空 tags 的真空真假、过期跳过、覆盖写入替换整组 tags。
+
+**Phase 3（Inverted Index）**
+4 万 key 上对一个稀有 tag 连查 3000 次。必须识别出 O(n) 扫描不可用，改为 `tag → set(keys)` 倒排，并在 set / delete / 惰性过期时维护索引，否则会返回幽灵 key。
+
+**陷阱**
+
+- Phase 1：只修 `get` 不改 `expires_at = now + ttl` → 测试时钟从 1000 起，带 TTL 的 key 会立刻被判死。
+- Phase 2：空 tags + `match="all"` 返回 `[]`。空 AND 为真，应返回全部 live keys。
+- Phase 3：把 `query_fast = query` 包一层。压力循环是 3000 × 40k 次扫描，过不了时间。更隐蔽的漏：覆盖写入忘了从旧 tag 的 posting list 里删 key。
+
+**复刻工程**：[`ttl_kv_index/`](./ttl_kv_index/)
+
+---
+
 ## 可能遇到的同类变体（同一套打法都能覆盖）
 
 | 变体 | Phase 1 常见 bug | Phase 3 常见优化点 |

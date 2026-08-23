@@ -234,9 +234,9 @@ Phase 3 结束后，主动加 2–3 个测试（**别忘了说 "let me add a cou
 
 ---
 
-## 7. 三道真实样题 → 本目录的三个可跑工程
+## 7. 样题 → 本目录的可跑工程
 
-题目原文与考点拆解见 [`question_bank.md`](./question_bank.md)；下面三个目录是**可以直接练**的复刻工程（Phase 1 的 bug 是真的埋在代码里的）：
+题目原文与考点拆解见 [`question_bank.md`](./question_bank.md)；下面这些目录是**可以直接练**的复刻工程（Phase 1 的 bug 是真的埋在代码里的）：
 
 | 样题 | 目录 | 练什么 |
 |------|------|--------|
@@ -244,6 +244,7 @@ Phase 3 结束后，主动加 2–3 个测试（**别忘了说 "let me add a cou
 | Maze Solver | [`maze_solver/`](./maze_solver/) | 行列写反 + 缺 visited → BFS 最短路 → Bitmask BFS 收钥匙 |
 | Max Unique Characters | [`max_unique_chars/`](./max_unique_chars/) | sanitize 大小写 bug → 回溯 → bitmask + 剪枝 |
 | RateLimiter Engine | [`ratelimiter_engine/`](./ratelimiter_engine/) | 6 阶段：滑窗 / 多租户 / 热更新 / 降级 |
+| TTL KV + Tag Index | [`ttl_kv_index/`](./ttl_kv_index/) | TTL 存成绝对时间 + get 不惰性过期 → tag 扫描 → 倒排索引 |
 
 每个目录都是：
 
