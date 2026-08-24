@@ -9,6 +9,7 @@ historical data in multi-threaded environments."*
 
 | Document | Use |
 |---|---|
+| [CHAPTER_CONCURRENCY.md](./CHAPTER_CONCURRENCY.md) | Book chapter draft — teaching prose built on these examples |
 | [STUDY_GUIDE.md](./STUDY_GUIDE.md) | Concepts, the two-tier real-time/historical design, war stories |
 | [QUESTION_BANK.md](./QUESTION_BANK.md) | 18 rapid-fire Qs, 10 coding problems, 6 design Qs, 2-day plan |
 | [CHEATSHEET.md](./CHEATSHEET.md) | Morning-of skim: skeletons, rules, decision table |
