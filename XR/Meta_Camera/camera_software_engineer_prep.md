@@ -2,6 +2,8 @@
 
 **Role:** Camera Software Engineer (Camera Systems / Wearables & AR/VR)
 
+> **Wednesday onsite (Aug 26) operating doc:** [`onsite_wednesday_playbook.md`](./onsite_wednesday_playbook.md) — 2× AI-Native Coding + 2× Camera IDD + 1× Behavioral, 36-hour calendar, talk tracks for every official Camera Systems topic.
+
 Preparing for Meta’s loop means mastering the intersection of:
 
 - **Low-level systems engineering** — C/C++, concurrency, zero-copy buffer flow
