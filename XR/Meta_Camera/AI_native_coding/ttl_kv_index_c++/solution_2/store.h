@@ -64,7 +64,10 @@ public:
 
 private:
     bool is_expired(const Entry& entry) const;
+    void index_add(const std::string& key, const std::unordered_set<std::string>& tags);
+    void index_remove(const std::string& key, const std::unordered_set<std::string>& tags);
 
     Clock& clock_;
     std::unordered_map<std::string, Entry> data_;
+    std::unordered_map<std::string, std::unordered_set<std::string>> by_tag_;
 };
