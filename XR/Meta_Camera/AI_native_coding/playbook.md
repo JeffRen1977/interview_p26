@@ -244,7 +244,7 @@ Phase 3 结束后，主动加 2–3 个测试（**别忘了说 "let me add a cou
 | Maze Solver | [`maze_solver/`](./maze_solver/) | 行列写反 + 缺 visited → BFS 最短路 → Bitmask BFS 收钥匙 |
 | Max Unique Characters | [`max_unique_chars/`](./max_unique_chars/) | sanitize 大小写 bug → 回溯 → bitmask + 剪枝 |
 | RateLimiter Engine | [`ratelimiter_engine/`](./ratelimiter_engine/) | 6 阶段：滑窗 / 多租户 / 热更新 / 降级 |
-| TTL KV + Tag Index | [`ttl_kv_index/`](./ttl_kv_index/) | TTL 存成绝对时间 + get 不惰性过期 → tag 扫描 → 倒排索引 |
+| TTL KV + Tag Index | [`ttl_kv_index/`](./ttl_kv_index/) · C++ [`ttl_kv_index_c++/`](./ttl_kv_index_c++/) | TTL 存成绝对时间 + get 不惰性过期 → tag 扫描 → 倒排索引 |
 
 每个目录都是：
 

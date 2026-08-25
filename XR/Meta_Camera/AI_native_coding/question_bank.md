@@ -115,7 +115,7 @@
 - Phase 2：空 tags + `match="all"` 返回 `[]`。空 AND 为真，应返回全部 live keys。
 - Phase 3：把 `query_fast = query` 包一层。压力循环是 3000 × 40k 次扫描，过不了时间。更隐蔽的漏：覆盖写入忘了从旧 tag 的 posting list 里删 key。
 
-**复刻工程**：[`ttl_kv_index/`](./ttl_kv_index/)
+**复刻工程**：[`ttl_kv_index/`](./ttl_kv_index/)（Python）· [`ttl_kv_index_c++/`](./ttl_kv_index_c++/)（C++17）
 
 ---
 
