@@ -8,6 +8,7 @@ Meta 的 AI-Enabled Coding 轮是 **60 分钟、单项目、3–4 个 Checkpoint
 
 | 文档 | 内容 |
 |------|------|
+| [`chapter_ai_native_coding.md`](./chapter_ai_native_coding.md) | **书稿章节**：以这些工程为证据 —— 三个缺口、七个案例解剖、**差分测试专章（§6，八小节）**、失效模式目录 |
 | [`playbook.md`](./playbook.md) | **step-by-step 打法**：60 分钟时间盘、每个 Checkpoint 的六步循环、5 个 prompt 模板、反模式清单、临场英文话术、两天冲刺计划 |
 | [`question_bank.md`](./question_bank.md) | 收集到的真实样题原文 + 考点拆解 + 8 类可能变体 |
 

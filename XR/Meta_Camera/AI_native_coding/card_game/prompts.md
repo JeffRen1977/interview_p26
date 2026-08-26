@@ -89,7 +89,7 @@ count_triplets_sum_15 must handle 20,000 cards under 1 second, so enumerating
 C(n,3) is out. Ranks are integers in 1..9.
 
 Task: implement count_triplets_sum_15(cards) -> int using a rank frequency
-table and binomial coefficients over the <=84 non-decreasing rank triples
+table and binomial coefficients over the 13 non-decreasing rank triples
 summing to 15 (helper all_triplet_ranks() already exists).
 Constraints:
 - Handle the degenerate cases correctly: r1==r2==r3 -> C(f,3);
@@ -107,7 +107,7 @@ The adversarial table is 2,000 nines plus nine fives: the brute-force strategy
 has to enumerate C(2009,3) combinations just to prove the nines are dead.
 
 Task: implement FastStrategy.choose_move with the same contract as
-GreedyStrategy, but O(n) bucketing + O(84) scan per decision, so returning None
+GreedyStrategy, but O(n) bucketing + a 13-entry scan per decision, so returning None
 is as cheap as returning a move.
 Constraints:
 - Bucket cards by rank; for each rank triple check multiplicity with a Counter

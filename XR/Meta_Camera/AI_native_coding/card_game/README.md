@@ -107,20 +107,20 @@ def choose_move(self, table):
 
 **先说复杂度再动手**：
 
-> "Ranks only span 1..9, so the search space isn't the cards, it's the ranks. There are only 84 non-decreasing rank triples summing to 15 — I'll count with a frequency table and binomials instead of enumerating cards."
+> "Ranks only span 1..9, so the search space isn't the cards, it's the ranks. There are only 13 non-decreasing rank triples summing to 15 — I'll count with a frequency table and binomials instead of enumerating cards."
 
 ### 计数：频次表 + 组合数
 
 ```python
 freq = Counter(c.rank for c in cards)
-for r1, r2, r3 in all_triplet_ranks():        # r1 <= r2 <= r3, 共 84 组
+for r1, r2, r3 in all_triplet_ranks():        # r1 <= r2 <= r3 且和为 15，共 13 组
     if r1 == r2 == r3: total += comb(freq[r1], 3)
     elif r1 == r2:     total += comb(freq[r1], 2) * freq[r3]
     elif r2 == r3:     total += freq[r1] * comb(freq[r2], 2)
     else:              total += freq[r1] * freq[r2] * freq[r3]
 ```
 
-O(n + 84)，与组合数无关。**注意重复点数的三种退化情况** —— 直接写 `f1*f2*f3` 在 `(5,5,5)` 上会算成 `f5³`，测试里 `count([5]*6) == 20` 就是抓这个的。
+O(n) 建频次表 + O(13) 枚举 —— **与合法组合的数量无关**。对抗样例里那 1.3×10⁹ 个组合，一个都不用碰。**注意重复点数的三种退化情况** —— 直接写 `f1*f2*f3` 在 `(5,5,5)` 上会算成 `f5³`，测试里 `count([5]*6) == 20` 就是抓这个的。
 
 ### 选牌：按点数分桶
 
@@ -133,7 +133,7 @@ for r1, r2, r3 in all_triplet_ranks():
 return None
 ```
 
-关键收益：**"无解"的判定也只要 O(84)**，而不是枚举完所有组合才敢返回 `None`。这正是对抗样例攻击的点。
+关键收益：**"无解"的判定也只要 13 次查表**，而不是枚举完所有组合才敢返回 `None`。这正是对抗样例攻击的点。
 
 ### Monte Carlo
 

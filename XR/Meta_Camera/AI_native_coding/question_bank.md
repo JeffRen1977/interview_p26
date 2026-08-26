@@ -27,7 +27,7 @@
 **陷阱**
 
 - Phase 1：用 `card in table.cards` 做值相等判断 → 重复消费同一张牌照样通过；正确做法是 **multiset（Counter）包含性检查**。
-- Phase 3：还在 `itertools.combinations(cards, 3)` 上枚举 → O(n³)。点数值域只有 1–9，应该按**点数频次**枚举 `r1<=r2<=r3` 的 84 种组合，用组合数展开计数。
+- Phase 3：还在 `itertools.combinations(cards, 3)` 上枚举 → O(n³)。点数值域只有 1–9，应该按**点数频次**枚举 `r1<=r2<=r3` **且和为 15** 的组合 —— 一共只有 **13** 组，用组合数展开计数。（注意别和 `C(9,3)=84`「1–9 里所有严格递增三元组」混了，那是另一个数。）
 
 **复刻工程**：[`card_game/`](./card_game/)
 
