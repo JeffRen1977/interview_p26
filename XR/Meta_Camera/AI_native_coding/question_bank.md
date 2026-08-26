@@ -119,6 +119,40 @@
 
 ---
 
+## 样题 6：Friend Recommendation — 社交图 People-You-May-Know
+
+题池里**唯一的图论题**，官方难度标 Easy，但有 4 个 Checkpoint。
+
+**工程结构**
+
+- `social_graph.py`：`SocialGraph`，无向 / 对称 / 非自反，`friends()` 返回只读邻接视图
+- `recommenders.py`：`is_valid_recommendations` / `recommend_baseline` / `evaluate` / `recommend_fast`
+
+**Phase 1（Bug Fix）**
+`is_valid_recommendations` 要保证五条规则：①user 存在 ②不推自己 ③不推已有好友 ④不重复 ⑤候选必须在图里。当前实现漏掉两条。
+
+**Phase 2（Baseline Strategy）**
+按**共同好友数** `|friends(user) ∩ friends(c)|` 排序，分数 ≥ 1 才有资格，分数降序 + id 升序 tie-break，取前 k。
+
+**Phase 3（Measure Quality）**
+离线评估：给一组 holdout 边，算 `precision@k` / `recall@k` / `coverage` 的均值。`recommend_fn` 必须是参数，好让任何推荐器都能进同一管道。
+
+**Phase 4（Scale）**
+4 万用户、平均度 4、查 2000 次。O(N·deg) 扫全图约 14 秒，预算 1.5 秒。
+
+**陷阱**
+
+- Phase 1 bug #1 是**查错了一边**：`candidate in graph.friends(candidate)` —— 图非自反，这个分支**永远不触发**，规则 3 是死代码。正确是 `graph.friends(user)`。
+- Phase 1 bug #2 是规则 5 **压根没写**。规则 3 和 5 重叠但不等价（好友必在图里，图里的不一定是好友），两个 check 都要留。
+- Phase 2：`mutual == 0` 的人不能进结果，否则陌生人会被推上来。
+- Phase 3：precision 的分母是 **k**，不是 `len(recs)` —— 只返回 1 个且命中，k=4 时是 0.25。coverage 是独立指标，专抓"因为几乎不出手所以很准"的推荐器。
+- Phase 4：关键恒等式 `f ∈ friends(user) 且 c ∈ friends(f) ⟺ f ∈ friends(user) ∩ friends(c)` —— **"有多少个我的好友指向 c"本身就是共同好友数**，Counter 一遍 2-hop 即可，不用集合求交。
+- Phase 4 的加分点是**主动说反例**：2-hop 的开销是 `Σ deg(f)`，一个 8000 好友的名人就让单次查询走 8000 步，比扫表还慢。生产做法是按度数截断，或用 **Adamic-Adar**（`1/log(deg(f))`）加权。
+
+**复刻工程**：[`friend_recommendation/`](./friend_recommendation/)
+
+---
+
 ## 可能遇到的同类变体（同一套打法都能覆盖）
 
 | 变体 | Phase 1 常见 bug | Phase 3 常见优化点 |
