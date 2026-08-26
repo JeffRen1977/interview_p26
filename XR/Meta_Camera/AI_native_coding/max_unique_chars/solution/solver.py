@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Iterable, List
 
+from wordlist import sanitize
+
 
 def word_mask(word: str) -> int:
     """26-bit set of the letters in `word`. Given — do not reimplement."""
@@ -25,8 +27,8 @@ def max_unique_length(words: Iterable[str]) -> int:
     The input is raw: sanitize it first. Returns 0 for an empty candidate list.
     """
     valid_masks: List[int] = []
-    for w in words:
-        # 自身含有重复字符的单词直接丢弃
+    for w in sanitize(words):
+        # sanitize 已经丢掉了自身含重复字符的词，这里的 popcount 只是复核
         m = word_mask(w)
         if popcount(m) == len(w):
             valid_masks.append(m)
@@ -62,7 +64,7 @@ def max_unique_length_fast(words: Iterable[str]) -> int:
     """
     # 1. 过滤并去重相同的 mask
     unique_masks = set()
-    for w in words:
+    for w in sanitize(words):
         m = word_mask(w)
         # 单词自身无重复字符
         if popcount(m) == len(w):

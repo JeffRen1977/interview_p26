@@ -16,15 +16,13 @@ Meta 的 AI-Enabled Coding 轮是 **60 分钟、单项目、3–4 个 Checkpoint
 
 | 样题 | 目录 | Phase 1 → 2 → 3 |
 |------|------|------------------|
-| Card Game（和为 15） | [`card_game/`](./card_game/) | multiset 校验 bug → 贪心结算 → 频次表 + 蒙特卡洛 |
-| Maze Solver（Q1–Q5 全阶梯） | [`maze_solver/`](./maze_solver/) | 行列写反 + 缺 visited → BFS 最短路 → Bitmask BFS 收钥匙 → **Dijkstra + 炸弹预算** |
-| Max Unique Characters | [`max_unique_chars/`](./max_unique_chars/) | sanitize 大小写 bug → 回溯 → 掩码状态去重 |
-| RateLimiter Engine | [`ratelimiter_engine/`](./ratelimiter_engine/) | 6 阶段工程题：滑窗 / 多租户 / 热更新 / 降级 |
-| TTL KV + Tag Index | [`ttl_kv_index/`](./ttl_kv_index/) | TTL 存成绝对时间 + get 不惰性过期 → tag 扫描查询 → 倒排索引 |
-| TTL KV + Tag Index (C++) | [`ttl_kv_index_c++/`](./ttl_kv_index_c++/) | 同上，C++17：`erase` 替代 `delete`，value 为 `std::string` |
-| Friend Recommendation | [`friend_recommendation/`](./friend_recommendation/) | 4 阶段：校验 bug → 共同好友排序 → precision/recall/coverage → 2-hop 扩展 |
-| Compiler Optimization | [`compiler_optimization/`](./compiler_optimization/) | 4 阶段：用例加载器 bug → 活跃区间分析 → 死代码消除 → 常量折叠 |
-| Compiler Optimization (C++) | [`compiler_optimization_c++/`](./compiler_optimization_c++/) | 同上，C++17：`long long` 折叠、悬空引用、UB 审查 |
+| Card Game（和为 15） | [`card_game/`](./card_game/) · C++ [`card_game_c++/`](./card_game_c++/) | multiset 校验 bug → 贪心结算 → 频次表 + 蒙特卡洛（C++ 版多一关：整数溢出） |
+| Maze Solver（Q1–Q5 全阶梯） | [`maze_solver/`](./maze_solver/) · C++ [`maze_solver_c++/`](./maze_solver_c++/) | 行列写反 + 缺 visited → BFS 最短路 → Bitmask BFS 收钥匙 → **Dijkstra + 炸弹预算** |
+| Max Unique Characters | [`max_unique_chars/`](./max_unique_chars/) · C++ [`max_unique_chars_c++/`](./max_unique_chars_c++/) | sanitize 大小写 bug → 回溯 → 掩码状态去重 |
+| RateLimiter Engine | [`ratelimiter_engine/`](./ratelimiter_engine/) · C++ [`ratelimiter_engine_c++/`](./ratelimiter_engine_c++/) | 工程契约题：滑窗 / 多租户 / 热更新 / 降级（C++ 版多第 7 关：线程安全 + TSan） |
+| TTL KV + Tag Index | [`ttl_kv_index/`](./ttl_kv_index/) · C++ [`ttl_kv_index_c++/`](./ttl_kv_index_c++/) | TTL 存成绝对时间 + get 不惰性过期 → tag 扫描查询 → 倒排索引 |
+| Friend Recommendation | [`friend_recommendation/`](./friend_recommendation/) · C++ [`friend_recommendation_c++/`](./friend_recommendation_c++/) | 4 阶段：校验 bug → 共同好友排序 → precision/recall/coverage → 2-hop 扩展 |
+| Compiler Optimization | [`compiler_optimization/`](./compiler_optimization/) · C++ [`compiler_optimization_c++/`](./compiler_optimization_c++/) | 4 阶段：用例加载器 bug → 活跃区间分析 → 死代码消除 → 常量折叠 |
 
 除 RateLimiter 外结构一致：
 
@@ -44,11 +42,18 @@ python3 -m unittest discover -s tests -v                     # 练：测 project
 python3 -m unittest discover -s tests -k Phase1 -v           # 只跑当前 Phase
 AINC_IMPL=solution python3 -m unittest discover -s tests -v  # 对答案：测 solution/
 
-# C++ 复刻（ttl_kv_index_c++ / compiler_optimization_c++ 同一套跑法）
-cd compiler_optimization_c++
+# C++ 复刻（所有 *_c++ 目录同一套跑法）
+cd <sample>_c++
 make test                     # 测 project/
 make test IMPL=solution       # 测 solution/
+make clean
 make test CXXFLAGS="-std=c++17 -g -O1 -fsanitize=address,undefined"   # UB 审查
+
+# ratelimiter_engine_c++ 没有 project/solution 拆分（练法见它的 README §2）
+cd ratelimiter_engine_c++
+make test                     # 22 tests
+make demo                     # 多线程不超卖演示
+make test CXXFLAGS="-std=c++17 -g -O1 -Wall -Wextra -pthread -fsanitize=thread"
 ```
 
 RateLimiter 的跑法不同（实现直接在 `project/` 里）：
@@ -66,12 +71,19 @@ python3 -m unittest tests.test_ratelimiter -v
 | maze_solver | 2 FAIL + 27 ERROR / 32 | 32 OK |
 | max_unique_chars | 3 FAIL + 10 ERROR / 16 | 16 OK |
 | ttl_kv_index | 4 FAIL + 11 ERROR / 20 | 20 OK |
-| ttl_kv_index_c++ | 4 FAIL + 11 ERROR / 20 | 20 OK |
 | friend_recommendation | 2 FAIL + 17 ERROR / 24 | 24 OK |
 | compiler_optimization | 2 FAIL + 28 ERROR / 35 | 35 OK |
+| card_game_c++ | 2 FAIL + 18 ERROR / 26 | 26 OK |
+| maze_solver_c++ | 3 FAIL + 26 ERROR / 32 | 32 OK |
+| max_unique_chars_c++ | 4 FAIL + 10 ERROR / 18 | 18 OK |
+| ttl_kv_index_c++ | 4 FAIL + 11 ERROR / 20 | 20 OK |
+| friend_recommendation_c++ | 2 FAIL + 18 ERROR / 25 | 25 OK |
 | compiler_optimization_c++ | 2 FAIL + 29 ERROR / 36 | 36 OK |
+| ratelimiter_engine（Py / C++） | 无拆分：直接跑应全绿（Py 22 OK · C++ 22 OK） | — |
 
-FAIL 是 Phase 1 埋的真 bug，ERROR 是后续 Phase 还没实现的 `NotImplementedError`。
+FAIL 是 Phase 1 埋的真 bug，ERROR 是后续 Phase 还没实现的桩（Python `NotImplementedError` / C++ `std::logic_error`）。
+
+> C++ 版的 FAIL/ERROR 数字和 Python 版不完全一样 —— 因为**几个 bug 在 C++ 里的失败方式不同**，测试也跟着调整了。每个 `*_c++/README.md` 的开头都专门讲了这件事。
 
 ## 练习方式
 
