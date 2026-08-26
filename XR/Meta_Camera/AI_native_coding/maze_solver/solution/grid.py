@@ -9,6 +9,15 @@ OPEN = "."
 START = "S"
 END = "E"
 PATH = "*"
+#: Rough terrain: passable, but a step into it costs more than a step onto '.'.
+ROUGH = "~"
+
+#: Energy to step INTO a cell. Anything not listed costs DEFAULT_COST.
+DEFAULT_COST = 1
+TERRAIN_COST = {ROUGH: 5}
+
+#: Energy to blow through one wall. Also consumes one bomb from the budget.
+BOMB_COST = 4
 
 #: Gates stop at D on purpose: 'E' is already the exit marker.
 KEYS = "abcd"

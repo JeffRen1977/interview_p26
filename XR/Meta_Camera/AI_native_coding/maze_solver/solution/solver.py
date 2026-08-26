@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
+import heapq
 from collections import deque
 from typing import Dict, List, Optional, Set, Tuple
 
-from grid import KEYS, Coord, key_bit
+from grid import BOMB_COST, KEYS, Coord, key_bit
 from maze import Maze
 
 
@@ -117,3 +118,63 @@ def _rebuild_states(parent: Dict[State, Optional[State]], end: State) -> List[St
         node = parent[node]
     path.reverse()
     return path
+
+
+# ----------------------------------------------------------------------
+# Phase 4
+# ----------------------------------------------------------------------
+EnergyState = Tuple[Coord, int, int]  # (cell, keys_mask, bombs_left)
+
+
+def min_energy_path(maze: Maze, bombs: int = 0) -> Optional[Tuple[int, List[Coord]]]:
+    """Dijkstra over (cell, keys_mask, bombs_left).
+
+    Why BFS stops working: a step onto rough terrain costs 5 and a blast costs
+    BOMB_COST, so the queue no longer visits states in cost order. The fix is a
+    priority queue, and with it two rules change:
+
+      1. the goal test moves from push time to *pop* time — a state is only
+         settled once it comes off the heap;
+      2. `visited` becomes `dist`, a best-cost-so-far table. A state is worth
+         re-expanding whenever we reach it more cheaply than before.
+
+    Bombs are a budget, not a map edit: a blast is charged the moment we step
+    into the wall, so nothing about the grid changes and `bombs_left` is all the
+    extra state we need. State space is rows * cols * 2^k * (bombs + 1).
+    """
+    if bombs < 0:
+        raise ValueError("bombs must be >= 0")
+
+    start, end = maze.start, maze.end
+    goal_mask = maze.all_keys_mask
+    start_state: EnergyState = (start, _pickup(maze, start, 0), bombs)
+
+    dist: Dict[EnergyState, int] = {start_state: 0}
+    parent: Dict[EnergyState, Optional[EnergyState]] = {start_state: None}
+    heap: List[Tuple[int, EnergyState]] = [(0, start_state)]
+
+    while heap:
+        cost, state = heapq.heappop(heap)
+        if cost > dist.get(state, cost):
+            continue  # stale heap entry, already settled cheaper
+        coord, mask, left = state
+        if coord == end and mask == goal_mask:
+            return cost, [cell for cell, _, _ in _rebuild_states(parent, state)]
+
+        for nxt in maze.raw_neighbors(coord):
+            if maze.is_wall(nxt):
+                if left == 0 or not maze.is_bombable(nxt):
+                    continue  # no bomb left, or it is bedrock
+                step, nxt_left = BOMB_COST, left - 1
+            elif not maze.is_open(nxt, mask):
+                continue  # a gate we have no key for
+            else:
+                step, nxt_left = maze.terrain_cost(nxt), left
+
+            nxt_state: EnergyState = (nxt, _pickup(maze, nxt, mask), nxt_left)
+            nxt_cost = cost + step
+            if nxt_cost < dist.get(nxt_state, nxt_cost + 1):
+                dist[nxt_state] = nxt_cost
+                parent[nxt_state] = state
+                heapq.heappush(heap, (nxt_cost, nxt_state))
+    return None

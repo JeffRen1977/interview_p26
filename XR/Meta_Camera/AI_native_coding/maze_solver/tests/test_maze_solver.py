@@ -20,10 +20,15 @@ IMPL = ROOT / os.environ.get("AINC_IMPL", "project")
 if str(IMPL) not in sys.path:
     sys.path.insert(0, str(IMPL))
 
-from grid import GATES, KEYS, Coord, key_bit  # noqa: E402
+from grid import BOMB_COST, GATES, KEYS, Coord, key_bit  # noqa: E402
 from maze import Maze  # noqa: E402
 from renderer import render  # noqa: E402
-from solver import dfs_reachable, shortest_path, shortest_path_all_keys  # noqa: E402
+from solver import (  # noqa: E402
+    dfs_reachable,
+    min_energy_path,
+    shortest_path,
+    shortest_path_all_keys,
+)
 
 # --- fixtures ---------------------------------------------------------
 SQUARE = """\
@@ -67,6 +72,41 @@ GATE_WITHOUT_ITS_KEY = """\
 #######"""
 
 
+#: Straight line through rough terrain vs a longer detour on plain floor.
+ROUGH_DETOUR = """\
+#######
+#S~~~E#
+#.....#
+#######"""
+
+#: One interior wall on the only route.
+ONE_WALL = """\
+#######
+#S.#.E#
+#######"""
+
+#: Two interior walls: one bomb is not enough.
+TWO_WALLS = """\
+#######
+#S#.#E#
+#######"""
+
+#: Detour is 12 energy, blasting through costs 11 — the bomb is worth it.
+BOMB_BEATS_DETOUR = """\
+###########
+#S...#...E#
+#.#######.#
+#.........#
+###########"""
+
+#: Same shape, short detour (6) beats the blast (7) — the bomb must stay unused.
+DETOUR_BEATS_BOMB = """\
+#######
+#S.#.E#
+#.....#
+#######"""
+
+
 def big_maze(size: int = 81, with_keys: bool = True) -> Maze:
     """An open size x size room with a wall border, S top-left, E bottom-right."""
     rows = [["#"] * size for _ in range(size)]
@@ -103,6 +143,43 @@ class MazeAssertions(unittest.TestCase):
                 self.assertEqual(step, 1, f"non-adjacent step {prev} -> {cell}")
         if require_all_keys:
             self.assertEqual(mask, maze.all_keys_mask, "did not collect every key")
+
+    def assert_valid_blast_walk(self, maze: Maze, result, bombs: int) -> None:
+        """Same invariants as assert_valid_walk, plus the energy accounting.
+
+        A wall cell is allowed in the path only if it was bombable and the
+        budget covers every blast; the reported energy must equal the sum of
+        the step costs the walk actually pays.
+        """
+        self.assertIsNotNone(result, "expected (energy, path), got None")
+        energy, path = result
+        self.assertEqual(path[0], maze.start)
+        self.assertEqual(path[-1], maze.end)
+        mask = 0
+        spent = 0
+        blasts = 0
+        for i, cell in enumerate(path):
+            self.assertTrue(maze.in_bounds(cell), f"{cell} out of bounds")
+            char = maze.at(cell)
+            if i:
+                prev = path[i - 1]
+                step = abs(prev.row - cell.row) + abs(prev.col - cell.col)
+                self.assertEqual(step, 1, f"non-adjacent step {prev} -> {cell}")
+                if maze.is_wall(cell):
+                    self.assertTrue(maze.is_bombable(cell), f"blew up bedrock at {cell}")
+                    blasts += 1
+                    spent += BOMB_COST
+                else:
+                    if char in GATES:
+                        self.assertTrue(
+                            mask & (1 << key_bit(char)), f"passed gate {char} without its key"
+                        )
+                    spent += maze.terrain_cost(cell)
+            if char in KEYS:
+                mask |= 1 << key_bit(char)
+        self.assertLessEqual(blasts, bombs, f"used {blasts} bombs, budget was {bombs}")
+        self.assertEqual(spent, energy, "reported energy does not match the walk")
+        self.assertEqual(mask, maze.all_keys_mask, "did not collect every key")
 
 
 # ----------------------------------------------------------------------
@@ -233,6 +310,97 @@ class Phase3KeysAndScale(MazeAssertions):
         elapsed = time.perf_counter() - start
         self.assert_valid_walk(maze, path, require_all_keys=True)
         self.assertLess(elapsed, 3.0, f"bitmask BFS took {elapsed:.2f}s on 81x81 with 4 keys")
+
+
+# ----------------------------------------------------------------------
+# Phase 4 — weighted steps and a bomb budget
+# ----------------------------------------------------------------------
+class Phase4EnergyAndBombs(MazeAssertions):
+    def test_prefers_the_long_cheap_detour_over_rough_terrain(self) -> None:
+        """BFS would take the 5-cell line through '~'; Dijkstra pays 6 for 7 cells."""
+        maze = Maze.from_text(ROUGH_DETOUR)
+        result = min_energy_path(maze, bombs=0)
+        self.assert_valid_blast_walk(maze, result, bombs=0)
+        energy, path = result
+        self.assertEqual(energy, 6)
+        self.assertEqual(len(path), 7)
+        self.assertEqual(len(shortest_path(maze)), 5)  # the BFS answer costs 16
+
+    def test_degenerates_to_bfs_when_every_step_costs_one(self) -> None:
+        maze = Maze.from_text(SQUARE)
+        result = min_energy_path(maze, bombs=0)
+        self.assert_valid_blast_walk(maze, result, bombs=0)
+        self.assertEqual(result[0], len(shortest_path(maze)) - 1)
+
+    def test_keys_are_still_mandatory_and_gates_still_need_them(self) -> None:
+        maze = Maze.from_text(GATE_ON_THE_ONLY_ROUTE)
+        result = min_energy_path(maze, bombs=0)
+        self.assert_valid_blast_walk(maze, result, bombs=0)
+        energy, path = result
+        self.assertEqual(energy, len(shortest_path_all_keys(maze)) - 1)
+        self.assertLess(len(set(path)), len(path), "expected the route to revisit cells")
+
+    def test_no_bombs_means_a_blocked_route_is_none(self) -> None:
+        self.assertIsNone(min_energy_path(Maze.from_text(ONE_WALL), bombs=0))
+
+    def test_one_bomb_opens_the_only_route(self) -> None:
+        maze = Maze.from_text(ONE_WALL)
+        result = min_energy_path(maze, bombs=1)
+        self.assert_valid_blast_walk(maze, result, bombs=1)
+        self.assertEqual(result[0], 1 + BOMB_COST + 1 + 1)
+
+    def test_bomb_budget_is_enforced_across_the_whole_walk(self) -> None:
+        self.assertIsNone(min_energy_path(Maze.from_text(TWO_WALLS), bombs=1))
+        result = min_energy_path(Maze.from_text(TWO_WALLS), bombs=2)
+        self.assert_valid_blast_walk(Maze.from_text(TWO_WALLS), result, bombs=2)
+        self.assertEqual(result[0], 2 * BOMB_COST + 2)
+
+    def test_blasts_when_the_detour_is_more_expensive(self) -> None:
+        maze = Maze.from_text(BOMB_BEATS_DETOUR)
+        self.assertEqual(min_energy_path(maze, bombs=0)[0], 12)
+        result = min_energy_path(maze, bombs=1)
+        self.assert_valid_blast_walk(maze, result, bombs=1)
+        energy, path = result
+        self.assertEqual(energy, 11)
+        self.assertIn(Coord(1, 5), path, "expected the walk to go through the wall")
+
+    def test_keeps_the_bomb_when_walking_around_is_cheaper(self) -> None:
+        maze = Maze.from_text(DETOUR_BEATS_BOMB)
+        result = min_energy_path(maze, bombs=1)
+        self.assert_valid_blast_walk(maze, result, bombs=1)
+        energy, path = result
+        self.assertEqual(energy, 6)
+        self.assertNotIn(Coord(1, 3), path, "the wall was cheaper to walk around")
+
+    def test_the_outer_border_is_bedrock(self) -> None:
+        """No budget lets the walk tunnel out through the frame and cut a corner."""
+        maze = Maze.from_text(ONE_WALL)
+        for col in range(maze.cols):
+            self.assertFalse(maze.is_bombable(Coord(0, col)))
+            self.assertFalse(maze.is_bombable(Coord(maze.rows - 1, col)))
+        result = min_energy_path(maze, bombs=5)
+        self.assert_valid_blast_walk(maze, result, bombs=5)
+        energy, path = result
+        self.assertEqual(energy, 1 + BOMB_COST + 1 + 1)
+        for cell in path:
+            self.assertTrue(
+                0 < cell.row < maze.rows - 1 and 0 < cell.col < maze.cols - 1,
+                f"walk stepped onto the frame at {cell}",
+            )
+
+    def test_negative_bomb_budget_is_rejected(self) -> None:
+        with self.assertRaises(ValueError):
+            min_energy_path(Maze.from_text(SQUARE), bombs=-1)
+
+    def test_large_grid_with_keys_and_bombs_under_time_budget(self) -> None:
+        """61x61 x 2^4 key sets x 2 bomb states — a heap keeps it comfortable."""
+        maze = big_maze(61)
+        start = time.perf_counter()
+        result = min_energy_path(maze, bombs=1)
+        elapsed = time.perf_counter() - start
+        self.assert_valid_blast_walk(maze, result, bombs=1)
+        self.assertEqual(result[0], len(shortest_path_all_keys(maze)) - 1)
+        self.assertLess(elapsed, 5.0, f"Dijkstra took {elapsed:.2f}s on 61x61 with 4 keys")
 
 
 if __name__ == "__main__":

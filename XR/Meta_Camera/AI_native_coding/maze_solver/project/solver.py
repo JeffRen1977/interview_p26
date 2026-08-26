@@ -4,11 +4,13 @@ Phase 1: dfs_reachable blows the stack — something is missing.
 Phase 2: shortest_path — unweighted shortest path, not "any path".
 Phase 3: shortest_path_all_keys — keys are mandatory checkpoints and gates
          enforce the order, so the state is no longer just a cell.
+Phase 4: min_energy_path — steps stop costing the same, so BFS stops being
+         correct at all. Bombs add a third dimension to the state.
 """
 
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 from grid import Coord
 from maze import Maze
@@ -51,3 +53,27 @@ def shortest_path_all_keys(maze: Maze) -> Optional[List[Coord]]:
     full state, not by the cell, or you will prune the only legal route.
     """
     raise NotImplementedError("Phase 3: implement shortest_path_all_keys")
+
+
+# ----------------------------------------------------------------------
+# Phase 4
+# ----------------------------------------------------------------------
+def min_energy_path(maze: Maze, bombs: int = 0) -> Optional[Tuple[int, List[Coord]]]:
+    """Cheapest walk that collects every key and ends on maze.end, with bombs.
+
+    Energy model (see grid.py):
+      - stepping into an open cell costs maze.terrain_cost(cell): '.'/'S'/'E'/
+        keys/gates cost 1, rough terrain '~' costs 5
+      - stepping into an *interior* wall costs BOMB_COST and burns one bomb;
+        `bombs` is the budget for the whole walk. The outer border is bedrock
+        (maze.is_bombable says so) and can never be blown open
+      - the starting cell is free — cost is charged per step taken
+      - gates still need their key, exactly as in Phase 3
+
+    Returns (total_energy, path) including both endpoints, or None if there is
+    no walk that collects every key within the bomb budget.
+
+    TODO(Phase 4): edge weights are no longer uniform, so BFS is out. Dijkstra
+    over (cell, keys_mask, bombs_left), and the goal check moves to pop time.
+    """
+    raise NotImplementedError("Phase 4: implement min_energy_path")

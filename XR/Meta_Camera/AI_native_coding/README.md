@@ -16,7 +16,7 @@ Meta 的 AI-Enabled Coding 轮是 **60 分钟、单项目、3–4 个 Checkpoint
 | 样题 | 目录 | Phase 1 → 2 → 3 |
 |------|------|------------------|
 | Card Game（和为 15） | [`card_game/`](./card_game/) | multiset 校验 bug → 贪心结算 → 频次表 + 蒙特卡洛 |
-| Maze Solver | [`maze_solver/`](./maze_solver/) | 行列写反 + 缺 visited → BFS 最短路 → Bitmask BFS 收钥匙 |
+| Maze Solver（Q1–Q5 全阶梯） | [`maze_solver/`](./maze_solver/) | 行列写反 + 缺 visited → BFS 最短路 → Bitmask BFS 收钥匙 → **Dijkstra + 炸弹预算** |
 | Max Unique Characters | [`max_unique_chars/`](./max_unique_chars/) | sanitize 大小写 bug → 回溯 → 掩码状态去重 |
 | RateLimiter Engine | [`ratelimiter_engine/`](./ratelimiter_engine/) | 6 阶段工程题：滑窗 / 多租户 / 热更新 / 降级 |
 | TTL KV + Tag Index | [`ttl_kv_index/`](./ttl_kv_index/) | TTL 存成绝对时间 + get 不惰性过期 → tag 扫描查询 → 倒排索引 |
@@ -29,9 +29,9 @@ Meta 的 AI-Enabled Coding 轮是 **60 分钟、单项目、3–4 个 Checkpoint
 <sample>/
 ├── README.md    # 题面、契约、每个 Phase 的打法与参考算法
 ├── prompts.md   # 逐阶段可复制的 prompt
-├── project/     # 面试开局状态：Phase 1 的 bug 真的埋着，Phase 2/3 是 stub
+├── project/     # 面试开局状态：Phase 1 的 bug 真的埋着，后续 Phase 是 stub
 ├── solution/    # 参考实现
-└── tests/       # spec：Phase1* / Phase2* / Phase3* 三组测试类
+└── tests/       # spec：Phase1* / Phase2* / Phase3*（maze 与 friend_rec 还有 Phase4*）
 ```
 
 ```bash
@@ -58,13 +58,13 @@ python3 -m unittest tests.test_ratelimiter -v
 | 样题 | `project/` 应该红成这样 | `solution/` |
 |------|------------------------|-------------|
 | card_game | 2 FAIL + 17 ERROR / 25 | 25 OK |
-| maze_solver | 2 FAIL + 16 ERROR / 21 | 21 OK |
+| maze_solver | 2 FAIL + 27 ERROR / 32 | 32 OK |
 | max_unique_chars | 3 FAIL + 10 ERROR / 16 | 16 OK |
 | ttl_kv_index | 4 FAIL + 11 ERROR / 20 | 20 OK |
 | ttl_kv_index_c++ | 4 FAIL + 11 ERROR / 20 | 20 OK |
 | friend_recommendation | 2 FAIL + 17 ERROR / 24 | 24 OK |
 
-FAIL 是 Phase 1 埋的真 bug，ERROR 是 Phase 2/3 还没实现的 `NotImplementedError`。
+FAIL 是 Phase 1 埋的真 bug，ERROR 是后续 Phase 还没实现的 `NotImplementedError`。
 
 ## 练习方式
 

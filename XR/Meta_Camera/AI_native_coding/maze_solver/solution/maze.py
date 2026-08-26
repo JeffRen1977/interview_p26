@@ -4,7 +4,19 @@ from __future__ import annotations
 
 from typing import Dict, Iterator, List, Optional
 
-from grid import DIRECTIONS, END, GATES, KEYS, START, WALL, Coord, key_bit, parse_grid
+from grid import (
+    DEFAULT_COST,
+    DIRECTIONS,
+    END,
+    GATES,
+    KEYS,
+    START,
+    TERRAIN_COST,
+    WALL,
+    Coord,
+    key_bit,
+    parse_grid,
+)
 
 
 class Maze:
@@ -69,6 +81,26 @@ class Maze:
             nxt = coord.shifted(dr, dc)
             if self.is_open(nxt, keys_mask):
                 yield nxt
+
+    def raw_neighbors(self, coord: Coord) -> Iterator[Coord]:
+        """Every in-bounds 4-neighbour, walls included, in DIRECTIONS order.
+
+        Phase 4 needs to *see* walls in order to decide whether to bomb one.
+        """
+        for dr, dc in DIRECTIONS:
+            nxt = coord.shifted(dr, dc)
+            if self.in_bounds(nxt):
+                yield nxt
+
+    def terrain_cost(self, coord: Coord) -> int:
+        """Energy to step into `coord`. Says nothing about whether it is passable."""
+        return TERRAIN_COST.get(self.at(coord), DEFAULT_COST)
+
+    def is_bombable(self, coord: Coord) -> bool:
+        """True iff `coord` is an *interior* wall. The outer border is bedrock."""
+        if not self.in_bounds(coord) or not self.is_wall(coord):
+            return False
+        return 0 < coord.row < self.rows - 1 and 0 < coord.col < self.cols - 1
 
     @property
     def all_keys_mask(self) -> int:

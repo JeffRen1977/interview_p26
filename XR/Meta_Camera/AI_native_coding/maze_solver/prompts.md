@@ -110,7 +110,73 @@ Do NOT rewrite unless you find a real one.
 
 ---
 
-## Prompt 7 — 收尾 review
+## Prompt 7 — Phase 4：先确认模型，再让它写
+
+面试官抛出炸弹/能量需求时，**第一件事是问清代价模型**，不是开 prompt。确认这四条：
+一步的基础代价、崎岖地形的代价、炸一堵墙的代价与是否消耗预算、外框能不能炸。
+确认完再喂下面这段。
+
+```
+Requirements changed: steps no longer cost the same.
+- entering an open cell costs maze.terrain_cost(cell): '~' is 5, everything
+  else is 1
+- entering an INTERIOR wall costs BOMB_COST and burns one bomb from a total
+  budget passed in as `bombs`; maze.is_bombable is False for the outer frame
+- the start cell is free; cost is charged per step taken
+- keys are still mandatory and gates still need their key
+
+That makes BFS wrong, not just slow: it visits by step count, not by cost, so
+it would return the 5-cell line through the mud over a 7-cell detour that
+costs less.
+
+Task: implement min_energy_path(maze, bombs=0) -> Optional[Tuple[int, List[Coord]]]
+as Dijkstra over (cell, keys_mask, bombs_left).
+Constraints:
+- heapq keyed by accumulated energy; use maze.raw_neighbors so walls are visible
+- The goal test happens when a state is POPPED, not when it is pushed —
+  popping is what settles a state in Dijkstra
+- Replace the visited set with a dist table: re-expand a state only when the
+  new cost is strictly lower
+- Skip stale heap entries (cost > dist[state])
+- Charge the blast on entry so the grid is never mutated and the destroyed set
+  never enters the state
+- bombs < 0 raises ValueError; unreachable -> None
+- Do NOT change maze.py, shortest_path or shortest_path_all_keys
+Return only the new function plus private helpers.
+```
+
+跑：`python3 -m unittest discover -s tests -k Phase4 -v`
+
+---
+
+## Prompt 8 — Phase 4 自检（这条最值钱）
+
+```
+Verify one property without changing code: on a maze with no '~' and bombs=0,
+min_energy_path must return exactly len(shortest_path_all_keys(maze)) - 1 as
+its energy. Explain why that has to hold, and tell me which single line would
+break it if the goal test were done at push time instead of pop time.
+```
+
+期望它说出：所有边权为 1 时 Dijkstra 退化为 BFS，代价 = 步数 = 路径长度 - 1；
+push 时判终点会在"第一次触碰"就返回，而那条路不一定是最便宜的。
+
+---
+
+## Prompt 9 — 半径爆破变体（只问，不写）
+
+```
+Suppose a bomb instead clears every wall within radius R of the cell where it
+is detonated (a get_affected_area(coord, radius) helper is provided). Do NOT
+write code. Explain what that does to the state space of my Dijkstra, and give
+me two modelling choices that keep the search tractable.
+```
+
+期望答案：被摧毁的墙集合进入状态 → 指数级；两条出路是 (a) 只能在当前格引爆且爆开后立即通过，退化回 `bombs_left`；(b) 预计算每个候选爆点连通了哪些区域，搜索在爆点上跑而不是格子上跑。
+
+---
+
+## Prompt 10 — 收尾 review
 
 ```
 Review solver.py and renderer.py against the tests only.
