@@ -1,0 +1,19 @@
+# Dead code that cascades: `extra` feeds nothing, which kills `scratch`,
+# which is the only reader of `t2`.
+
+[costs]
++ = 1
+- = 1
+* = 4
+/ = 10
+
+[expected]
+time = 5
+memory = 1
+
+[program]
+t1 = a + b
+t2 = c * d
+scratch = t2 / 3
+extra = scratch + 1
+res = t1 * 2

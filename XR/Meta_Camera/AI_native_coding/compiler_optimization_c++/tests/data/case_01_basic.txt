@@ -1,0 +1,17 @@
+# Straight-line arithmetic. Nothing to fold, nothing to remove —
+# the optimizer must not "improve" a program that is already minimal.
+
+[costs]
++ = 1
+- = 1
+* = 4
+/ = 10
+
+[expected]
+time = 6
+memory = 2
+
+[program]
+t1 = a + b
+t2 = c * d
+res = t1 - t2

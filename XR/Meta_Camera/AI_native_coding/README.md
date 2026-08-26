@@ -22,6 +22,8 @@ Meta 的 AI-Enabled Coding 轮是 **60 分钟、单项目、3–4 个 Checkpoint
 | TTL KV + Tag Index | [`ttl_kv_index/`](./ttl_kv_index/) | TTL 存成绝对时间 + get 不惰性过期 → tag 扫描查询 → 倒排索引 |
 | TTL KV + Tag Index (C++) | [`ttl_kv_index_c++/`](./ttl_kv_index_c++/) | 同上，C++17：`erase` 替代 `delete`，value 为 `std::string` |
 | Friend Recommendation | [`friend_recommendation/`](./friend_recommendation/) | 4 阶段：校验 bug → 共同好友排序 → precision/recall/coverage → 2-hop 扩展 |
+| Compiler Optimization | [`compiler_optimization/`](./compiler_optimization/) | 4 阶段：用例加载器 bug → 活跃区间分析 → 死代码消除 → 常量折叠 |
+| Compiler Optimization (C++) | [`compiler_optimization_c++/`](./compiler_optimization_c++/) | 同上，C++17：`long long` 折叠、悬空引用、UB 审查 |
 
 除 RateLimiter 外结构一致：
 
@@ -35,15 +37,17 @@ Meta 的 AI-Enabled Coding 轮是 **60 分钟、单项目、3–4 个 Checkpoint
 ```
 
 ```bash
-cd card_game                                    # 或 maze_solver / max_unique_chars / ttl_kv_index / friend_recommendation
+cd card_game     # 或 maze_solver / max_unique_chars / ttl_kv_index
+                 #    friend_recommendation / compiler_optimization
 python3 -m unittest discover -s tests -v                     # 练：测 project/（开局是红的）
 python3 -m unittest discover -s tests -k Phase1 -v           # 只跑当前 Phase
 AINC_IMPL=solution python3 -m unittest discover -s tests -v  # 对答案：测 solution/
 
-# C++ 复刻
-cd ttl_kv_index_c++
+# C++ 复刻（ttl_kv_index_c++ / compiler_optimization_c++ 同一套跑法）
+cd compiler_optimization_c++
 make test                     # 测 project/
 make test IMPL=solution       # 测 solution/
+make test CXXFLAGS="-std=c++17 -g -O1 -fsanitize=address,undefined"   # UB 审查
 ```
 
 RateLimiter 的跑法不同（实现直接在 `project/` 里）：
@@ -63,6 +67,8 @@ python3 -m unittest tests.test_ratelimiter -v
 | ttl_kv_index | 4 FAIL + 11 ERROR / 20 | 20 OK |
 | ttl_kv_index_c++ | 4 FAIL + 11 ERROR / 20 | 20 OK |
 | friend_recommendation | 2 FAIL + 17 ERROR / 24 | 24 OK |
+| compiler_optimization | 2 FAIL + 28 ERROR / 35 | 35 OK |
+| compiler_optimization_c++ | 2 FAIL + 29 ERROR / 36 | 36 OK |
 
 FAIL 是 Phase 1 埋的真 bug，ERROR 是后续 Phase 还没实现的 `NotImplementedError`。
 

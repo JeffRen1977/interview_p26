@@ -160,6 +160,52 @@
 
 ---
 
+## 样题 7：Compiler Optimization — 三地址码的代价分析与优化
+
+题池里**最难的一道**（官方标 Hard，4 个 Checkpoint）。考 **DAG 依赖分析 + 活跃区间**，不考编译器前端。
+
+**工程结构**
+
+- `optimizer_utils.py`：`load_case`（用例加载器）+ `Instr` / `parse_program` / `is_literal`（已给）
+- `compiler_optimizer.py`：`analyze` / `eliminate_dead_code` / `fold_constants` / `optimize`
+- `tests/data/case_*.txt`：每个文件三段 —— 算子 cost 表、**优化后**期望的 `(time, memory)`、程序正文
+
+**程序模型**：`target = left op right`，算子只有 `+ - * /`，**每个变量只赋值一次**（SSA），输出固定是 `res`，从不被赋值的变量是输入。
+
+**Phase 1（Bug Fix）**
+`load_case` 解析错了，导致后面所有测试拿着错的基准比。
+
+**Phase 2（Basic Analyzer）**
+`time` = 带算子指令的 cost 之和（纯拷贝免费）；`memory` = **同时存活的计算值峰值**（寄存器压力），只有赋值目标算数，输入变量和字面量免费，`res` 存活到结尾。
+
+**Phase 3（Dead Code Elimination）**
+从 `res` 反向可达性剪枝，**必须迭代到不动点**。
+
+**Phase 4（Constant Folding）**
+正向传播 `known` 表，两个字面量操作数就地求值并继续往下传。
+
+**陷阱**
+
+- Phase 1 bug #1：`"+ = 1".partition("=")` 的 key 是 `"+ "`，costs 分支忘了 `strip()` 而 expected 分支没忘 —— **同一个 if/elif 两支写法不一致**，所以能活过 code review。后果是 `costs["*"]` 直接 KeyError，而你会以为是 `analyze` 写错了。
+- Phase 1 bug #2：注释过滤只挡了 `startswith("#")`，**行尾注释**活到了 `parse_program` 里变成 5 个 token。修复是 `raw.split("#", 1)[0].strip()` 放在空行判断之前。
+- Phase 2：把 `memory` 写成"目标变量总数"或"含输入变量的同时存在数"。契约是 last-use 区间的最大重叠。**推论：从没被读过又不是 `res` 的目标，花 time 但不占 memory** —— 这也是 DCE 只保证降 time 的原因。
+- Phase 3：用"一趟从后往前扫"而不是 worklist。删掉 `junk` 会让只喂它的 `t2` 跟着变死，**级联**必须迭代到不动点。
+- Phase 4 最大的坑：**整数除法要向零截断（C 语义），不是 Python 的 `//`**。`-7 / 2` 是 -3 不是 -4。写 `abs(a)//abs(b)` 再补符号，**别写 `int(a / b)`**（大整数掉 float）。
+- Phase 4 其二：除以零不折叠，原样输出并把 target 从 `known` 里拿掉。
+- Phase 4 其三：**折叠不删任何指令**，删除是 DCE 的活。而且顺序必须是 **先折叠后 DCE** —— 折叠把 `gain` 的使用点改写成字面量，`gain = k - 2` 才变死；反过来跑就删不掉。
+- 加分点：主动说"整个设计靠单赋值才成立 —— 有分支或重复赋值就得上真正的 dataflow 分析（格 + meet 算子）"；以及"`memory` 是值压力的下界，不等于寄存器分配结果，真实分配还要处理干涉与溢出"。
+
+**C++ 版差异**（[`compiler_optimization_c++/`](./compiler_optimization_c++/)）
+
+- **除法方向不再是坑**：C++ 的整数 `/` 从 C++11 起就保证向零截断，直接写 `a / b` 就对。坑换成了**整数宽度** —— `std::stoi("4000000000")` 抛 `out_of_range`，`int` 运算是有符号溢出 UB，必须 `std::stoll` + `long long`。
+- **新的 UB 面**：worklist 里 `const std::string& name = stack.back();` 再 `pop_back()` 是悬空引用（AI 生成代码的高频错法）；`LLONG_MIN / -1` 溢出要和除零一起挡掉。
+- **异常继承关系**：`std::out_of_range` / `std::invalid_argument` 都继承自 `std::logic_error`，测试 runner 靠这个分类，写自己的测试时要自己 catch。
+- **加分动作**：`make test CXXFLAGS="-std=c++17 -g -O1 -fsanitize=address,undefined"` —— 面试里主动跑 sanitizer，比嘴上说"我会注意 UB"强十倍。
+
+**复刻工程**：[`compiler_optimization/`](./compiler_optimization/)（Python）· [`compiler_optimization_c++/`](./compiler_optimization_c++/)（C++17）
+
+---
+
 ## 可能遇到的同类变体（同一套打法都能覆盖）
 
 | 变体 | Phase 1 常见 bug | Phase 3 常见优化点 |

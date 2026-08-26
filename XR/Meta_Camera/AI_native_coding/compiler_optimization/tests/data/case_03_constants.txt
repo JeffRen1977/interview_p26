@@ -1,0 +1,19 @@
+# Everything is known at compile time. Note `half`: -7 / 2 truncates
+# toward zero, so it is -3. Python's // would say -4.
+
+[costs]
++ = 1
+- = 1
+* = 4
+/ = 10
+
+[expected]
+time = 0
+memory = 1
+
+[program]
+two = 2
+six = two * 3
+neg = 0 - 7
+half = neg / two
+res = half + six

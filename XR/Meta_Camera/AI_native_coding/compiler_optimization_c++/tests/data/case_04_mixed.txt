@@ -1,0 +1,20 @@
+# All three at once, with trailing comments the loader has to strip.
+# This file also uses a different cost model on purpose.
+
+[costs]
++ = 2
+- = 2
+* = 7
+/ = 15
+
+[expected]
+time = 9
+memory = 1
+
+[program]
+k = 4 * 5              # folds to 20
+gain = k - 2           # folds to 18
+noise = a * b          # nothing reads this
+tmp = noise + 1        # nor this
+scaled = pixel * gain  # pixel is an input, so this survives as pixel * 18
+res = scaled + 1
