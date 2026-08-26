@@ -1,14 +1,10 @@
-"""Reference solution — maximise unique characters in a concatenation."""
-
 from __future__ import annotations
 
-from typing import Dict, Iterable, List
-
-from wordlist import sanitize
+from typing import Iterable, List
 
 
 def word_mask(word: str) -> int:
-    """26-bit set of the letters in `word`."""
+    """26-bit set of the letters in `word`. Given — do not reimplement."""
     mask = 0
     for char in word:
         mask |= 1 << (ord(char) - ord("a"))
@@ -16,68 +12,83 @@ def word_mask(word: str) -> int:
 
 
 def popcount(mask: int) -> int:
+    """Given — number of bits set."""
     return bin(mask).count("1")
 
 
 # ----------------------------------------------------------------------
-# Phase 2
+# Phase 2: Backtracking
 # ----------------------------------------------------------------------
 def max_unique_length(words: Iterable[str]) -> int:
-    """Plain take/skip backtracking over sets.
+    """Longest all-distinct-characters concatenation reachable from `words`.
 
-    O(2^n) with a set union per node. Correct, readable, and dead on arrival
-    once the candidate list grows past ~20 words — which is exactly what the
-    Phase 3 stress set does.
+    The input is raw: sanitize it first. Returns 0 for an empty candidate list.
     """
-    candidates = sanitize(words)
+    valid_masks: List[int] = []
+    for w in words:
+        # 自身含有重复字符的单词直接丢弃
+        m = word_mask(w)
+        if popcount(m) == len(w):
+            valid_masks.append(m)
 
-    def search(index: int, used: set) -> int:
-        if index == len(candidates):
-            return len(used)
-        best = search(index + 1, used)
-        letters = set(candidates[index])
-        if not (letters & used):
-            best = max(best, search(index + 1, used | letters))
-        return best
-
-    return search(0, set())
-
-
-# ----------------------------------------------------------------------
-# Phase 3
-# ----------------------------------------------------------------------
-def max_unique_length_fast(words: Iterable[str]) -> int:
-    """Bitmask DP over *reachable letter sets*, not over word subsets.
-
-    The insight the stress set is testing: two different subsets that cover the
-    same letters are the same state. There are at most 2^26 letter sets and in
-    practice far fewer, whereas there are 2^n subsets. Deduplicating on the mask
-    turns "many short words" from 2^66 into a few thousand states.
-
-    Cost: O(#words * #distinct reachable masks), with O(1) compatibility tests
-    (`mask & other`) instead of set unions.
-    """
-    candidates = sanitize(words)
-    if not candidates:
+    if not valid_masks:
         return 0
 
-    # Collapse duplicate words and words that are subsets of nothing new.
-    masks: Dict[int, int] = {}
-    for word in candidates:
-        mask = word_mask(word)
-        masks[mask] = popcount(mask)
+    max_len = 0
+    n = len(valid_masks)
 
+    def backtrack(idx: int, current_mask: int, current_len: int) -> None:
+        nonlocal max_len
+        if current_len > max_len:
+            max_len = current_len
+
+        for i in range(idx, n):
+            mask = valid_masks[i]
+            # 只有没有交集时才可以选取该单词
+            if (current_mask & mask) == 0:
+                backtrack(i + 1, current_mask | mask, current_len + popcount(mask))
+
+    backtrack(0, 0, 0)
+    return max_len
+
+
+# ----------------------------------------------------------------------
+# Phase 3: Fast State Deduplication (DP over reachable masks)
+# ----------------------------------------------------------------------
+def max_unique_length_fast(words: Iterable[str]) -> int:
+    """Same answer as max_unique_length, but it must survive the stress sets.
+
+    Uses bitmask state compression and deduplication over reachable states.
+    """
+    # 1. 过滤并去重相同的 mask
+    unique_masks = set()
+    for w in words:
+        m = word_mask(w)
+        # 单词自身无重复字符
+        if popcount(m) == len(w):
+            unique_masks.add(m)
+
+    if not unique_masks:
+        return 0
+
+    # 2. 状态转移：维护所有可达的无冲突掩码集合
     reachable = {0}
-    best = 0
-    for mask in masks:
-        grown: List[int] = []
+    max_len = 0
+
+    for mask in unique_masks:
+        new_states = []
         for state in reachable:
-            if state & mask:
-                continue
-            combined = state | mask
-            if combined not in reachable:
-                grown.append(combined)
-                if popcount(combined) > best:
-                    best = popcount(combined)
-        reachable.update(grown)
-    return best
+            if (state & mask) == 0:
+                combined = state | mask
+                new_states.append(combined)
+                # 实时更新最大长度
+                cnt = popcount(combined)
+                if cnt > max_len:
+                    max_len = cnt
+                    # 达到英文字母上限 26，直接提前返回
+                    if max_len == 26:
+                        return 26
+
+        reachable.update(new_states)
+
+    return max_len
