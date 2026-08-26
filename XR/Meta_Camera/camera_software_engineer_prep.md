@@ -10,7 +10,7 @@ Preparing for Meta’s loop means mastering the intersection of:
 - **Hardware–software co-design** — SoC / ISP / NPU, MIPI CSI-2, V4L2 / HAL
 - **Strict edge constraints** — thermal envelopes, glass-to-glass latency, battery budgets
 
-> **Camera 领域系统设计（E6 深度）：** [`camera_system_design/`](./camera_system_design/) — 九个场景，每篇都有 §6–§10 的 E6 层（数字预算 / 决策与否定方案 / 失效降级 / **怎么证明它是对的** / 演进与组织）。答题框架和白板速算表在该目录 README。
+> **Camera 领域系统设计（E6 深度）：** [`camera_system_design/`](./camera_system_design/) — 十个场景（01–09 端侧相机 + 10 Stories/Reels 媒体平台），每篇都有 §6–§10 的 E6 层（数字预算 / 决策与否定方案 / 失效降级 / **怎么证明它是对的** / 演进与组织）。答题框架和白板速算表在该目录 README。
 
 > **缺口分析与补充出题预测：** [`additional_questions.md`](./additional_questions.md) — 本清单没覆盖但很可能被问的题（相机–IMU 时间戳对齐、IR LED 亚像素质心、流式包解析、嵌入式 C/C++ 快问快答、调试轮、V4L2 驱动栈、三个新设计场景）。
 
@@ -164,7 +164,7 @@ Cover:
 
 ## 3. Camera domain system design (deep dive)
 
-**四场景完整答题稿（推荐先读）：** [`camera_system_design/`](./camera_system_design/) — 5 步框架 + 多相机 SLAM 同步 + E2E ISP + 眼镜功耗/热 + AI-ISP 混合。
+**四场景完整答题稿（推荐先读）：** [`camera_system_design/`](./camera_system_design/) — 5 步框架 + 多相机 SLAM 同步 + E2E ISP + 眼镜功耗/热 + AI-ISP 混合。媒体平台题另见 [`10-stories-reels-platform.md`](./camera_system_design/10-stories-reels-platform.md)。
 
 This is the decisive round. You will be evaluated on the modern camera stack:
 

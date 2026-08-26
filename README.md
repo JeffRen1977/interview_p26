@@ -32,7 +32,7 @@ Camera Software Engineer 与 AI-Enabled Coding 轮：[`XR/Meta_Camera/`](./XR/Me
 
 - [备考总清单](./XR/Meta_Camera/camera_software_engineer_prep.md)
 - [Embedded C/C++ 电面指南（禁止 AI 的那一轮）](./XR/Meta_Camera/coding_interview_guide.md)
-- [Camera 系统设计九场景](./XR/Meta_Camera/camera_system_design/)
+- [Camera 系统设计十场景](./XR/Meta_Camera/camera_system_design/)
 - [**AI-Enabled Coding 轮打法 + 样题 + 可跑练习工程**](./XR/Meta_Camera/AI_native_coding/)
 
 ## NVIDIA DRIVE 面试

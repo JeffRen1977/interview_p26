@@ -2,7 +2,7 @@
 
 Meta 电面里 Camera **领域系统设计**看的是：端到端 Pipeline、功耗 / 热、延迟、以及你能不能和 Sensor / 算法 / IQ 对着同一套约束把系统落地。
 
-本目录按官方建议的 4 个核心场景 + 5 个补充场景演练。总备考清单：[`../camera_software_engineer_prep.md`](../camera_software_engineer_prep.md)。底层细节仍以仓库笔记为准，这里写的是 **面试口述架构**。
+本目录按官方建议的 4 个核心场景 + 5 个补充场景演练，外加一篇 **SpecSWE 媒体平台**（Stories / Reels 全链路）。总备考清单：[`../camera_software_engineer_prep.md`](../camera_software_engineer_prep.md)。底层细节仍以仓库笔记为准，这里写的是 **面试口述架构**。01–09 是端侧相机；10 是写入/转码/CDN，约束收口的方法相同。
 
 > **GitHub 阅读：** 公式只用 `$...$` / `$$...$$`，数学块内不放中文、`°`、全角括号或 en-dash（`–`），否则网页端 MathJax 会渲染失败。
 
@@ -18,6 +18,7 @@ Meta 电面里 Camera **领域系统设计**看的是：端到端 Pipeline、功
 | 07 | 多客户端相机仲裁与隐私 | [07-camera-arbitration-privacy.md](./07-camera-arbitration-privacy.md) |
 | 08 | 标定系统（产线 → 在线 → OTA） | [08-calibration-system.md](./08-calibration-system.md) |
 | 09 | 相机验证与测试基础设施 | [09-validation-infrastructure.md](./09-validation-infrastructure.md) |
+| 10 | Stories / Reels 全链路影像平台 | [10-stories-reels-platform.md](./10-stories-reels-platform.md) |
 
 每篇的 §1–§5 是架构主线，**§6–§10 是 E6 深度层**（数字预算 / 决策与否定方案 / 失效模式 / 验证 / 演进）。
 
@@ -230,7 +231,7 @@ $$
 
 ---
 
-## 面试时怎么用这九篇
+## 面试时怎么用这十篇
 
 每篇结构都按上面五步 + E6 深度层写。
 

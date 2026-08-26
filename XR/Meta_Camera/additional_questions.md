@@ -174,6 +174,7 @@
 | [07](./camera_system_design/07-camera-arbitration-privacy.md) | 多客户端仲裁与隐私 | 两个正交轴：仲裁是工程问题（抢占延迟最大项是 3A 收敛），**信任不是**——隐私灯必须硬件绑定，且必须在硬件设计评审期推动 |
 | [08](./camera_system_design/08-calibration-system.md) | 标定系统（产线 → 在线 → OTA） | 骨架是**按变化尺度分四类参数**；把节拍翻译成资本支出；建立从 fleet 回到产线的 SPC 反馈回路 |
 | [09](./camera_system_design/09-validation-infrastructure.md) | 相机验证与测试基础设施 | **E6 专属题**。基石是 bit-exact 回放框架（ROI 8×）；元指标是**逃逸归因** |
+| [10](./camera_system_design/10-stories-reels-platform.md) | Stories / Reels 全链路影像平台 | SpecSWE 媒体题：3 PB/day 写入、GOP 级转码吃 3s SLA、Haystack + 预加载吃 200ms TTFF |
 
 **第 09 篇尤其值得准备**：它是唯一一道你可以**主动引出**的题——在任何设计题的"怎么验证"环节说"我会建立 X"，面试官很可能顺势深挖。而绝大多数候选人在这一层是空白的。
 

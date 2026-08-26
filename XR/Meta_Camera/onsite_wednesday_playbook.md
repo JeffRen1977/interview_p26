@@ -588,7 +588,7 @@ From the official guides:
 | This loop | **This file** |
 | 60-min AI-coding muscle | [`AI_native_coding/playbook.md`](./AI_native_coding/playbook.md) |
 | Domain 45-min structure + arithmetic | [`camera_system_design/README.md`](./camera_system_design/README.md) |
-| Nine scenarios | [`camera_system_design/`](./camera_system_design/) |
+| Ten scenarios | [`camera_system_design/`](./camera_system_design/) |
 | 3A math | [`camera/3A.md`](../../camera/3A.md) |
 | Android / HAL3 | [`camera/android_framework.md`](../../camera/android_framework.md) |
 | Sensor / CSI | [`camera/sensor.md`](../../camera/sensor.md) |
