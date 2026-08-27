@@ -4,6 +4,8 @@ Top-level entry for behavioral / leadership interview prep (STAR, TLM, Staff).
 
 | Path | Focus |
 |------|--------|
+| [meta-staff-star.md](./meta-staff-star.md) | **Meta Staff 口述稿**：AF Agent / LSTM 分歧 / 模糊性 / DXO 回归，2.5–3 min STAR |
+| [行为.md](./行为.md) | 原始 STAR 素材与路线图笔记 |
 | [../LLM/行为.md](../LLM/行为.md) | Leadership stories, project narrative |
 | [../nvidia/04-行为面-One-Team.md](../nvidia/04-行为面-One-Team.md) | NVIDIA One Team / tech disagreement |
 | [../docs/05-系统设计题与模拟面试.md](../docs/05-系统设计题与模拟面试.md) | STAR template section |

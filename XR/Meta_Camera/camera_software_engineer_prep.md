@@ -273,7 +273,7 @@ Structure every response with **STAR** (Situation, Task, Action, Result). Prefer
 | 4 | Cross-functional alignment | HW / FW / algo / product — who owned what |
 | 5 | (Optional) Mentorship or raising the engineering bar | Test harness, IQ lab, bring-up playbook |
 
-Related: [`behavior/`](../../behavior/).
+Related: [`behavior/`](../../behavior/) · speakable Staff cards: [`behavior/meta-staff-star.md`](../../behavior/meta-staff-star.md).
 
 ---
 

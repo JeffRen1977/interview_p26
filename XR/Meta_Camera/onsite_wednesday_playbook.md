@@ -596,6 +596,7 @@ From the official guides:
 | Frame drops | [`camera/掉帧.md`](../../camera/掉帧.md) · [`additional_questions.md`](./additional_questions.md) §3–4 |
 | OS / ISR flashcards | [`additional_questions.md`](./additional_questions.md) §2 |
 | STAR raw notes | [`behavior/行为.md`](../../behavior/行为.md) |
+| Staff STAR (4 cards, speakable) | [`behavior/meta-staff-star.md`](../../behavior/meta-staff-star.md) |
 | General (longer) prep list | [`camera_software_engineer_prep.md`](./camera_software_engineer_prep.md) |
 
 You already have more notes than you can speak in five interviews. Wednesday is a **performance**: drive the problem, compute one budget, deep-dive one component, tell six stories with numbers.
