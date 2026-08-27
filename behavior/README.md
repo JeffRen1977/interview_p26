@@ -4,6 +4,7 @@ Top-level entry for behavioral / leadership interview prep (STAR, TLM, Staff).
 
 | Path | Focus |
 |------|--------|
+| [meta-staff-core-themes.md](./meta-staff-core-themes.md) | **Meta Staff 6 大核心主题库**：战略规划 / 芯片突破 / XFN / 分歧说服 / 模糊性与调试 / 流程与带人 |
 | [meta-staff-star.md](./meta-staff-star.md) | **Meta Staff 口述稿**：AF Agent / LSTM 分歧 / 模糊性 / DXO 回归，2.5–3 min STAR |
 | [行为.md](./行为.md) | 原始 STAR 素材与路线图笔记 |
 | [../LLM/行为.md](../LLM/行为.md) | Leadership stories, project narrative |
