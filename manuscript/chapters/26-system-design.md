@@ -1,7 +1,7 @@
-# Chapter 25. System Design for Physical AI
+# Chapter 26. System Design for Physical AI
 
 <!-- STATUS: not started. Structure and sources come from PHYSICAL_AI_BOOK_OUTLINE.md. -->
-<!-- Part VIII · target ~7,500 words · 8 figures · readiness: High — restructure existing designs -->
+<!-- Part VIII · target ~7,500 words · 8 figures · readiness: High -->
 <!-- Private source notes (write fresh; never paste): company/openai/*; company/nvidia/01-*; company/amazon/17-* -->
 
 > The model-aware design method: start from the model's compute/memory/latency profile. The constraint checklist: power, thermal, latency, memory, bandwidth, silicon area. Scaling drills adapted for physical AI: 10x cameras, 100x robots, 1000x sensors. Eight fully worked designs.

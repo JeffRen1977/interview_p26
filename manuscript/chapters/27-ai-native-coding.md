@@ -1,7 +1,7 @@
-# Chapter 26. The AI-Enabled Coding Round
+# Chapter 27. The AI-Enabled Coding Round
 
 <!-- STATUS: not started. Structure and sources come from PHYSICAL_AI_BOOK_OUTLINE.md. -->
-<!-- Part VIII · target ~7,500 words · 5 figures · readiness: High — drafted in Chinese, needs English rewrite -->
+<!-- Part VIII · target ~7,500 words · 5 figures · readiness: High -->
 <!-- Private source notes (write fresh; never paste): AI_native_coding/chapter_ai_native_coding.md; AI_native_coding/playbook.md -->
 
 > The format: unfamiliar codebase, AI assistant, time pressure. The thesis: when code is cheap, the scarce skills are specifying and verifying. The method: orient → hypothesize → delegate → verify. Seven practice projects with failing tests (companion repo). What the interviewer watches for: judgment, not speed.

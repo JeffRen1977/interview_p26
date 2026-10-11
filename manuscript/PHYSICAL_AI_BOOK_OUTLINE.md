@@ -171,7 +171,7 @@ Jeff Ren has spent years shipping machine learning on consumer devices under tig
 - Working with hardware teams: the interface between algorithm and RTL
 - *Worked problem:* You're given a 2 mm² budget for an on-chip accelerator. What do you put in it?
 
-### Part VI: Embodied AI (4 chapters)
+### Part VI: Embodied AI and Autonomous Systems (5 chapters)
 
 **Chapter 17. Vision-Language-Action Models**
 - What is a VLA? The architecture: vision encoder + language model + action head
@@ -206,9 +206,23 @@ Jeff Ren has spent years shipping machine learning on consumer devices under tig
 - Drones, AGVs, and industrial robots: where the constraints differ
 - *Worked problem:* Design the perception stack for a delivery robot operating in sidewalk environments
 
+**Chapter 21. Automotive AI: From ADAS to the Software-Defined Vehicle**
+- Why automotive is the highest-stakes Physical AI domain: safety-critical, real-time, mass-production
+- The automotive AI SoC landscape: Qualcomm Snapdragon Ride / Digital Chassis, NVIDIA DRIVE, Mobileye EyeQ, Tesla FSD chip
+- ADAS perception stack on an automotive SoC: camera, radar, LiDAR fusion on a power and thermal budget
+- In-cabin AI: driver monitoring (DMS), occupant monitoring (OMS), gesture, gaze, and voice
+- Digital cockpit: running multimodal LLMs for natural-language vehicle interaction
+- Model deployment pipeline: from cloud training to automotive-grade NPU (QNN/TVM → safety-qualified runtime)
+- Automotive safety standards: ISO 26262 (functional safety), SOTIF, ASIL levels — what they mean for AI
+- OTA model updates: deploying new perception and cockpit models to vehicles in the field
+- The software-defined vehicle thesis: why the car becomes a Physical AI platform
+- *Worked problem:* Design the AI perception and cockpit stack for a next-generation vehicle on a Snapdragon Ride platform — partition workloads across CPU, GPU, NPU, and DSP under a 25W thermal budget
+- *Worked problem:* A DMS model has a 0.1% false-negative rate for drowsiness detection. Is that safe enough? Walk through the safety analysis.
+
 ### Part VII: AI Agents in the Physical World (3 chapters)
 
-**Chapter 21. Edge-Cloud Hybrid Routing**
+**Chapter 22. Edge-Cloud Hybrid Routing**
+
 - The core decision: what runs on-device, what goes to the cloud?
 - Confidence-based cascading: local model scores → threshold → cloud escalation
 - Network-aware routing: RTT estimation, offline fallback, graceful degradation
@@ -216,7 +230,7 @@ Jeff Ren has spent years shipping machine learning on consumer devices under tig
 - Fleet-scale routing: 100K cameras, each making independent routing decisions
 - *Code:* Hybrid routing simulator (Python)
 
-**Chapter 22. Always-On Cascaded Wake Systems**
+**Chapter 23. Always-On Cascaded Wake Systems**
 - The power hierarchy: DSP (µW) → NPU (mW) → AP (W)
 - Wake word detection → intent classification → full model activation
 - Designing for milliwatt budgets: what can run always-on, what must be burst
@@ -224,7 +238,7 @@ Jeff Ren has spent years shipping machine learning on consumer devices under tig
 - Multi-modal always-on: audio + motion + visual change detection
 - *Worked problem:* Design the always-on subsystem for smart glasses with a 2W total budget
 
-**Chapter 23. Agents That Debug the Physical World**
+**Chapter 24. Agents That Debug the Physical World**
 - Why physical-world debugging is an AI problem: multi-modal logs, sensor dumps, simulation traces
 - The architecture: ingestion → gatekeeping → tool-augmented reasoning → routing
 - Knowledge graphs for hardware failure modes
@@ -234,14 +248,14 @@ Jeff Ren has spent years shipping machine learning on consumer devices under tig
 
 ### Part VIII: The Interview Rounds (4 chapters)
 
-**Chapter 24. Coding for Physical AI Roles**
+**Chapter 25. Coding for Physical AI Roles**
 - What's different: C++ is required, not optional
 - Memory management, RAII, move semantics, smart pointers
 - Data structures that matter: ring buffers, memory pools, aligned allocation, bitmaps
 - Common patterns: producer-consumer, event dispatcher, state machines
 - 15 worked problems with full C++ implementations
 
-**Chapter 25. System Design for Physical AI**
+**Chapter 26. System Design for Physical AI**
 - The model-aware design method: start from the model's compute/memory/latency profile
 - The constraint checklist: power, thermal, latency, memory, bandwidth, silicon area
 - Scaling drills adapted for physical AI: 10x cameras, 100x robots, 1000x sensors
@@ -255,14 +269,14 @@ Jeff Ren has spent years shipping machine learning on consumer devices under tig
   7. Perception pipeline for autonomous delivery robot
   8. AI-powered hardware debugging agent
 
-**Chapter 26. AI-Enabled Coding Round**
+**Chapter 27. AI-Enabled Coding Round**
 - The format: unfamiliar codebase, AI assistant, time pressure
 - The thesis: when code is cheap, the scarce skills are specifying and verifying
 - The method: orient → hypothesize → delegate → verify
 - 7 practice projects with failing tests (companion repo)
 - What the interviewer watches for: judgment, not speed
 
-**Chapter 27. Behavioral Stories for Physical AI Leaders**
+**Chapter 28. Behavioral Stories for Physical AI Leaders**
 - The theme library method: 6 themes, each with a STAR story and a trade-off
 - Reframing hardware/embedded stories for AI leadership signals
 - Staff-level delivery: technical depth, systemic impact, quantifiable results
@@ -308,7 +322,7 @@ Jeff Ren has spent years shipping machine learning on consumer devices under tig
 
 ## Estimated scope
 
-~27 chapters + 3 appendices · ~135,000 words (~450 pages) · ~120 figures
+~28 chapters + 3 appendices · ~140,000 words (~470 pages) · ~125 figures
 
 ---
 
@@ -334,10 +348,11 @@ Jeff Ren has spent years shipping machine learning on consumer devices under tig
 | Ch 18 (Sim-to-real) | `embodied_AI/embodied_ai_interview_guide.md` |
 | Ch 19 (Robot perception) | `embodied_AI/embodied_ai_interview_guide.md` |
 | Ch 20 (Autonomous) | `company/nvidia/03-AV*`, `company/nvidia/01-系统设计.md` |
-| Ch 21 (Hybrid routing) | `company/openai/hybrid-sensor-routing.md` |
-| Ch 22 (Always-on) | `company/openai/smart-glasses-ai-runtime.md`, `company/openai/realtime-voice-assistant.md` |
-| Ch 23 (Debug agents) | `behavior/meta-staff-star.md` (AF triage agent), `AI_native_coding/` |
-| Ch 24 (Coding) | `c++/*`, `leetcode/*`, `company/amazon/examples/*` |
-| Ch 25 (System design) | `company/openai/`, `company/nvidia/01-*`, `company/amazon/17-*` |
-| Ch 26 (AI-enabled coding) | `AI_native_coding/chapter_ai_native_coding.md`, `AI_native_coding/playbook.md` |
-| Ch 27 (Behavioral) | `behavior/meta-staff-*.md` (reframed for Physical AI) |
+| Ch 21 (Automotive AI) | `AI_edge/qualcomm_senior_staff_*`, `AI_edge/16-*`; author's Qualcomm automotive AI experience |
+| Ch 22 (Hybrid routing) | `company/openai/hybrid-sensor-routing.md` |
+| Ch 23 (Always-on) | `company/openai/smart-glasses-ai-runtime.md`, `company/openai/realtime-voice-assistant.md` |
+| Ch 24 (Debug agents) | `behavior/meta-staff-star.md` (AF triage agent), `AI_native_coding/` |
+| Ch 25 (Coding) | `c++/*`, `leetcode/*`, `company/amazon/examples/*` |
+| Ch 26 (System design) | `company/openai/`, `company/nvidia/01-*`, `company/amazon/17-*` |
+| Ch 27 (AI-enabled coding) | `AI_native_coding/chapter_ai_native_coding.md`, `AI_native_coding/playbook.md` |
+| Ch 28 (Behavioral) | `behavior/meta-staff-*.md` (reframed for Physical AI) |

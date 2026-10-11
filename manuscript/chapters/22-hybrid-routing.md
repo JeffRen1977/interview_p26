@@ -1,7 +1,7 @@
-# Chapter 21. Edge-Cloud Hybrid Routing
+# Chapter 22. Edge-Cloud Hybrid Routing
 
 <!-- STATUS: not started. Structure and sources come from PHYSICAL_AI_BOOK_OUTLINE.md. -->
-<!-- Part VII · target ~4,500 words · 4 figures · readiness: High — restructure existing material -->
+<!-- Part VII · target ~4,500 words · 4 figures · readiness: High -->
 <!-- Private source notes (write fresh; never paste): company/openai/hybrid-sensor-routing.md -->
 
 > The core decision: what runs on-device, what goes to the cloud? Confidence-based cascading: local model scores → threshold → cloud escalation. Network-aware routing: RTT estimation, offline fallback, graceful degradation. Cost model: cloud API cost × call rate vs on-device power × battery life. Fleet-scale routing: 100K cameras, each making independent routing decisions.

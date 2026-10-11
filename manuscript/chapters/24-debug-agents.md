@@ -1,7 +1,7 @@
-# Chapter 23. Agents That Debug the Physical World
+# Chapter 24. Agents That Debug the Physical World
 
 <!-- STATUS: not started. Structure and sources come from PHYSICAL_AI_BOOK_OUTLINE.md. -->
-<!-- Part VII · target ~4,500 words · 4 figures · readiness: High — based on author's direct experience -->
+<!-- Part VII · target ~4,500 words · 4 figures · readiness: High -->
 <!-- Private source notes (write fresh; never paste): behavior/meta-staff-star.md (AF triage agent); AI_native_coding/ -->
 
 > Why physical-world debugging is an AI problem: multi-modal logs, sensor dumps, simulation traces. The architecture: ingestion → gatekeeping → tool-augmented reasoning → routing. Knowledge graphs for hardware failure modes. Modular skills: each sub-team owns a diagnostic skill. From hallucination to grounded diagnosis: constraining inputs, not prompting harder.

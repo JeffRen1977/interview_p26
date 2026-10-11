@@ -2,7 +2,7 @@
 
 *Building AI Systems That Perceive, Reason, and Act in the Physical World*
 
-8 parts · 27 chapters · 3 appendices · ~135,000 words (~450 printed pages) · ~120 original figures
+8 parts · 28 chapters · 3 appendices · ~140,000 words (~470 printed pages) · ~125 original figures
 
 Sample chapters are marked ★.
 
@@ -166,9 +166,9 @@ Questions the chapter prepares the reader to answer: *When should compute move f
 
 ---
 
-## Part VI — Embodied AI
+## Part VI — Embodied AI and Autonomous Systems
 
-*AI that moves things: VLA models, sim-to-real transfer, robot perception and control, and autonomous systems.*
+*AI that moves things: VLA models, sim-to-real transfer, robot perception and control, autonomous systems, and the automotive AI platform.*
 
 ### Chapter 17. Vision-Language-Action Models
 
@@ -202,13 +202,21 @@ Questions the chapter prepares the reader to answer: *Walk through the AV stack 
 
 ~4,500 words · 5 figures
 
+### Chapter 21. Automotive AI: From ADAS to the Software-Defined Vehicle
+
+Why automotive is the highest-stakes Physical AI domain: safety-critical, real-time, mass-production. The automotive AI SoC landscape (Qualcomm Snapdragon Ride / Digital Chassis, NVIDIA DRIVE, Mobileye EyeQ, Tesla FSD chip). ADAS perception on an automotive SoC: camera, radar, LiDAR fusion under power and thermal budgets. In-cabin AI: driver monitoring (DMS), occupant monitoring (OMS), gesture, gaze, and voice. Digital cockpit: running multimodal LLMs for natural-language vehicle interaction. Model deployment pipeline from cloud training to automotive-grade NPU. Automotive safety standards (ISO 26262, SOTIF, ASIL levels) and what they mean for AI. OTA model updates. The software-defined vehicle thesis.
+
+Questions the chapter prepares the reader to answer: *Design the AI perception and cockpit stack for a next-gen vehicle — partition workloads across CPU, GPU, NPU, and DSP under a 25W thermal budget.* · *What is ISO 26262 and ASIL, and what do they mean for deploying learned models in a vehicle?* · *A DMS model has a 0.1% false-negative rate for drowsiness detection — is that safe enough?* · *Compare Qualcomm Snapdragon Ride, NVIDIA DRIVE, and Mobileye EyeQ.*
+
+~5,000 words · 5 figures
+
 ---
 
 ## Part VII — AI Agents in the Physical World
 
 *AI agents that make decisions about physical things: routing inference between device and cloud, waking up at the right time, and debugging hardware failures.*
 
-### Chapter 21. Edge-Cloud Hybrid Routing
+### Chapter 22. Edge-Cloud Hybrid Routing
 
 The core decision: device or cloud? Confidence-based cascading. Network-aware routing: RTT estimation, offline fallback, graceful degradation. Cost model. Fleet-scale routing for 100K cameras.
 
@@ -216,7 +224,7 @@ Questions the chapter prepares the reader to answer: *When should inference run 
 
 ~4,500 words · 4 figures · Code: hybrid routing simulator (Python)
 
-### Chapter 22. Always-On Cascaded Wake Systems
+### Chapter 23. Always-On Cascaded Wake Systems
 
 The power hierarchy: DSP (µW) → NPU (mW) → AP (W). Wake word → intent → full model. Milliwatt budgets. Voice assistants: AEC, VAD, barge-in, WebRTC. Multi-modal always-on.
 
@@ -224,7 +232,7 @@ Questions the chapter prepares the reader to answer: *Design the always-on subsy
 
 ~4,500 words · 4 figures
 
-### Chapter 23. Agents That Debug the Physical World
+### Chapter 24. Agents That Debug the Physical World
 
 Physical-world debugging as an AI problem: multi-modal logs, sensor dumps, simulation traces. Ingestion → gatekeeping → tool-augmented reasoning → routing. Knowledge graphs for failure modes. Modular skills. From hallucination to grounded diagnosis.
 
@@ -238,25 +246,25 @@ Questions the chapter prepares the reader to answer: *Design a triage agent for 
 
 *The four types of round Physical AI candidates face: coding, system design, AI-enabled coding, and behavioral.*
 
-### Chapter 24. Coding for Physical AI Roles
+### Chapter 25. Coding for Physical AI Roles
 
 C++ is required, not optional. Memory management, RAII, move semantics, smart pointers. Data structures: ring buffers, memory pools, aligned allocation, bitmaps. Patterns: producer-consumer, event dispatcher, state machines. 15 worked problems with full C++ implementations.
 
 ~6,000 words · 3 figures · Code: 15 C++ implementations
 
-### Chapter 25. System Design for Physical AI
+### Chapter 26. System Design for Physical AI
 
 The model-aware design method with the Physical AI constraint checklist. Scaling drills for Physical AI (10x cameras, 100x robots, 1000x sensors). Eight fully worked designs: smart glasses runtime, 100K-camera routing, voice assistant, robot fleet teleoperation, on-device LLM, edge collaborative agent, delivery robot perception, hardware debugging agent.
 
 ~7,500 words · 8 figures
 
-### Chapter 26. The AI-Enabled Coding Round ★
+### Chapter 27. The AI-Enabled Coding Round ★
 
 The format: unfamiliar codebase, AI assistant, time pressure. The thesis: when code is cheap, the scarce skills are specifying and verifying. The method: orient → hypothesize → delegate → verify. Seven practice projects with failing tests. What the interviewer watches for: judgment, not speed.
 
 ~7,500 words · 5 figures · Code: 7 practice projects in companion repo
 
-### Chapter 27. Behavioral Stories for Physical AI Leaders
+### Chapter 28. Behavioral Stories for Physical AI Leaders
 
 The theme library method: 6 themes, each with a STAR story and a trade-off. Reframing hardware/embedded stories for AI leadership signals. Staff-level delivery. Six worked examples: technical roadmap, HW/SW co-design innovation, XFN collaboration, disagreement resolution, debugging ambiguity, engineering process and mentorship.
 

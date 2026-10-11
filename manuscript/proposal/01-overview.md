@@ -2,7 +2,7 @@
 
 **Subtitle:** Building AI Systems That Perceive, Reason, and Act in the Physical World
 **Author:** Jeff Ren
-**Format:** Print and ebook, ~135,000 words (~450 pages), ~120 original figures, companion code repository (Python + C++, MIT license)
+**Format:** Print and ebook, ~140,000 words (~470 pages), ~125 original figures, companion code repository (Python + C++, MIT license)
 **Status:** Proposal with annotated table of contents; sample chapters in progress
 
 ---
@@ -33,7 +33,7 @@ Physical AI is AI that lives in hardware and interacts with the real world: it s
 2. **Full vertical stack.** Sensor physics → ISP → real-time data paths → NPU → model training → inference → agent → actuator, in one book. No other title covers this range.
 3. **Runnable, tested code in two languages.** Core techniques (KV cache, FlashAttention, PagedAttention, GEMM, quantization, lock-free queues, ring buffers, hybrid routing) are implemented in Python and C++ and tested. Systems and on-device roles interview in C++, and most competing books do not.
 4. **Physical AI training.** Pre-training for vision foundation models and world models, and post-training via imitation learning, RL, and diffusion policies — framed for the engineer who needs to understand the training pipeline that produces the model they will deploy.
-5. **Embodied AI coverage.** Four chapters on VLA models, sim-to-real, robot perception and control, and autonomous systems — the topics robotics and Physical AI loops actually ask about.
+5. **Embodied AI and automotive coverage.** Five chapters on VLA models, sim-to-real, robot perception and control, autonomous systems, and automotive AI (ADAS, in-cabin AI, the software-defined vehicle) — the topics robotics, automotive, and Physical AI loops actually ask about.
 6. **From the practitioner who shipped it.** The author comes from the constraint side: shipping ML on consumer devices where memory, latency, power, and silicon area are fixed. That is the perspective Physical AI interviews test.
 
 ## What the reader will be able to do
@@ -49,7 +49,7 @@ Physical AI is AI that lives in hardware and interacts with the real world: it s
 
 ## Structure
 
-Eight parts, 27 chapters, three appendices. See `04-annotated-toc.md`.
+Eight parts, 28 chapters, three appendices. See `04-annotated-toc.md`.
 
 | Part | Chapters | Focus |
 |---|---|---|
@@ -58,6 +58,6 @@ Eight parts, 27 chapters, three appendices. See `04-annotated-toc.md`.
 | III. Training Physical AI Models | 6–8 | Pre-training, post-training and adaptation, data/simulation/evaluation |
 | IV. Inference Foundations | 9–12 | LLM anatomy, attention and KV cache, kernels, ML compilers |
 | V. AI on the Edge | 13–16 | NPU stack, model optimization, LLMs on devices, HW/SW co-design |
-| VI. Embodied AI | 17–20 | VLA models, sim-to-real, robot perception, autonomous systems |
-| VII. AI Agents in the Physical World | 21–23 | Hybrid routing, always-on wake, diagnostic agents |
-| VIII. The Interview Rounds | 24–27 | Coding, system design, AI-enabled coding, behavioral |
+| VI. Embodied AI & Autonomous Systems | 17–21 | VLA models, sim-to-real, robot perception, autonomous systems, automotive AI |
+| VII. AI Agents in the Physical World | 22–24 | Hybrid routing, always-on wake, diagnostic agents |
+| VIII. The Interview Rounds | 25–28 | Coding, system design, AI-enabled coding, behavioral |
