@@ -1,62 +1,63 @@
-# Book Proposal: *From Kernels to Agents*
+# Book Proposal: *Physical AI: From Sensors to Agents*
 
-**Subtitle:** The Engineering Interview for AI Roles
+**Subtitle:** Building AI Systems That Perceive, Reason, and Act in the Physical World
 **Author:** Jeff Ren
-**Format:** Print and ebook, ~147,000 words (~490 pages), ~130 original figures, companion code repository (Python + C++, MIT license)
+**Format:** Print and ebook, ~135,000 words (~450 pages), ~120 original figures, companion code repository (Python + C++, MIT license)
 **Status:** Proposal with annotated table of contents; sample chapters in progress
 
 ---
 
 ## Title
 
-*From Kernels to Agents* describes the range the book covers: from GEMM kernels and KV-cache layouts at the bottom of the stack up to agents, retrieval and evaluation at the top. The subtitle says who it is for.
+*Physical AI: From Sensors to Agents* captures the book's vertical range: from camera sensors, ISP pipelines and NPU kernels at the bottom, up through VLA models, sim-to-real transfer, and edge-cloud agents at the top. The subtitle says what the book teaches.
 
-Alternates, if the publisher prefers a more literal title:
+Alternates, if the publisher prefers:
 
-- *Making Models Run: Interviewing for AI Engineering Roles*
-- *The AI Engineering Interview: Inference, Infrastructure, On-Device, and Agents*
-
-Avoid "AI Systems Interview" in the title: a 2026 self-published book uses *Inside the AI Systems Interview* (see `03-competing-titles.md`).
+- *Physical AI Engineering: From Sensor Pipelines to Embodied Agents*
+- *The Physical AI Stack: Perception, Inference, and Action Under Constraints*
 
 ## The book in one paragraph
 
-Most AI hiring today is not for researchers. It is for engineers who make models run: they serve them to millions of users, shrink them onto phones, keep accelerators fed, and build products and agents around them. The interview loops for these roles have changed faster than the books that prepare people for them. Generic system design has become model-aware system design, where tokens per second and GPU memory are the constraints. Domain rounds probe why decode is memory-bound or how a mobile NPU runs a quantized graph. Some companies have replaced an algorithm round with an AI-enabled coding round, where the candidate works in an unfamiliar codebase with an AI assistant. *From Kernels to Agents* prepares engineers for all of it. It is organized around the questions these loops actually ask, answered at Staff depth, and backed by runnable Python and C++ code that readers can execute, modify and test.
+Physical AI is AI that lives in hardware and interacts with the real world: it sees through cameras, hears through microphones, moves robot arms, drives vehicles, and runs on devices you hold or wear. Its defining challenge is not scale — it is *constraints*. Power budgets measured in milliwatts, latency budgets measured in milliseconds, memory budgets measured in megabytes, silicon area budgets measured in square millimeters. This book teaches engineers how to build, optimize, deploy, and debug AI systems that operate under those constraints. It covers the full vertical stack — from sensor physics and real-time data paths, through pre-training and post-training for Physical AI models, inference internals, NPU deployment and hardware-software co-design, to embodied AI (VLA, sim-to-real, robot perception), autonomous systems, and edge-cloud agents. Every core technique is implemented in tested Python and C++. Design chapters give Staff-level answers with the follow-ups interviewers actually ask, and the interview-round chapters cover coding, system design, the AI-enabled coding round, and behavioral.
 
 ## Why now
 
-- **The job market has moved to AI engineering.** Hiring has shifted from model research toward inference, infrastructure, on-device deployment and AI products. Chip Huyen's *AI Engineering* was the most-read book on the O'Reilly platform in 2025, which shows how large the engineering audience for AI has become.
-- **The loops have changed, and preparation material has not caught up.** Existing interview books cover classic ML system design (recommendation, search) or generative-AI product design at the model level. None cover the systems depth that inference, on-device and accelerator-software teams test. None cover the AI-enabled coding round.
-- **The supply of preparation material is noisy.** Self-published titles and blog posts have multiplied since 2025, but they are mostly Python-only, rarely tested, and not organized around the levels at which candidates are evaluated. A carefully edited book from an established publisher has room to become the standard reference.
+- **Physical AI is the next wave.** NVIDIA's Jensen Huang has called Physical AI the next frontier. Companies like Tesla (Optimus), Figure AI, Physical Intelligence, and dozens of startups are hiring engineers who can bridge AI and hardware. The market for Physical AI engineering talent is growing faster than any other AI segment.
+- **No book covers this stack.** Existing AI books cover cloud-side concerns: LLM serving, RAG, recommendation systems, or ML research. None cover the constraint-first engineering that on-device, robotics, and embedded AI teams test for: NPU deployment, sensor pipelines, hardware-software co-design, VLA models, and sim-to-real transfer.
+- **The interview loops have changed.** AI engineering interviews at frontier labs, chip vendors, robotics companies, and hyperscalers now probe constraint awareness, on-device inference, and embodied AI — topics no interview book covers.
+- **C++ is required, and most AI books are Python-only.** Physical AI roles interview in C++. This book has tested implementations in both languages.
 
 ## What makes this book different
 
-1. **Full-stack range.** One book covers model foundations, inference internals, on-device and edge AI, accelerator software, AI product system design, embodied AI, and the individual interview rounds. Readers targeting any AI engineering archetype find their loop covered, and see how the layers connect.
-2. **Runnable, tested code in two languages.** Core techniques (KV cache, FlashAttention, PagedAttention, GEMM optimization, quantization, lock-free queues, rate limiters, sandboxes, streaming servers) are implemented in Python and C++ and tested against naive reference implementations. Systems and on-device roles interview in C++, and most competing books do not.
-3. **Staff-level answers.** Each design chapter includes the answer flow, the 10x/100x scaling drill, the follow-ups interviewers ask next, and 60-second and 3-minute spoken versions. Chapter 2 makes the Senior/Staff/Principal bar explicit.
-4. **The AI-enabled coding round.** The book has a full chapter on the newest interview format, with seven practice projects that start with failing tests. Its thesis runs through the whole book: when code is cheap, the scarce skills are specifying and verifying.
-5. **Patterns, not company folklore.** Interview experience across frontier labs, hyperscalers, GPU and mobile-chip vendors, and consumer-internet companies is distilled into question patterns by role archetype. The book stays accurate when an individual company changes its process.
+1. **Constraint-first.** Every chapter starts from a physical constraint (power, latency, area, bandwidth) and works toward the AI solution, not the other way around. Cloud AI asks "how many GPUs?" Physical AI asks "can this run at 30 Hz on 1.5 watts?"
+2. **Full vertical stack.** Sensor physics → ISP → real-time data paths → NPU → model training → inference → agent → actuator, in one book. No other title covers this range.
+3. **Runnable, tested code in two languages.** Core techniques (KV cache, FlashAttention, PagedAttention, GEMM, quantization, lock-free queues, ring buffers, hybrid routing) are implemented in Python and C++ and tested. Systems and on-device roles interview in C++, and most competing books do not.
+4. **Physical AI training.** Pre-training for vision foundation models and world models, and post-training via imitation learning, RL, and diffusion policies — framed for the engineer who needs to understand the training pipeline that produces the model they will deploy.
+5. **Embodied AI coverage.** Four chapters on VLA models, sim-to-real, robot perception and control, and autonomous systems — the topics robotics and Physical AI loops actually ask about.
+6. **From the practitioner who shipped it.** The author comes from the constraint side: shipping ML on consumer devices where memory, latency, power, and silicon area are fixed. That is the perspective Physical AI interviews test.
 
 ## What the reader will be able to do
 
-- Identify which AI engineering archetype fits them, and prepare efficiently for its loop
-- Estimate FLOPs, memory, bandwidth and latency for a model on given hardware, on a whiteboard
-- Implement attention, the KV cache, FlashAttention-style tiling, top-p sampling and INT8 quantization from scratch, in Python or C++
-- Design LLM serving, streaming, rate limiting, RAG, agents, evaluation and code sandboxes at Staff depth
-- Explain how a model reaches a mobile NPU or a datacenter accelerator, and debug where it goes wrong
-- Work effectively and verifiably in an AI-enabled coding round
-- Deliver behavioral answers that show Staff-level scope
+- Understand the Physical AI stack from sensor to actuator and identify which role archetype fits them
+- Reason about physical constraints (power, thermal, latency, memory, silicon area) on a whiteboard
+- Implement attention, the KV cache, FlashAttention, quantization, and lock-free data structures from scratch, in Python or C++
+- Explain how a model reaches a mobile NPU, and debug where it goes wrong
+- Describe VLA architectures, sim-to-real transfer, and the two-speed planner-controller pattern
+- Design edge-cloud hybrid routing, always-on wake cascades, and diagnostic agents for Physical AI systems
+- Work effectively in an AI-enabled coding round
+- Deliver behavioral answers that show Staff-level scope in Physical AI leadership
 
 ## Structure
 
-Eight parts, 31 chapters, three appendices. See `04-annotated-toc.md`.
+Eight parts, 27 chapters, three appendices. See `04-annotated-toc.md`.
 
 | Part | Chapters | Focus |
 |---|---|---|
-| I. The Landscape | 1–2 | Role archetypes; how loops are scored |
-| II. Model Foundations | 3–7 | Architecture, MoE, decoding, pre-training, post-training |
-| III. Inference Systems | 8–12 | Prefill/decode, KV cache and attention, kernels, quantization, serving |
-| IV. On-Device and Edge AI | 13–15 | NPU stack, LLMs on phones, wearables |
-| V. AI Infrastructure | 16–18 | Accelerator data planes, ML compilers, compute–communication overlap |
-| VI. AI Product System Design | 19–26 | Model-aware design, streaming, rate limiting, RAG, agents, evals, sandboxes, real-time multimodal |
-| VII. Embodied AI | 27 | VLA models, sim-to-real, robot data |
-| VIII. The Rounds | 28–31 | Coding, concurrency, AI-enabled coding, behavioral |
+| I. The Physical AI Landscape | 1–2 | What Physical AI is; the constraint mindset |
+| II. Sensing the Physical World | 3–5 | Perception pipeline, real-time data paths, concurrency |
+| III. Training Physical AI Models | 6–8 | Pre-training, post-training and adaptation, data/simulation/evaluation |
+| IV. Inference Foundations | 9–12 | LLM anatomy, attention and KV cache, kernels, ML compilers |
+| V. AI on the Edge | 13–16 | NPU stack, model optimization, LLMs on devices, HW/SW co-design |
+| VI. Embodied AI | 17–20 | VLA models, sim-to-real, robot perception, autonomous systems |
+| VII. AI Agents in the Physical World | 21–23 | Hybrid routing, always-on wake, diagnostic agents |
+| VIII. The Interview Rounds | 24–27 | Coding, system design, AI-enabled coding, behavioral |

@@ -6,17 +6,17 @@
 
 Dear [Editor name],
 
-I'm writing to propose *From Kernels to Agents: The Engineering Interview for AI Roles*, a ~490-page guide for engineers interviewing for AI engineering roles in inference, AI infrastructure, on-device AI, and AI products.
+I'm writing to propose *Physical AI: From Sensors to Agents*, a ~450-page guide for engineers building AI systems that perceive, reason, and act in the physical world — on phones, wearables, robots, autonomous vehicles, and smart cameras.
 
-AI hiring has moved from researchers to the engineers who make models run, and interview loops have changed with it. System design is now model-aware. Domain rounds ask why decode is memory-bound or how a quantized graph runs on a mobile NPU. Some companies have replaced an algorithm round with an AI-enabled coding round. Existing interview books cover classic ML system design or generative-AI design at the model level. None cover the systems depth these roles test, in the languages they test it in, and none cover the new coding round.
+Physical AI is the next wave of AI engineering. Companies from NVIDIA and Google to Tesla, Figure AI, and Physical Intelligence are hiring engineers who can bridge AI and hardware. But the defining challenge of Physical AI is not scale — it is constraints: power budgets in milliwatts, latency in milliseconds, memory in megabytes, silicon area in square millimeters. No existing book covers the full stack these roles demand.
 
-The book covers the stack end to end: model foundations, inference internals, on-device and accelerator software, and AI product design, including agents, evaluation and code sandboxes. It closes with the individual interview rounds. Every core technique is implemented in tested Python and C++, and design chapters give Staff-level answers with the follow-ups interviewers actually ask.
+This book does. It covers sensor pipelines and real-time data paths, pre-training and post-training for Physical AI models (vision foundation models, world models, imitation learning, diffusion policies), inference internals, NPU deployment and hardware-software co-design, embodied AI (VLA models, sim-to-real, robot perception), autonomous systems, and edge-cloud agents. Every core technique is implemented in tested Python and C++. Design chapters give Staff-level answers with follow-ups, and the interview-round chapters cover C++ coding, Physical AI system design, the AI-enabled coding round, and behavioral.
 
-[One or two sentences on why this publisher: e.g., for Manning, "Its code-first approach and MEAP program suit a book whose chapters are built around runnable implementations"; for O'Reilly, "It would complement *AI Engineering* and *Hands-On LLM Serving and Optimization* for readers preparing to enter those roles."]
+[One or two sentences on why this publisher: e.g., for Manning, "Its code-first approach and MEAP program suit a book whose chapters are built around runnable implementations"; for O'Reilly, "It would be the first title to cover the Physical AI engineering stack for your AI readership."]
 
-I am [one-sentence bio from 07-author-bio.md].
+I am a software engineering manager with 17 years of experience shipping machine learning on consumer devices. At Google, I led Pixel camera autofocus across four generations, co-designed hardware that cut silicon area by 47%, and built an LLM-based triage agent grounded in domain physics. Previously I worked on deep-learning operators at FutureWei and spent nine years at Qualcomm on heterogeneous computing and camera systems.
 
-The attached proposal includes an overview, market and competition analysis, an annotated table of contents for all 31 chapters, specifications and a schedule, and [sample chapter(s)]. I'd welcome the chance to discuss it.
+The attached proposal includes an overview, market and competition analysis, an annotated table of contents for all 27 chapters, specifications and a schedule, and [sample chapter(s)]. I'd welcome the chance to discuss it.
 
 Best regards,
 Jeff Ren

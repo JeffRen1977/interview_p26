@@ -1,4 +1,4 @@
-# Proposal Package — *From Kernels to Agents*
+# Proposal Package — *Physical AI: From Sensors to Agents*
 
 The publisher-facing proposal. Send these in order, or merge them into one document with Pandoc (below).
 
@@ -8,26 +8,26 @@ The publisher-facing proposal. Send these in order, or merge them into one docum
 | 1 | [`01-overview.md`](./01-overview.md) | Title, pitch, why now, differentiators, reader outcomes | Draft |
 | 2 | [`02-audience-and-market.md`](./02-audience-and-market.md) | Readers, prerequisites, market signals, promotion | Draft; **promotion section needs you** |
 | 3 | [`03-competing-titles.md`](./03-competing-titles.md) | Competitor analysis and positioning, with sources | Draft; confirm editions |
-| 4 | [`04-annotated-toc.md`](./04-annotated-toc.md) | Every chapter: abstract, questions, length, figures, code | **Generated**: edit `../build/chapters.py`, then run `python3 manuscript/build/gen.py` |
+| 4 | [`04-annotated-toc.md`](./04-annotated-toc.md) | Every chapter: abstract, questions, length, figures, code | Draft |
 | 5 | [`05-sample-chapters.md`](./05-sample-chapters.md) | Which samples, why, status | Plan; samples not yet written |
 | 6 | [`06-specs-and-schedule.md`](./06-specs-and-schedule.md) | Specifications, schedule, risks, originality statement | Draft |
-| 7 | [`07-author-bio.md`](./07-author-bio.md) | Author bio | **Skeleton: needs your facts** |
+| 7 | [`07-author-bio.md`](./07-author-bio.md) | Author bio | **Has [VERIFY] items to check** |
 
 ## Before submitting
 
 - [ ] Fill every [FILL] and [VERIFY] in `07-author-bio.md`; clear all metrics for public use
 - [ ] Complete the author platform and promotion section in `02-audience-and-market.md`
-- [ ] Confirm competitor editions; skim *Generative AI System Design Interview* and *Inside the AI Systems Interview*
-- [ ] Finish at least one sample chapter (Ch 30 recommended first) to final quality
-- [ ] Choose target publishers and read each one's proposal guidelines; some have their own template, into which these files map directly
+- [ ] Confirm competitor editions; skim *Inside the AI Systems Interview* directly
+- [ ] Finish at least one sample chapter (Ch 26 recommended first) to final quality
+- [ ] Choose target publishers and read each one's proposal guidelines
 - [ ] Have one outside technical reader review the overview and the sample
 
 ## Target publishers
 
 | Publisher | Fit | Notes |
 |---|---|---|
-| **Manning** | Strong | Hands-on, code-first style; the MEAP early-access program suits a long book delivered in thirds. Publishes Raschka's *Build a Large Language Model (From Scratch)*, which is adjacent, not competing |
-| **O'Reilly** | Strong | Large AI engineering readership (*AI Engineering*). *Hands-On LLM Serving and Optimization* is adjacent; position this book as the interview-structured complement |
+| **Manning** | Strong | Hands-on, code-first style; the MEAP early-access program suits a long book delivered in thirds. No existing Physical AI title |
+| **O'Reilly** | Strong | Large AI engineering readership. Would be the first Physical AI engineering title; complements *AI Engineering* and *Hands-On LLM Serving* |
 | **No Starch Press** | Good | Strong editing, practical tone; a smaller AI list could mean more attention |
 | **Pragmatic Bookshelf / Apress** | Possible | Faster process; smaller reach in this category |
 

@@ -74,73 +74,9 @@ Jeff Ren has spent years shipping machine learning on consumer devices under tig
 - Real-time scheduling: priority inversion, priority inheritance, RT patches
 - *Code:* Thread-safe ring buffer, SPSC queue, bounded blocking queue (C++ and Python)
 
-### Part III: AI on the Edge (4 chapters)
+### Part III: Training Physical AI Models (3 chapters)
 
-**Chapter 6. The NPU Stack**
-- What an NPU is and why it exists: ops/watt vs GPU vs CPU
-- The hardware: MAC arrays, activation buffers, weight SRAM, DMA engines
-- The software stack: from ONNX/TFLite to compiler IR to hardware instructions
-- Vendor stacks: Qualcomm QNN/HTP, Apple ANE, Google TPU (Pixel), MediaTek APU, Samsung NPU
-- How to think about NPU programming without vendor docs
-- *Worked problem:* A model runs 3x slower than expected on the NPU. Debug it.
-
-**Chapter 7. Model Optimization for Devices**
-- Quantization: PTQ, QAT, INT8, INT4, mixed precision
-- Why quantization is not just "make the numbers smaller" — accuracy cliffs, per-channel vs per-tensor, calibration
-- Pruning, distillation, and architecture search for edge
-- Operator fusion and graph optimization
-- Profiling: how to find the bottleneck (compute-bound vs memory-bound vs launch-bound)
-- *Code:* INT8 quantization from scratch (Python + C++), operator fusion example
-
-**Chapter 8. LLMs on Phones and Wearables**
-- The memory wall: why a 7B model doesn't fit, and what you do about it
-- KV cache management under fixed memory: block allocation, eviction, prefix sharing
-- Speculative decoding on device: draft model on NPU, verify on cloud
-- Power-aware inference: burst vs sustained, thermal throttling, battery-life SLA
-- *Worked problem:* Run a 3B-parameter model on a phone with 6 GB RAM, targeting 30 tokens/s decode and < 500 ms TTFT
-
-**Chapter 9. Hardware-Software Co-Design**
-- The thesis: the best optimization is the one you never have to make at runtime
-- Co-designing the algorithm and the silicon: the PDAF case study (47% area reduction)
-- Moving compute from AP to dedicated hardware: when and why
-- Fixed-function vs programmable: the trade-off space
-- Working with hardware teams: the interface between algorithm and RTL
-- *Worked problem:* You're given a 2 mm² budget for an on-chip accelerator. What do you put in it?
-
-### Part IV: Inference Foundations (4 chapters)
-
-**Chapter 10. LLM Anatomy for Physical AI Engineers**
-- Transformer architecture: what you need to know, and what you can skip
-- Attention, MLP, layer norm, embeddings — the compute and memory profile of each
-- MoE: why it matters for edge (route to a smaller expert)
-- Decoding: autoregressive generation, top-k, top-p, temperature
-- *Why this is in a Physical AI book:* LLMs are now part of the robot stack (VLA), the wearable stack (voice assistants), and the IoT stack (edge agents)
-
-**Chapter 11. Attention, KV Cache, and Memory**
-- The KV cache: what it is, why it dominates memory, how to manage it
-- FlashAttention: tiling to stay in SRAM
-- PagedAttention: virtual memory for the KV cache
-- Grouped-query attention and multi-query attention: trading compute for memory
-- *Code:* KV cache implementation, FlashAttention from scratch, PagedAttention (Python + C++)
-
-**Chapter 12. Kernels and GPU Programming**
-- GEMM: the operation that dominates inference
-- Memory hierarchy: registers → shared memory → L2 → HBM
-- Tiling, coalescing, and occupancy
-- Kernel fusion: why fused kernels win
-- Profiling with nsight / rocprof
-- *Code:* Tiled GEMM (C++), fused attention kernel sketch
-
-**Chapter 13. ML Compilers and Graph Runtimes**
-- What an ML compiler does: graph lowering, operator scheduling, memory planning
-- TVM, XLA, TensorRT, ExecuTorch, ONNX Runtime, QNN
-- Tensor lifetime analysis and memory planning for fixed-budget devices
-- The compilation pipeline: ONNX → graph IR → schedule → codegen → binary
-- *Worked problem:* A compiled model uses 1.8 GB peak memory. The device has 1.2 GB available. Reduce it without changing the model.
-
-### Part V: Training Physical AI Models (3 chapters)
-
-**Chapter 14. Pre-Training for Physical AI**
+**Chapter 6. Pre-Training for Physical AI**
 - Why Physical AI models need their own pre-training: the data is not text
 - Vision foundation models: pre-training on images and video (DINOv2, SigLIP, VideoMAE)
 - Multi-modal pre-training: aligning vision, language, and proprioception in a shared embedding space
@@ -150,7 +86,7 @@ Jeff Ren has spent years shipping machine learning on consumer devices under tig
 - *Why this is different from LLM pre-training:* multi-modal inputs, action-conditioned prediction, physics grounding, orders of magnitude less data
 - *Worked problem:* Design a pre-training pipeline for a vision-language model that will be fine-tuned into a VLA
 
-**Chapter 15. Post-Training and Adaptation**
+**Chapter 7. Post-Training and Adaptation**
 - Fine-tuning foundation models for physical tasks: from general vision to robot manipulation
 - Imitation learning as post-training: behavior cloning, DAgger, and their failure modes
 - Reinforcement learning on top of pre-trained representations: reward design is the hard part
@@ -161,7 +97,7 @@ Jeff Ren has spent years shipping machine learning on consumer devices under tig
 - On-device fine-tuning and personalization: LoRA and adapter layers under memory constraints
 - *Worked problem:* You have a pre-trained VLM and 50 hours of teleoperation data. Design the post-training pipeline to produce a manipulation policy.
 
-**Chapter 16. Data, Simulation, and Evaluation**
+**Chapter 8. Data, Simulation, and Evaluation**
 - The data bottleneck: why robot data is scarce and expensive, and what to do about it
 - Teleoperation pipelines: ALOHA, bimanual rigs, VR controllers — hardware and software
 - Synthetic data from simulation: Isaac Sim, MuJoCo, procedural scene generation
@@ -170,6 +106,70 @@ Jeff Ren has spent years shipping machine learning on consumer devices under tig
 - Offline metrics vs real-world success rate: what correlates and what doesn't
 - Benchmarks: LIBERO, RLBench, Meta-World, BridgeData — what each measures and what it hides
 - *Worked problem:* You have 10 hours of demonstrations and budget for 50 more. Design the data collection strategy.
+
+### Part IV: Inference Foundations (4 chapters)
+
+**Chapter 9. LLM Anatomy for Physical AI Engineers**
+- Transformer architecture: what you need to know, and what you can skip
+- Attention, MLP, layer norm, embeddings — the compute and memory profile of each
+- MoE: why it matters for edge (route to a smaller expert)
+- Decoding: autoregressive generation, top-k, top-p, temperature
+- *Why this is in a Physical AI book:* LLMs are now part of the robot stack (VLA), the wearable stack (voice assistants), and the IoT stack (edge agents)
+
+**Chapter 10. Attention, KV Cache, and Memory**
+- The KV cache: what it is, why it dominates memory, how to manage it
+- FlashAttention: tiling to stay in SRAM
+- PagedAttention: virtual memory for the KV cache
+- Grouped-query attention and multi-query attention: trading compute for memory
+- *Code:* KV cache implementation, FlashAttention from scratch, PagedAttention (Python + C++)
+
+**Chapter 11. Kernels and GPU Programming**
+- GEMM: the operation that dominates inference
+- Memory hierarchy: registers → shared memory → L2 → HBM
+- Tiling, coalescing, and occupancy
+- Kernel fusion: why fused kernels win
+- Profiling with nsight / rocprof
+- *Code:* Tiled GEMM (C++), fused attention kernel sketch
+
+**Chapter 12. ML Compilers and Graph Runtimes**
+- What an ML compiler does: graph lowering, operator scheduling, memory planning
+- TVM, XLA, TensorRT, ExecuTorch, ONNX Runtime, QNN
+- Tensor lifetime analysis and memory planning for fixed-budget devices
+- The compilation pipeline: ONNX → graph IR → schedule → codegen → binary
+- *Worked problem:* A compiled model uses 1.8 GB peak memory. The device has 1.2 GB available. Reduce it without changing the model.
+
+### Part V: AI on the Edge (4 chapters)
+
+**Chapter 13. The NPU Stack**
+- What an NPU is and why it exists: ops/watt vs GPU vs CPU
+- The hardware: MAC arrays, activation buffers, weight SRAM, DMA engines
+- The software stack: from ONNX/TFLite to compiler IR to hardware instructions
+- Vendor stacks: Qualcomm QNN/HTP, Apple ANE, Google TPU (Pixel), MediaTek APU, Samsung NPU
+- How to think about NPU programming without vendor docs
+- *Worked problem:* A model runs 3x slower than expected on the NPU. Debug it.
+
+**Chapter 14. Model Optimization for Devices**
+- Quantization: PTQ, QAT, INT8, INT4, mixed precision
+- Why quantization is not just "make the numbers smaller" — accuracy cliffs, per-channel vs per-tensor, calibration
+- Pruning, distillation, and architecture search for edge
+- Operator fusion and graph optimization
+- Profiling: how to find the bottleneck (compute-bound vs memory-bound vs launch-bound)
+- *Code:* INT8 quantization from scratch (Python + C++), operator fusion example
+
+**Chapter 15. LLMs on Phones and Wearables**
+- The memory wall: why a 7B model doesn't fit, and what you do about it
+- KV cache management under fixed memory: block allocation, eviction, prefix sharing
+- Speculative decoding on device: draft model on NPU, verify on cloud
+- Power-aware inference: burst vs sustained, thermal throttling, battery-life SLA
+- *Worked problem:* Run a 3B-parameter model on a phone with 6 GB RAM, targeting 30 tokens/s decode and < 500 ms TTFT
+
+**Chapter 16. Hardware-Software Co-Design**
+- The thesis: the best optimization is the one you never have to make at runtime
+- Co-designing the algorithm and the silicon: the PDAF case study (47% area reduction)
+- Moving compute from AP to dedicated hardware: when and why
+- Fixed-function vs programmable: the trade-off space
+- Working with hardware teams: the interface between algorithm and RTL
+- *Worked problem:* You're given a 2 mm² budget for an on-chip accelerator. What do you put in it?
 
 ### Part VI: Embodied AI (4 chapters)
 
@@ -319,17 +319,17 @@ Jeff Ren has spent years shipping machine learning on consumer devices under tig
 | Ch 3 (Perception) | `camera/3A.md`, `camera/sensor.md`, `camera/camera_driver.md` |
 | Ch 4 (Data paths) | `concurrency/spsc_ring_buffer.*`, `company/openai/embedded-sensor-event-loop.md` |
 | Ch 5 (Concurrency) | `concurrency/CHAPTER_CONCURRENCY.md`, `concurrency/*.cpp` |
-| Ch 6 (NPU) | `AI_edge/16-*`, `AI_edge/qualcomm_senior_staff_*` |
-| Ch 7 (Quantization) | `LLM/量化计算.md`, `AI_edge/27-*` |
-| Ch 8 (LLMs on phone) | `AI_edge/27-*`, `company/openai/smart-glasses-ai-runtime.md` |
-| Ch 9 (Co-design) | `behavior/meta-staff-core-themes.md` (stories 1–2), camera HW content |
-| Ch 10 (LLM anatomy) | `LLM/注意力实现.md`, `LLM/MoE.md`, `LLM/softmax.md` |
-| Ch 11 (KV/Flash/Paged) | `LLM/kv_cache.*`, `LLM/flash_attention.*`, `LLM/paged_attention.*` |
-| Ch 12 (Kernels) | `LLM/矩阵乘法.md`, `LLM/LLM算子.md`, `company/microsoft/01-gemm-*` |
-| Ch 13 (ML compilers) | `company/amazon/23-Neuron*`, `LLM/算子融合.md`, `LLM/tensor_lifetime.md` |
-| Ch 14 (Pre-training) | `LLM/预训练.md`, `LLM/LLM训练计算通信重叠与MFU优化.md`; new writing on vision/world models |
-| Ch 15 (Post-training) | `LLM/后训练.md`, `embodied_AI/embodied_ai_interview_guide.md` (imitation learning, RL sections) |
-| Ch 16 (Data/Sim/Eval) | `embodied_AI/embodied_ai_interview_guide.md`, `embodied_AI/ai_data_annotation_engineering_guide.md` |
+| Ch 6 (Pre-training) | `LLM/预训练.md`, `LLM/LLM训练计算通信重叠与MFU优化.md`; new writing on vision/world models |
+| Ch 7 (Post-training) | `LLM/后训练.md`, `embodied_AI/embodied_ai_interview_guide.md` (imitation learning, RL sections) |
+| Ch 8 (Data/Sim/Eval) | `embodied_AI/embodied_ai_interview_guide.md`, `embodied_AI/ai_data_annotation_engineering_guide.md` |
+| Ch 9 (LLM anatomy) | `LLM/注意力实现.md`, `LLM/MoE.md`, `LLM/softmax.md` |
+| Ch 10 (KV/Flash/Paged) | `LLM/kv_cache.*`, `LLM/flash_attention.*`, `LLM/paged_attention.*` |
+| Ch 11 (Kernels) | `LLM/矩阵乘法.md`, `LLM/LLM算子.md`, `company/microsoft/01-gemm-*` |
+| Ch 12 (ML compilers) | `company/amazon/23-Neuron*`, `LLM/算子融合.md`, `LLM/tensor_lifetime.md` |
+| Ch 13 (NPU) | `AI_edge/16-*`, `AI_edge/qualcomm_senior_staff_*` |
+| Ch 14 (Quantization) | `LLM/量化计算.md`, `AI_edge/27-*` |
+| Ch 15 (LLMs on phone) | `AI_edge/27-*`, `company/openai/smart-glasses-ai-runtime.md` |
+| Ch 16 (Co-design) | `behavior/meta-staff-core-themes.md` (stories 1–2), camera HW content |
 | Ch 17 (VLA) | `embodied_AI/embodied_ai_interview_guide.md`, `embodied_AI/18-*` |
 | Ch 18 (Sim-to-real) | `embodied_AI/embodied_ai_interview_guide.md` |
 | Ch 19 (Robot perception) | `embodied_AI/embodied_ai_interview_guide.md` |

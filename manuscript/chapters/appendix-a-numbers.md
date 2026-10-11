@@ -1,5 +1,5 @@
-# Appendix A. Numbers and Formulas
+# Appendix A. Numbers Every Physical AI Engineer Should Know
 
 <!-- STATUS: not started -->
 
-> FLOPs per token, KV-cache size, memory-bandwidth arithmetic, attention complexity, collective costs, latency budgets: one sheet for the night before.
+> Latency numbers (DRAM access, PCIe transfer, NPU inference, cloud round-trip), power numbers (DSP, NPU, GPU, AP, radio), memory numbers (model sizes, KV cache sizes, activation memory), and throughput numbers (tokens/s by model size and hardware). One sheet for the night before.

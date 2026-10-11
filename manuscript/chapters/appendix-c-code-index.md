@@ -1,5 +1,5 @@
-# Appendix C. Code Index
+# Appendix C. Companion Code Index
 
 <!-- STATUS: not started -->
 
-> Every runnable file referenced in the book, with the command that runs it.
+> Every code listing in the book, with language (Python / C++), chapter, and companion-repo path. Every listing runs and passes its tests.

@@ -2,4 +2,4 @@
 
 <!-- STATUS: not started -->
 
-> Loss functions, optimizers, normalization, overfitting and metrics, for systems engineers who have not trained a model in years.
+> Backpropagation, gradient descent, regularization. CNN, RNN/LSTM, Transformer — just enough to follow the chapters. Evaluation metrics: precision, recall, mAP, success rate. For systems and embedded engineers who have not trained a model in years.

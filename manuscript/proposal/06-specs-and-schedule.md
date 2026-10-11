@@ -4,14 +4,14 @@
 
 | Item | Plan |
 |---|---|
-| Length | ~147,500 words (31 chapters + 3 appendices), ~490 printed pages |
-| Chapter length | 3,500–6,000 words; three longer chapters (9, 29, 30) at ~7,500 |
-| Figures | ~130 original figures: architecture diagrams, memory layouts, timelines, rooflines. Editable sources (SVG / draw.io) delivered with the manuscript |
+| Length | ~135,000 words (27 chapters + 3 appendices), ~450 printed pages |
+| Chapter length | 3,500–5,500 words; three longer chapters (10, 25, 26) at ~7,500 |
+| Figures | ~120 original figures: architecture diagrams, memory layouts, sensor pipelines, robot control loops, constraint analysis charts. Editable sources (SVG / draw.io) delivered with the manuscript |
 | Code | Python 3.11+ and C++17. Companion repository under MIT license, with CI that runs every listing on each commit. Listings in the text are 40 lines or fewer, excerpted from tested files |
 | Math | Standard LaTeX notation, used sparingly; every formula is followed by a worked number |
 | Authoring format | Markdown, one file per chapter; converted with Pandoc to the publisher's format (Word, AsciiDoc or LaTeX) |
 | Recurring elements | Each chapter follows the same structure: why interviewers ask, what loops ask, mental model, worked problems, code, in the room, failure modes, exercises |
-| Back matter | Numbers-and-formulas sheet, ML fundamentals refresher, code index, glossary, index |
+| Back matter | Numbers-and-formulas sheet (Physical AI specific: power, latency, memory, throughput), ML fundamentals refresher, code index, glossary, index |
 
 ## Schedule
 
@@ -19,12 +19,12 @@ Dates assume the proposal is submitted in October 2026 and a contract is signed 
 
 | Milestone | Duration | Target |
 |---|---|---|
-| Proposal submitted, with sample Ch 30 | 3 weeks | Mid-October 2026 |
-| Samples Ch 21 and Ch 9 completed (during publisher review) | 6 weeks | Late November 2026 |
+| Proposal submitted, with sample Ch 26 | 3 weeks | Mid-October 2026 |
+| Samples Ch 16 and Ch 10 completed (during publisher review) | 6 weeks | Late November 2026 |
 | Contract signed | Publisher dependent | ~January 2027 |
-| First third (Parts I–III) delivered for technical review | 8 weeks after contract | ~March 2027 |
-| Second third (Parts IV–VI) delivered | 8 weeks | ~May 2027 |
-| Final third (Parts VII–VIII, appendices) delivered | 6 weeks | ~July 2027 |
+| First third (Parts I–III: Landscape, Sensing, Training) delivered for technical review | 8 weeks after contract | ~March 2027 |
+| Second third (Parts IV–VI: Inference, Edge, Embodied AI) delivered | 8 weeks | ~May 2027 |
+| Final third (Parts VII–VIII: Agents, Interview Rounds, Appendices) delivered | 6 weeks | ~July 2027 |
 | Revisions after technical review | 6 weeks | ~September 2027 |
 | Production (copyedit, figures, proofs) | Publisher dependent | — |
 
@@ -34,10 +34,11 @@ Delivering in thirds suits early-access programs (such as Manning MEAP), where c
 
 | Risk | Mitigation |
 |---|---|
-| **The field moves fast**, and specific models and tools date quickly | Chapters teach mechanisms (why decode is memory-bound, why paging fixes fragmentation) and treat current models and tools as examples. Fast-moving specifics are confined to marked sidebars that are easy to update in later editions. The companion repo can be updated between editions. |
+| **The field moves fast**, particularly in embodied AI and VLA models | Chapters teach mechanisms (why constraints matter, how tiling exploits memory hierarchy, what makes sim-to-real hard) and treat current models and tools as examples. Fast-moving specifics are confined to marked sidebars. The companion repo can be updated between editions. |
+| **Physical AI is broad** — scope creep risk | The out-of-scope list is fixed: research-scientist loops, recommendation and ranking, cloud-native system design (RAG, rate limiting, streaming backends, sandboxes). |
 | **Interview formats change** | The book is organized by skill and role archetype, not by company. Chapters 1–2 are the only parts tied to current loop structure, and they are short. |
 | **Interview confidentiality** | No question is reproduced from a confidential process. The material is distilled into patterns that are widely discussed publicly. |
-| **Scope creep** (the book tries to cover everything) | The out-of-scope list is fixed: research-scientist loops, recommendation and ranking, computer vision and imaging domain rounds. |
+| **Embodied AI chapters require depth beyond author's shipped experience** | Author has extensive preparation notes from interview loops at robotics companies. Chapters 17–20 are framed around interview questions and engineering trade-offs, not novel research. A technical reviewer from a robotics team will review these chapters. |
 | **Author schedule** | Samples are completed before the contract. The source notes already cover about two thirds of chapters at Medium or High readiness. |
 
 ## Originality
